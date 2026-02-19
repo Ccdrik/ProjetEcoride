@@ -1,0 +1,15 @@
+# Node
+**/node_modules/
+**/dist/
+**/.vite/
+
+# Symfony
+/backend/vendor/
+/backend/var/
+/backend/.env.local
+/backend/.env.*.local
+
+# IDE / OS
+.vscode/
+.DS_Store
+Thumbs.db
