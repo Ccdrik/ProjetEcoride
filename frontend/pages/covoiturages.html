@@ -1,0 +1,70 @@
+<div class="scene-content text-center">
+    <h1>Voyager vert avec EcoRide !</h1>
+    <div class="hero-scene">
+
+    </div>
+    <div class="hero-scene-content">
+
+    </div>
+</div>
+
+
+
+<div class="chauffeur">
+    <img src="../assets/images/avatars/Jose.jpg" alt="José" class="chauffeur-photo">
+    <a href="/trajet" class="btn btn-outline-primary">Détails</a>
+</div>
+
+
+
+
+
+
+<form action="covoiturages.html" method="GET" class="table-center">
+    <div class="table-style">
+        <div class="mt-3">
+            <h2 class="text-center ">Rechercher un trajet</h2>
+        </div>
+
+
+        <div class="input-group mb-3">
+            <span class="input-group-text"><i class="bi bi-geo-alt-fill"></i></span>
+            <input class="form-control " type="text" id="depart" name="depart" required placeholder="Départ">
+        </div>
+
+
+        <div class="input-group mb-3">
+            <span class="input-group-text"><i class="bi bi-geo-alt-fill"></i></span>
+            <input class="form-control " type="text" id="arrivee" name="arrivee" required placeholder="Arrivée">
+        </div>
+
+        <div class="mb-3">
+            <input class="form-control" type="date" id="date" name="date" required placeholder="Date">
+        </div>
+
+        <div class="mb-3">
+            <input class="form-control heure-input" type="time" id="heure" name="heure" required>
+        </div>
+
+        <div class="mb-3">
+            <input class="form-control" type="number" id="places" name="places" min="1" required
+                placeholder="Nombre de places">
+        </div>
+        <div class="input-group mb-3 align-items-center ">
+            <div class="input-group-text">
+                <input class="form-check-input mt-0" type="checkbox" value="1" id="ecologique" name="ecologique">
+            </div>
+            <label class="form-control ps-3" for="ecologique">Voyage écologique 🌱</label>
+        </div>
+
+
+        <button type="submit" class="btn btn-primary mb-3">Rechercher</button>
+    </div>
+</form>
+
+
+<div class="container my-4">
+    <div id="loading" class="text-center my-3 d-none">Chargement…</div>
+    <div id="toast" class="toast-ecoride" aria-live="polite"></div>
+    <div id="trajetsRoot"></div>
+</div>

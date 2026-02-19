@@ -1,0 +1,52 @@
+<div class="hero-scene text-center text-white">
+    <div class="hero-scene-content">
+        <h1>Mes préférences de conduite</h1>
+    </div>
+</div>
+
+
+
+
+
+<form action="/api/preferences" method="POST" class="table-style">
+
+    <!-- Fumeur -->
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="fumeur">Fumeur accepté ?</label>
+        <select class="form-select" id="fumeur" name="fumeur">
+            <option value="1">Oui</option>
+            <option value="0">Non</option>
+        </select>
+    </div>
+
+    <!-- Animaux -->
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="animaux">Animaux acceptés ?</label>
+        <select class="form-select" id="animaux" name="animaux">
+            <option value="1">Oui</option>
+            <option value="0">Non</option>
+        </select>
+    </div>
+
+    <!-- Musique -->
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="musique">Musique pendant le trajet ?</label>
+        <select class="form-select" id="musique" name="musique">
+            <option value="1">Oui</option>
+            <option value="0">Non</option>
+        </select>
+    </div>
+
+    <!-- Préférences personnalisées -->
+    <div class="mb-3">
+        <label for="autres" class="form-label">Autres préférences</label>
+        <textarea class="form-control" id="autres" name="autres" rows="3"
+            placeholder="Ex : Pas de nourriture, silence souhaité, etc."></textarea>
+    </div>
+
+    <!-- Bouton -->
+    <div class="text-center">
+        <button type="submit" class="btn btn-primary">Enregistrer mes préférences</button>
+    </div>
+
+</form>

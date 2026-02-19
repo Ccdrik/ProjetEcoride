@@ -1,0 +1,81 @@
+<div class="hero-scene text-center text-white">
+    <div class="hero-scene-content">
+        <h1>Inscription</h1>
+    </div>
+</div>
+
+
+
+
+<div class="container">
+    <form>
+        <div class="mb-3">
+            <label for="NomInput" class="form-label">Nom</label>
+            <input type="text" class="form-control" id="NomInput" placeholder="Votre nom">
+            <div class="invalid-feedback text-center">
+                Le nom est requis !
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="PrenomInput" class="form-label">Prénom</label>
+            <input type="text" class="form-control" id="PrenomInput" placeholder="Votre prénom">
+            <div class="invalid-feedback text-center">
+                Le prénom est requis !
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="EmailInput" class="form-label">Email</label>
+            <input type="email" class="form-control" id="EmailInput" placeholder="test@mail.fr">
+            <div class="invalid-feedback text-center">
+                Le mail n'est pas valid !
+            </div>
+        </div>
+
+
+        <div class="checkbox-center">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1"
+                    value="option1" />
+                <label class="form-check-label" for="inlineRadio1">Passager</label>
+            </div>
+
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2"
+                    value="option2" />
+                <label class="form-check-label" for="inlineRadio2">Chauffeur</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3"
+                    value="option3" />
+                <label class="form-check-label" for="inlineRadio3">Les Deux</label>
+            </div>
+        </div>
+
+
+
+
+        <div class="mb-3">
+            <label for="PasswordInput" class="form-label">Mot de passe</label>
+            <input type="password" class="form-control" id="PasswordInput">
+            <div class="invalid-feedback text-center">
+                Le mot de pass doit contenir 8 caractères minimuns, comprenant au moins 1 lettre, 1
+                majuscule, 1 miniscule, 1 chiffre et 1 cacaractère special
+            </div>
+            <div class="valid-feedback text-center">
+                Le mot de pass est assez robuste !
+            </div>
+            <div class="mb-3">
+                <label for="ValidatePasswordInput" class="form-label">Confirmez votre mot de passe</label>
+                <input type="password" class="form-control" id="ValidatePasswordInput">
+                <div class="invalid-feedback text-center">
+                    Les mots de pass doivent être identiques !
+                </div>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary" id="btn-validation-inscription">Inscription</button>
+            </div>
+    </form>
+    <div class="text-center pt-3">
+        <a href="/signin">Vous avez deja un compte ? Connectez vous ici ! </a>
+    </div>
+</div>

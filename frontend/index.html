@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Recherchez et trouvez des covoiturages écologiques avec EcoRide.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Hind+Madurai:wght@300;400;500;600;700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+
+
+
+    <title>Document</title>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/">EcoRide</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link " href="/covoiturages">Accès aux co-voiturages</a>
+                        </li>
+                        <li class="nav-item" data-show="chauffeur">
+                            <a class="nav-link" href="/creertrajet">Creation d'un trajet</a>
+                        </li>
+                        <li class="nav-item" data-show="chauffeur">
+                            <a class="nav-link" href="/creertrajet">Modifier mon trajet</a>
+                        </li>
+                        <li class="nav-item" data-show="admin">
+                            <a class="nav-link" href="/espaceadministrateur">Espace Administrateur</a>
+                        </li>
+
+                        <li class="nav-item" data-show="connected">
+                            <a class="nav-link" href="/account">Mon compte</a>
+                        </li>
+                        <li class="nav-item" data-show="disconnected">
+                            <a class="nav-link" href="/signin">Connexion</a>
+                        </li>
+                        <li class="nav-item" data-show="connected">
+                            <button class="nav-link" id="signout-btn">Déconnexion</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main id="main-page">
+    </main>
+    <footer class="bg-dark text-white text-center footer">
+        <div class="row">
+            <div class="col-12 col-lg 4">
+                <h3 class="text-black">Nous contacter</h3>
+                <a href="/contact">contact@ecoride.com</a>
+            </div>
+            <div class="col-12 col-lg 4">
+                <a href="/mentionslegales">Mentions légales</a>
+            </div>
+        </div>
+
+    </footer>
+    <script type="module" src="/main.js"></script>
+
+</body>
+
+</html>
