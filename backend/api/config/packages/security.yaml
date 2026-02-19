@@ -1,0 +1,49 @@
+security:
+    # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
+    password_hashers:
+        App\Entity\Utilisateur: 'auto'
+
+    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\Utilisateur
+                property: email
+
+    firewalls:
+        dev:
+            # Ensure dev tools and static assets are always allowed
+            pattern: ^/(_profiler|_wdt|assets|build)/
+            security: false
+
+        # Firewall pour le login JWT
+        login:
+             pattern: ^/api/login$
+             security: false
+
+        # Firewall principal pour toutes les routes API
+        api:
+            pattern: ^/api
+            stateless: true
+            provider: app_user_provider
+            jwt: ~
+
+    # https://symfony.com/doc/current/security/access_control.html
+    access_control:
+        # Autorise l'accès au login sans authentification
+        - { path: ^/api/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/trajets$, roles: PUBLIC_ACCESS }
+
+        # Toute autre route /api nécessite un token JWT valide
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+
+when@test:
+    security:
+        password_hashers:
+            # Password hashers are resource-intensive by design to ensure security.
+            # In tests, it's safe to reduce their cost to improve performance.
+            App\Entity\Utilisateur:
+                algorithm: auto
+                cost: 4
+                time_cost: 3
+                memory_cost: 10

@@ -1,0 +1,40 @@
+src/
+├─ Entity/
+│  ├─ Utilisateur.php
+│  ├─ Vehicule.php
+│  ├─ Trajet.php
+│  ├─ Reservation.php
+│  └─ TransactionCredit.php
+│
+├─ Repository/
+│  ├─ UtilisateurRepository.php
+│  ├─ VehiculeRepository.php
+│  ├─ TrajetRepository.php
+│  ├─ ReservationRepository.php
+│  └─ TransactionCreditRepository.php
+│
+├─ Controller/
+│  ├─ Api/
+│  │  ├─ TrajetController.php
+│  │  ├─ ReservationController.php
+│  │  └─ TransactionCreditController.php (optionnel)
+│  └─ (Web controllers si tu as des pages Twig)
+│
+├─ Service/
+│  ├─ ReservationService.php
+│  ├─ TrajetService.php (optionnel)
+│  └─ CreditService.php (optionnel)
+│
+├─ DTO/ (optionnel mais très pro)
+│  ├─ ReservationCreateDTO.php
+│  └─ TrajetCreateDTO.php
+│
+├─ Security/
+│  ├─ JwtAuthenticator.php (si JWT)
+│  └─ (Voters/Access si besoin)
+│
+├─ DataFixtures/
+│  └─ AppFixtures.php (données de test)
+│
+└─ migrations/
+   └─ Version2026xxxxxx.php
