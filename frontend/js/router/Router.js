@@ -1,93 +1,121 @@
 import Route from "./Route.js";
 import { allRoutes, websiteName } from "./allRoutes.js";
 
-// Création d'une route pour la page 404 (page introuvable)
+// Route 404
 const route404 = new Route("404", "Page introuvable", "/pages/404.html", []);
 
-// Fonction pour récupérer la route correspondant à une URL donnée
+// Trouver la route qui correspond à l’URL
 const getRouteByUrl = (url) => {
     let currentRoute = null;
-    // Parcours de toutes les routes pour trouver la correspondance
+
     allRoutes.forEach((element) => {
-        if (element.url == url) {
-            currentRoute = element;
-        }
+        if (element.url == url) currentRoute = element;
     });
-    // Si aucune correspondance n'est trouvée, on retourne la route 404
-    if (currentRoute != null) {
-        return currentRoute;
-    } else {
-        return route404;
-    }
+
+    return currentRoute ?? route404;
 };
 
-// Fonction pour charger le contenu de la page
+// Charger le contenu de la page (HTML + JS)
 const LoadContentPage = async () => {
-    // Définir la base de votre application (à ajuster selon votre configuration)
+    // Base URL (utile si ton app est dans un sous-dossier)
     const baseURL = "/";
 
-    // Récupérer le chemin courant et retirer le préfixe de base s'il existe
+    // Récupérer le chemin courant
     let currentPath = window.location.pathname;
+
+    // Retirer baseURL si besoin
     if (currentPath.indexOf(baseURL) === 0) {
         currentPath = currentPath.replace(baseURL, "");
     }
+
+    // Normaliser la racine
     if (currentPath === "" || currentPath === "/") {
         currentPath = "/";
     }
 
+    // Route actuelle
     const actualRoute = getRouteByUrl(currentPath);
 
-    // Vérifier les droits d'accès à la page
+    // ---- Gestion des droits (si ta route a authorize) ----
     const allRolesArray = actualRoute.authorize;
+
     if (allRolesArray.length > 0) {
+        // Cas “disconnected” : page réservée aux non connectés (login/register)
         if (allRolesArray.includes("disconnected")) {
             if (isConnected()) {
                 window.location.replace("/");
+                return;
             }
         } else {
+            // Cas rôles (ADMIN / EMPLOYE / etc.)
             const roleUser = getRole();
             if (!allRolesArray.includes(roleUser)) {
                 window.location.replace("/");
+                return;
             }
         }
     }
 
-    // Récupération du contenu HTML de la route
-    const html = await fetch(actualRoute.pathHtml).then((data) => data.text());
-    // Ajouter le contenu HTML à l'élément avec l'ID "main-page"
-    document.getElementById("main-page").innerHTML = html;
+    // ---- Charger le HTML ----
+    // no-store = évite les vieux HTML en cache pendant le dev
+    const html = await fetch(actualRoute.pathHtml, { cache: "no-store" })
+        .then((data) => data.text());
 
-    // Ajout du contenu JavaScript, si nécessaire
-    if (actualRoute.pathJS != "") {
+    // Injecter le HTML dans ton conteneur
+    const container = document.getElementById("main-page");
+    if (!container) {
+        console.error('Router: élément #main-page introuvable dans index.html');
+        return;
+    }
+    container.innerHTML = html;
+
+    // ---- Charger le JS de la page (si besoin) ----
+    if (actualRoute.pathJS && actualRoute.pathJS !== "") {
         const old = document.getElementById("route-script");
         if (old) old.remove();
-        var scriptTag = document.createElement("script");
+
+        const scriptTag = document.createElement("script");
         scriptTag.setAttribute("id", "route-script");
         scriptTag.setAttribute("type", "module");
         scriptTag.setAttribute("src", actualRoute.pathJS);
-        document.querySelector("body").appendChild(scriptTag);
+        document.body.appendChild(scriptTag);
     }
 
-    // Met à jour le titre de la page
-    document.title = actualRoute.title + " - " + websiteName;
+    // ---- Titre du site ----
+    document.title = `${actualRoute.title} - ${websiteName}`;
 
-    // Afficher et masquer les éléments en fonction du rôle
+    // ---- Afficher/masquer selon rôle (menu, boutons, etc.) ----
     showAndHideElementsForRoles();
+
+    // ---- IMPORTANT : signaler que la route a changé ----
+    // Permet à main.js (ou autre) de lancer un init après injection du HTML
+    window.dispatchEvent(new CustomEvent("route:changed", {
+        detail: {
+            url: actualRoute.url,
+            name: actualRoute.name,
+            title: actualRoute.title,
+        }
+    }));
 };
 
-// Fonction pour gérer les événements de routage (clic sur les liens)
+// Gestion clic sur liens
 const routeEvent = (event) => {
     event = event || window.event;
     event.preventDefault();
-    // Mise à jour de l'URL dans l'historique du navigateur
-    window.history.pushState({}, "", event.target.href);
-    // Chargement du contenu de la nouvelle page
+
+    // event.currentTarget = l’élément qui a le handler (le <a>)
+    // event.target = l’élément cliqué à l’intérieur (icone, span, etc.)
+    const link = event.currentTarget;
+
+    window.history.pushState({}, "", link.href);
     LoadContentPage();
 };
 
-// Gestion de l'événement de retour en arrière dans l'historique du navigateur
+// Back / forward navigateur
 window.onpopstate = LoadContentPage;
-// Assignation de la fonction routeEvent à la propriété route de la fenêtre
+
+// Rendre accessible route() dans le HTML: onclick="route(event)"
 window.route = routeEvent;
-// Chargement du contenu de la page au chargement initial
+
+// Chargement initial
 LoadContentPage();
