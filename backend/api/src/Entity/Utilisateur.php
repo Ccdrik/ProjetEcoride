@@ -6,59 +6,128 @@ use App\Repository\UtilisateurRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
-
+/**
+ * Entité Utilisateur.
+ *
+ * Dans EcoRide, un utilisateur peut être :
+ * - PASSAGER (réserve des trajets)
+ * - CHAUFFEUR (publie des trajets + possède des véhicules)
+ * - EMPLOYE (modère les avis / incidents)
+ * - ADMIN (gère la plateforme + stats + création employés + suspension comptes)
+ *
+ * Je stocke :
+ * - informations personnelles (nom, prénom, email)
+ * - sécurité (mot de passe hashé)
+ * - rôle principal (un rôle simple stocké en base)
+ * - date de création
+ * - solde de crédits
+ *
+ * Et les relations :
+ * - trajets (si chauffeur)
+ * - réservations (si passager)
+ * - véhicules (si chauffeur)
+ * - transactions de crédits (historique des débits/crédits)
+ */
 #[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
 class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
-
 {
+    /**
+     * Identifiant technique (auto-incrémenté).
+     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
+    /**
+     * Nom de famille de l'utilisateur.
+     */
     #[ORM\Column(length: 80)]
     private ?string $nom = null;
 
+    /**
+     * Prénom de l'utilisateur.
+     */
     #[ORM\Column(length: 80)]
     private ?string $prenom = null;
 
+    /**
+     * Email unique : sert aussi d'identifiant de connexion.
+     */
     #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
+    /**
+     * Mot de passe HASHÉ (jamais en clair).
+     * Symfony utilise ce champ via getPassword().
+     */
     #[ORM\Column(length: 255)]
     private ?string $motDePasseHash = null;
 
+    /**
+     * Rôle principal stocké en base.
+     * Exemple : ROLE_ADMIN / ROLE_EMPLOYE / ROLE_PASSAGER / ROLE_CHAUFFEUR.
+     *
+     * Ensuite getRoles() ajoute toujours ROLE_USER.
+     */
     #[ORM\Column(length: 20)]
     private ?string $role = null;
 
+    /**
+     * Date de création du compte.
+     */
     #[ORM\Column]
     private \DateTimeImmutable $dateCreation;
 
+    /**
+     * Solde de crédits (monnaie interne).
+     * Les admins/employés peuvent être initialisés à 999 via fixtures.
+     */
     #[ORM\Column]
     private int $soldeCredits = 0;
 
     /**
+     * Indique si le compte est suspendu par un administrateur (US13).
+     *
+     * Si true :
+     *  - l'utilisateur ne doit plus pouvoir se connecter
+     *  - l'utilisateur ne doit plus pouvoir réserver ou utiliser la plateforme
+     *
+     * Par défaut, un compte est actif (false).
+     */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $isSuspended = false;
+
+    /**
+     * Trajets publiés par cet utilisateur (s'il est chauffeur).
+     *
      * @var Collection<int, Trajet>
      */
     #[ORM\OneToMany(targetEntity: Trajet::class, mappedBy: 'conducteur')]
     private Collection $trajets;
 
     /**
+     * Réservations effectuées par cet utilisateur (s'il est passager).
+     *
      * @var Collection<int, Reservation>
      */
     #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'passager')]
     private Collection $reservations;
 
     /**
+     * Véhicules possédés par cet utilisateur (s'il est chauffeur).
+     *
      * @var Collection<int, Vehicule>
      */
     #[ORM\OneToMany(targetEntity: Vehicule::class, mappedBy: 'proprietaire')]
     private Collection $vehicules;
 
     /**
+     * Historique des transactions de crédits (débit/crédit).
+     *
      * @var Collection<int, TransactionCredit>
      */
     #[ORM\OneToMany(targetEntity: TransactionCredit::class, mappedBy: 'utilisateur')]
@@ -66,12 +135,19 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
+        // Je mets une date de création automatique à la construction.
         $this->dateCreation = new \DateTimeImmutable();
+
+        // Collections Doctrine (relations)
         $this->trajets = new ArrayCollection();
         $this->reservations = new ArrayCollection();
         $this->vehicules = new ArrayCollection();
         $this->transactionsCredits = new ArrayCollection();
     }
+
+    // ==============================
+    // GETTERS / SETTERS
+    // ==============================
 
     public function getId(): ?int
     {
@@ -86,7 +162,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
         return $this;
     }
 
@@ -98,7 +173,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPrenom(string $prenom): static
     {
         $this->prenom = $prenom;
-
         return $this;
     }
 
@@ -110,7 +184,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): static
     {
         $this->email = $email;
-
         return $this;
     }
 
@@ -122,7 +195,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setMotDePasseHash(string $motDePasseHash): static
     {
         $this->motDePasseHash = $motDePasseHash;
-
         return $this;
     }
 
@@ -134,7 +206,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setRole(string $role): static
     {
         $this->role = $role;
-
         return $this;
     }
 
@@ -146,7 +217,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setDateCreation(\DateTimeImmutable $dateCreation): static
     {
         $this->dateCreation = $dateCreation;
-
         return $this;
     }
 
@@ -158,7 +228,23 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setSoldeCredits(int $soldeCredits): static
     {
         $this->soldeCredits = $soldeCredits;
+        return $this;
+    }
 
+    /**
+     * Permet de savoir si le compte est suspendu.
+     */
+    public function isSuspended(): bool
+    {
+        return $this->isSuspended;
+    }
+
+    /**
+     * Permet à l'admin de suspendre ou réactiver un compte.
+     */
+    public function setIsSuspended(bool $isSuspended): static
+    {
+        $this->isSuspended = $isSuspended;
         return $this;
     }
 
@@ -176,7 +262,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
             $this->trajets->add($trajet);
             $trajet->setConducteur($this);
         }
-
         return $this;
     }
 
@@ -187,7 +272,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
                 $trajet->setConducteur(null);
             }
         }
-
         return $this;
     }
 
@@ -205,7 +289,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
             $this->reservations->add($reservation);
             $reservation->setPassager($this);
         }
-
         return $this;
     }
 
@@ -216,7 +299,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
                 $reservation->setPassager(null);
             }
         }
-
         return $this;
     }
 
@@ -234,7 +316,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
             $this->vehicules->add($vehicule);
             $vehicule->setProprietaire($this);
         }
-
         return $this;
     }
 
@@ -245,7 +326,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
                 $vehicule->setProprietaire(null);
             }
         }
-
         return $this;
     }
 
@@ -263,7 +343,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
             $this->transactionsCredits->add($transactionCredit);
             $transactionCredit->setUtilisateur($this);
         }
-
         return $this;
     }
 
@@ -274,23 +353,34 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
                 $transactionCredit->setUtilisateur(null);
             }
         }
-
         return $this;
     }
 
-    // Symfony Security
+    // ==============================
+    // SYMFONY SECURITY
+    // ==============================
 
+    /**
+     * Identifiant utilisé par Symfony Security (ici : email).
+     */
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
-    // (optionnel mais utile pour compat ancienne)
+    /**
+     * Compatibilité éventuelle avec de vieux composants (optionnel).
+     */
     public function getUsername(): string
     {
         return $this->getUserIdentifier();
     }
 
+    /**
+     * Rôles Symfony.
+     * Je stocke un rôle principal en base (champ "role"),
+     * puis j'ajoute toujours ROLE_USER.
+     */
     public function getRoles(): array
     {
         $roles = [];
@@ -305,14 +395,19 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return array_values(array_unique($roles));
     }
 
+    /**
+     * Pas de données sensibles temporaires à effacer (pour l'instant).
+     */
     public function eraseCredentials(): void
     {
         // rien pour le moment
     }
 
+    /**
+     * Symfony récupère le mot de passe via cette méthode.
+     */
     public function getPassword(): ?string
     {
         return $this->motDePasseHash;
     }
 }
-

@@ -10,6 +10,7 @@ use App\Repository\ReservationRepository;
 use App\Repository\TrajetRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -17,14 +18,18 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * Controller API pour gérer les réservations de trajets.
  *
- * Ici j'ai volontairement mis l'essentiel de la logique métier dans ce controller
- * pour que ça soit simple à lire et à expliquer :
+ * J'ai choisi de mettre ici l'essentiel de la logique métier,
+ * pour que ça soit simple à lire / expliquer :
  * - création réservation
  * - décrémentation des places
  * - débit des crédits du passager
- * - création d'une transaction de type DEBIT
- * - annulation + remboursement
+ * - création d'une transaction DEBIT
+ * - annulation + remboursement (transaction CREDIT)
  * - récupération des réservations du user connecté
+ *
+ * Sécurité :
+ * - réserver = ROLE_PASSAGER
+ * - voir mes réservations / annuler = ROLE_USER
  */
 final class ReservationController extends AbstractController
 {
@@ -34,6 +39,7 @@ final class ReservationController extends AbstractController
      *
      * Crée une réservation pour un trajet donné.
      */
+    #[IsGranted('ROLE_PASSAGER')]
     #[Route('/api/trajets/{id}/reservations', name: 'api_trajet_reservation_create', methods: ['POST'])]
     public function creerReservationLegacy(
         int $id,
@@ -56,6 +62,7 @@ final class ReservationController extends AbstractController
      * Endpoint simple pour le front :
      * POST /api/trajets/{id}/reserver
      */
+    #[IsGranted('ROLE_PASSAGER')]
     #[Route('/api/trajets/{id}/reserver', name: 'api_trajet_reserver', methods: ['POST'])]
     public function reserverDepuisTrajet(
         int $id,
@@ -81,6 +88,7 @@ final class ReservationController extends AbstractController
      * Body attendu :
      * { "trajetId": 1, "nbPlaces": 2 }
      */
+    #[IsGranted('ROLE_PASSAGER')]
     #[Route('/api/reservations', name: 'api_reservation_create', methods: ['POST'])]
     public function creerReservation(
         Request $request,
@@ -109,6 +117,7 @@ final class ReservationController extends AbstractController
      *
      * Renvoie toutes les réservations du passager connecté.
      */
+    #[IsGranted('ROLE_USER')]
     #[Route('/api/reservations/moi', name: 'api_reservations_moi', methods: ['GET'])]
     public function listerMesReservations(ReservationRepository $repo): JsonResponse
     {
@@ -140,11 +149,13 @@ final class ReservationController extends AbstractController
     /**
      * DELETE /api/reservations/{id}
      *
-     * Annule une réservation (si elle appartient au user connecté) et :
-     * - remet les places restantes sur le trajet
-     * - rembourse les crédits
-     * - crée une transaction de type CREDIT
+     * Annule une réservation si elle appartient à l'utilisateur connecté :
+     * - statut -> ANNULEE
+     * - places du trajet remises
+     * - crédits remboursés
+     * - transaction CREDIT créée (trace financière)
      */
+    #[IsGranted('ROLE_USER')]
     #[Route('/api/reservations/{id}', name: 'api_reservation_annuler', methods: ['DELETE'])]
     public function annulerReservation(
         int $id,
@@ -166,7 +177,7 @@ final class ReservationController extends AbstractController
             return $this->json(['message' => 'Interdit : réservation non propriétaire'], 403);
         }
 
-        // Éviter double annulation
+        // Éviter une double annulation
         if ($reservation->getStatut() === 'ANNULEE') {
             return $this->json(['message' => 'Réservation déjà annulée'], 409);
         }
@@ -188,7 +199,7 @@ final class ReservationController extends AbstractController
         // 3) On rembourse les crédits
         $utilisateur->setSoldeCredits(((int)$utilisateur->getSoldeCredits()) + $prixTotal);
 
-        // 4) On trace le remboursement avec une transaction CREDIT
+        // 4) On trace le remboursement
         $transaction = (new TransactionCredit())
             ->setUtilisateur($utilisateur)
             ->setReservation($reservation)
@@ -218,14 +229,13 @@ final class ReservationController extends AbstractController
     }
 
     /**
-     * Méthode centrale : applique toutes les règles et fait les écritures en base.
-     * - vérifie user connecté
-     * - vérifie places / statut
-     * - vérifie crédits
-     * - crée réservation
-     * - décrémente places
-     * - débite crédits
-     * - crée transaction DEBIT
+     * Méthode centrale : applique toutes les règles et fait les écritures en base :
+     * - user connecté
+     * - nbPlaces ok
+     * - trajet OUVERT
+     * - places restantes suffisantes
+     * - crédits suffisants
+     * - création réservation + transaction DEBIT
      */
     private function effectuerReservation(Trajet $trajet, int $nbPlaces, EntityManagerInterface $em): JsonResponse
     {
@@ -249,6 +259,7 @@ final class ReservationController extends AbstractController
             ], 409);
         }
 
+        // On empêche le conducteur de réserver son propre trajet
         if ($trajet->getConducteur()?->getId() === $utilisateur->getId()) {
             return $this->json(['message' => 'Le conducteur ne peut pas réserver son propre trajet'], 409);
         }
@@ -307,8 +318,8 @@ final class ReservationController extends AbstractController
     }
 
     /**
-     * Petite méthode utilitaire : lire le body JSON de la requête.
-     * Je la centralise pour éviter de répéter du code dans chaque endpoint.
+     * Méthode utilitaire : lire le JSON du body.
+     * Je la centralise pour éviter de dupliquer du code.
      */
     private function lireJson(Request $request): array
     {

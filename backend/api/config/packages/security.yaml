@@ -1,47 +1,110 @@
 security:
-    # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
+
+    # ==========================================================
+    # 1) HASH DES MOTS DE PASSE
+    # ==========================================================
+    # Je laisse Symfony choisir automatiquement l'algorithme le plus sécurisé
+    # dispo sur le serveur (c’est le plus simple et le plus safe).
     password_hashers:
         App\Entity\Utilisateur: 'auto'
 
-    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+
+    # ==========================================================
+    # 2) PROVIDER (comment Symfony retrouve un utilisateur)
+    # ==========================================================
+    # Ici je dis à Symfony : "mon utilisateur est une entité Doctrine,
+    # et je le retrouve grâce au champ email".
     providers:
         app_user_provider:
             entity:
                 class: App\Entity\Utilisateur
                 property: email
 
+
+    # ==========================================================
+    # 3) FIREWALLS (les zones de sécurité)
+    # ==========================================================
     firewalls:
+
+        # En dev, je laisse passer le profiler et les assets sans sécurité
         dev:
-            # Ensure dev tools and static assets are always allowed
             pattern: ^/(_profiler|_wdt|assets|build)/
             security: false
 
-        # Firewall pour le login JWT
+        # Zone de login : pas besoin d’être connecté (normal)
+        # -> c’est justement ici qu’on récupère le token JWT
         login:
-             pattern: ^/api/login$
-             security: false
+            pattern: ^/api/login$
+            security: false
 
-        # Firewall principal pour toutes les routes API
+        # Firewall principal de mon API :
+        # toutes les routes /api utilisent JWT en mode stateless (pas de session)
         api:
             pattern: ^/api
             stateless: true
             provider: app_user_provider
             jwt: ~
+            user_checker: App\Security\UserChecker
 
-    # https://symfony.com/doc/current/security/access_control.html
+
+    # ==========================================================
+    # 4) HIERARCHIE DES ROLES
+    # ==========================================================
+    # Je définis une hiérarchie simple :
+    # - un admin a automatiquement les droits employé + user
+    # - les autres rôles ont au moins ROLE_USER
+    role_hierarchy:
+        ROLE_ADMIN: [ROLE_EMPLOYE, ROLE_USER]
+        ROLE_EMPLOYE: [ROLE_USER]
+        ROLE_PASSAGER: [ROLE_USER]
+        ROLE_CHAUFFEUR: [ROLE_USER]
+
+
+    # ==========================================================
+    # 5) ACCESS CONTROL (qui a le droit d’appeler quoi)
+    # ==========================================================
+    # Très important : c’est lu de haut en bas.
+    # La première règle qui match s'applique.
     access_control:
-        # Autorise l'accès au login sans authentification
-        - { path: ^/api/login$, roles: PUBLIC_ACCESS }
-        - { path: ^/api/trajets$, roles: PUBLIC_ACCESS }
 
-        # Toute autre route /api nécessite un token JWT valide
+        # 1) Login public
+        - { path: ^/api/login$, roles: PUBLIC_ACCESS }
+
+        # 1bis) Inscription publique
+        - { path: ^/api/register$, roles: PUBLIC_ACCESS, methods: [POST] }
+
+        # 2) Trajets publics en lecture (affichage plateforme)
+        - { path: ^/api/trajets$, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/trajets/\d+$, roles: PUBLIC_ACCESS, methods: [GET] }
+
+        # 3) Zone Employé (future modération / gestion avis, etc.)
+        - { path: ^/api/employe, roles: ROLE_EMPLOYE }
+
+        # 4) Zone Admin (stats, création employé, suspension compte, etc.)
+        - { path: ^/api/admin, roles: ROLE_ADMIN }
+
+        # 5) Mon profil + RGPD (GET/DELETE /api/me) : utilisateur connecté
+        - { path: ^/api/me$, roles: ROLE_USER }
+
+        # 6) Mes réservations : connecté
+        - { path: ^/api/reservations/moi$, roles: ROLE_USER, methods: [GET] }
+
+        # 7) Réserver un trajet : uniquement PASSAGER
+        - { path: ^/api/trajets/\d+/reserver$, roles: ROLE_PASSAGER, methods: [POST] }
+        - { path: ^/api/trajets/\d+/reservations$, roles: ROLE_PASSAGER, methods: [POST] }
+
+        # 8) Annuler une réservation : connecté
+        # (et dans le controller je revérifie que c'est bien le propriétaire)
+        - { path: ^/api/reservations/\d+$, roles: ROLE_USER, methods: [DELETE] }
+
+        # 9) Par défaut : toute autre route /api nécessite un token valide
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+
 
 when@test:
     security:
         password_hashers:
-            # Password hashers are resource-intensive by design to ensure security.
-            # In tests, it's safe to reduce their cost to improve performance.
+            # En environnement de test, je baisse le coût du hash pour accélérer les tests.
             App\Entity\Utilisateur:
                 algorithm: auto
                 cost: 4

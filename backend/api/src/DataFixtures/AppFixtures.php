@@ -25,7 +25,7 @@ class AppFixtures extends Fixture
         $users = [];
 
         // Admins (credits fixes 999)
-        $users['admin1'] = $this->makeUser($manager, 'Admin', 'Alice', 'admin1@ecoride.local', 'ROLE_ADMIN', 999, 'admin123');
+        $users['admin1'] = $this->makeUser($manager, 'Admin', 'Justine', 'admin1@ecoride.local', 'ROLE_ADMIN', 999, 'admin123');
         $users['admin2'] = $this->makeUser($manager, 'Admin', 'Bruno', 'admin2@ecoride.local', 'ROLE_ADMIN', 999, 'admin123');
 
         // Employés (credits fixes 999)
@@ -33,14 +33,14 @@ class AppFixtures extends Fixture
         $users['emp2'] = $this->makeUser($manager, 'Employe', 'Lucas', 'employe2@ecoride.local', 'ROLE_EMPLOYE', 999, 'employe123');
 
         // Chauffeurs (credits différents)
-        $users['ch1'] = $this->makeUser($manager, 'Chauffeur', 'Nina', 'chauffeur1@ecoride.local', 'ROLE_CHAUFFEUR', 120, 'chauffeur123');
-        $users['ch2'] = $this->makeUser($manager, 'Chauffeur', 'Omar', 'chauffeur2@ecoride.local', 'ROLE_CHAUFFEUR', 75, 'chauffeur123');
+        $users['ch1'] = $this->makeUser($manager, 'Chauffeur', 'Coralie', 'chauffeur1@ecoride.local', 'ROLE_CHAUFFEUR', 120, 'chauffeur123');
+        $users['ch2'] = $this->makeUser($manager, 'Chauffeur', 'Alexandre', 'chauffeur2@ecoride.local', 'ROLE_CHAUFFEUR', 75, 'chauffeur123');
         $users['ch3'] = $this->makeUser($manager, 'Chauffeur', 'Paul', 'chauffeur3@ecoride.local', 'ROLE_CHAUFFEUR', 200, 'chauffeur123');
 
         // Passagers (credits différents)
-        $users['p1'] = $this->makeUser($manager, 'Passager', 'Sara', 'passager1@ecoride.local', 'ROLE_PASSAGER', 30, 'passager123');
+        $users['p1'] = $this->makeUser($manager, 'Passager', 'Jeremy', 'passager1@ecoride.local', 'ROLE_PASSAGER', 30, 'passager123');
         $users['p2'] = $this->makeUser($manager, 'Passager', 'Tom', 'passager2@ecoride.local', 'ROLE_PASSAGER', 55, 'passager123');
-        $users['p3'] = $this->makeUser($manager, 'Passager', 'Yasmin', 'passager3@ecoride.local', 'ROLE_PASSAGER', 10, 'passager123');
+        $users['p3'] = $this->makeUser($manager, 'Passager', 'Clemence', 'passager3@ecoride.local', 'ROLE_PASSAGER', 10, 'passager123');
 
         // ==========
         // VEHICULES (1 par chauffeur)
