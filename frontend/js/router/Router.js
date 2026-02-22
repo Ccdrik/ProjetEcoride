@@ -1,75 +1,145 @@
+// ==========================================================
+// ROUTER (SPA)
+// ==========================================================
+// Objectif : gérer la navigation sans recharger la page.
+//
+// Ce Router :
+// - récupère la route depuis allRoutes
+// - vérifie les droits (authorize) selon JWT
+// - charge le HTML de la page
+// - injecte le script JS de page si nécessaire
+// - met à jour le titre
+// - met à jour le menu (connecté / rôles)
+// - déclenche un event "route:changed" pour init la page
+// ==========================================================
+
 import Route from "./Route.js";
 import { allRoutes, websiteName } from "./allRoutes.js";
 
-// Route 404
+// ==========================================================
+// SESSION (JWT) : rôles + menu
+// ==========================================================
+// getFrontRoles() -> ["connected", "passager"] ...
+// isConnected()   -> true/false
+// applyNavbarVisibility() -> affiche/masque les éléments du menu
+// ==========================================================
+import { getFrontRoles, isConnected } from "../auth/session.js";
+import { applyNavbarVisibility } from "../auth/session.js";
+
+// ==========================================================
+// ROUTE 404
+// ==========================================================
 const route404 = new Route("404", "Page introuvable", "/pages/404.html", []);
 
-// Trouver la route qui correspond à l’URL
+// ==========================================================
+// TROUVER LA ROUTE PAR URL
+// ==========================================================
 const getRouteByUrl = (url) => {
     let currentRoute = null;
 
     allRoutes.forEach((element) => {
-        if (element.url == url) currentRoute = element;
+        if (element.url === url) currentRoute = element;
     });
 
     return currentRoute ?? route404;
 };
 
-// Charger le contenu de la page (HTML + JS)
+// ==========================================================
+// GESTION DES DROITS (authorize)
+// ==========================================================
+// Règles :
+// - authorize = [] => public
+// - authorize contient "disconnected" => uniquement si pas connecté
+// - sinon => il faut au moins un rôle autorisé
+// ==========================================================
+function isAllowed(route) {
+    const allowed = route.authorize || [];
+
+    // Public
+    if (allowed.length === 0) return true;
+
+    // Cas "disconnected" (connexion / inscription)
+    if (allowed.includes("disconnected")) {
+        return !isConnected();
+    }
+
+    // Cas rôles (passager/chauffeur/employe/admin)
+    const userRoles = getFrontRoles();
+    return allowed.some((r) => userRoles.includes(r));
+}
+
+// ==========================================================
+// REDIRECTION SPA (sans reload)
+// ==========================================================
+function redirectTo(path) {
+    window.history.pushState({}, "", path);
+    return LoadContentPage();
+}
+
+// ==========================================================
+// CHARGEMENT DE PAGE (HTML + JS)
+// ==========================================================
 const LoadContentPage = async () => {
-    // Base URL (utile si ton app est dans un sous-dossier)
     const baseURL = "/";
 
-    // Récupérer le chemin courant
+    // 1) Chemin courant
     let currentPath = window.location.pathname;
 
-    // Retirer baseURL si besoin
+    // 2) Retirer baseURL si besoin
     if (currentPath.indexOf(baseURL) === 0) {
         currentPath = currentPath.replace(baseURL, "");
     }
 
-    // Normaliser la racine
+    // 3) Normaliser
     if (currentPath === "" || currentPath === "/") {
         currentPath = "/";
+    } else {
+        currentPath = "/" + currentPath.replace(/^\/+/, "");
     }
 
-    // Route actuelle
+    // 4) Route actuelle
     const actualRoute = getRouteByUrl(currentPath);
 
-    // ---- Gestion des droits (si ta route a authorize) ----
-    const allRolesArray = actualRoute.authorize;
-
-    if (allRolesArray.length > 0) {
-        // Cas “disconnected” : page réservée aux non connectés (login/register)
-        if (allRolesArray.includes("disconnected")) {
-            if (isConnected()) {
-                window.location.replace("/");
-                return;
-            }
-        } else {
-            // Cas rôles (ADMIN / EMPLOYE / etc.)
-            const roleUser = getRole();
-            if (!allRolesArray.includes(roleUser)) {
-                window.location.replace("/");
-                return;
-            }
+    // ==========================================================
+    // ✅ PROTECTION FRONT (UX)
+    // ==========================================================
+    // La sécurité réelle est côté API (JWT + access_control).
+    // Ici on évite d’afficher une page interdite.
+    // ==========================================================
+    if (!isAllowed(actualRoute)) {
+        // Si pas connecté => connexion
+        if (!isConnected()) {
+            return redirectTo("/connexion");
         }
+
+        // Si connecté mais mauvais rôle => accueil
+        return redirectTo("/");
     }
 
-    // ---- Charger le HTML ----
-    // no-store = évite les vieux HTML en cache pendant le dev
-    const html = await fetch(actualRoute.pathHtml, { cache: "no-store" })
-        .then((data) => data.text());
+    // ==========================================================
+    // 5) Charger le HTML (avec sécurité)
+    // ==========================================================
+    let html = "";
+    try {
+        const res = await fetch(actualRoute.pathHtml, { cache: "no-store" });
+        html = await res.text();
+    } catch (e) {
+        console.error("Router: erreur chargement HTML", e);
+        html = `<div class="container py-4">
+              <h1>Erreur de chargement</h1>
+              <p>Impossible de charger la page.</p>
+            </div>`;
+    }
 
-    // Injecter le HTML dans ton conteneur
+    // 6) Injecter HTML
     const container = document.getElementById("main-page");
     if (!container) {
-        console.error('Router: élément #main-page introuvable dans index.html');
+        console.error("Router: élément #main-page introuvable dans index.html");
         return;
     }
     container.innerHTML = html;
 
-    // ---- Charger le JS de la page (si besoin) ----
+    // 7) Charger JS de page (si besoin)
     if (actualRoute.pathJS && actualRoute.pathJS !== "") {
         const old = document.getElementById("route-script");
         if (old) old.remove();
@@ -81,40 +151,42 @@ const LoadContentPage = async () => {
         document.body.appendChild(scriptTag);
     }
 
-    // ---- Titre du site ----
+    // 8) Titre
     document.title = `${actualRoute.title} - ${websiteName}`;
 
-    // ---- Afficher/masquer selon rôle (menu, boutons, etc.) ----
-    showAndHideElementsForRoles();
+    // 9) Menu (connecté / rôles)
+    applyNavbarVisibility();
 
-    // ---- IMPORTANT : signaler que la route a changé ----
-    // Permet à main.js (ou autre) de lancer un init après injection du HTML
-    window.dispatchEvent(new CustomEvent("route:changed", {
-        detail: {
-            url: actualRoute.url,
-            name: actualRoute.name,
-            title: actualRoute.title,
-        }
-    }));
+    // 10) Event "route:changed" (pour init côté main.js)
+    window.dispatchEvent(
+        new CustomEvent("route:changed", {
+            detail: {
+                url: actualRoute.url,
+                title: actualRoute.title,
+            },
+        })
+    );
 };
 
-// Gestion clic sur liens
+// ==========================================================
+// CLIC SUR LIENS (SPA)
+// ==========================================================
+// Dans tes <a>, tu dois avoir onclick="route(event)"
+// ==========================================================
 const routeEvent = (event) => {
     event = event || window.event;
     event.preventDefault();
 
-    // event.currentTarget = l’élément qui a le handler (le <a>)
-    // event.target = l’élément cliqué à l’intérieur (icone, span, etc.)
     const link = event.currentTarget;
 
-    window.history.pushState({}, "", link.href);
+    window.history.pushState({}, "", link.getAttribute("href"));
     LoadContentPage();
 };
 
-// Back / forward navigateur
+// Back/forward navigateur
 window.onpopstate = LoadContentPage;
 
-// Rendre accessible route() dans le HTML: onclick="route(event)"
+// Rendre la fonction accessible dans le HTML : onclick="route(event)"
 window.route = routeEvent;
 
 // Chargement initial

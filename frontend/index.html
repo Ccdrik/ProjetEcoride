@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
@@ -9,67 +9,73 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Hind+Madurai:wght@300;400;500;600;700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
-
-
-
-    <title>Document</title>
+    <title>EcoRide</title>
 </head>
 
 <body>
     <header>
         <nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
             <div class="container-fluid">
-                <a class="navbar-brand" href="/">EcoRide</a>
+                <a class="navbar-brand" href="/" onclick="route(event)">EcoRide</a>
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+
                         <li class="nav-item">
-                            <a class="nav-link " href="/covoiturages">Accès aux co-voiturages</a>
+                            <a class="nav-link" href="/covoiturages" onclick="route(event)">Accès aux co-voiturages</a>
                         </li>
+
                         <li class="nav-item" data-show="chauffeur">
-                            <a class="nav-link" href="/creertrajet">Creation d'un trajet</a>
+                            <a class="nav-link" href="/creer-trajet" onclick="route(event)">Création d’un trajet</a>
                         </li>
+
                         <li class="nav-item" data-show="chauffeur">
-                            <a class="nav-link" href="/creertrajet">Modifier mon trajet</a>
+                            <a class="nav-link" href="/modifier-trajet" onclick="route(event)">Modifier mon trajet</a>
                         </li>
+
                         <li class="nav-item" data-show="admin">
-                            <a class="nav-link" href="/espaceadministrateur">Espace Administrateur</a>
+                            <a class="nav-link" href="/tableau-de-bord" onclick="route(event)">Espace Administrateur</a>
                         </li>
 
                         <li class="nav-item" data-show="connected">
-                            <a class="nav-link" href="/account">Mon compte</a>
+                            <a class="nav-link" href="/mon-compte" onclick="route(event)">Mon compte</a>
                         </li>
+
                         <li class="nav-item" data-show="disconnected">
-                            <a class="nav-link" href="/signin">Connexion</a>
+                            <a class="nav-link" href="/connexion" onclick="route(event)">Connexion</a>
                         </li>
+
                         <li class="nav-item" data-show="connected">
-                            <button class="nav-link" id="signout-btn">Déconnexion</button>
+                            <button class="nav-link" id="signout-btn" type="button">Déconnexion</button>
                         </li>
+
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <main id="main-page">
-    </main>
+
+    <main id="main-page"></main>
+
     <footer class="bg-dark text-white text-center footer">
         <div class="row">
-            <div class="col-12 col-lg 4">
-                <h3 class="text-black">Nous contacter</h3>
-                <a href="/contact">contact@ecoride.com</a>
+            <div class="col-12 col-lg-4">
+                <h3 class="footer-title">Nous contacter</h3>
+                <a href="/contact" onclick="route(event)">contact@ecoride.com</a>
             </div>
-            <div class="col-12 col-lg 4">
-                <a href="/mentionslegales">Mentions légales</a>
+            <div class="col-12 col-lg-4">
+                <a href="/mentions-legales" onclick="route(event)">Mentions légales</a>
             </div>
         </div>
-
     </footer>
-    <script type="module" src="/main.js"></script>
 
+    <script type="module" src="/main.js"></script>
 </body>
 
 </html>

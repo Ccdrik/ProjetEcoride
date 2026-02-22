@@ -1,4 +1,12 @@
 import { listTrajets, createReservation, getTrajet } from "../api/trajets.js";
+import { isConnected, getFrontRoles } from "../auth/session.js";
+
+// ==========================================================
+// UI COVOITURAGES
+// ==========================================================
+// - affiche la liste des trajets
+// - permet de réserver (action protégée : PASSAGER uniquement)
+// ==========================================================
 
 // Mini toast (simple)
 function afficherMessage(message) {
@@ -15,6 +23,12 @@ function formaterDate(iso) {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
   return d.toLocaleString();
+}
+
+// Petite redirection SPA (cohérente avec ton Router)
+function redirectTo(path) {
+  window.history.pushState({}, "", path);
+  window.dispatchEvent(new CustomEvent("route:changed"));
 }
 
 // 1) Affichage des trajets (sans onclick, on utilise addEventListener)
@@ -72,6 +86,21 @@ function afficherTrajets(trajets) {
     }
 
     btn.addEventListener("click", async () => {
+      // ==========================================================
+      //  PROTECTION FRONT (UX) : réserver = PASSAGER uniquement
+      // ==========================================================
+      if (!isConnected()) {
+        afficherMessage("Connectez-vous pour réserver.");
+        redirectTo("/connexion");
+        return;
+      }
+
+      const roles = getFrontRoles(); // ex: ["connected","passager"]
+      if (!roles.includes("passager")) {
+        afficherMessage("Seuls les passagers peuvent réserver un trajet.");
+        return;
+      }
+
       const nbPlaces = Number(input.value || 1);
 
       if (!Number.isFinite(nbPlaces) || nbPlaces <= 0) {
@@ -89,7 +118,8 @@ function afficherTrajets(trajets) {
 
         // refresh places restantes
         const trajetMisAJour = await getTrajet(trajet.id);
-        card.querySelector("[data-role='places']").textContent = trajetMisAJour.placesRestantes;
+        card.querySelector("[data-role='places']").textContent =
+          trajetMisAJour.placesRestantes;
 
         if (trajetMisAJour.placesRestantes <= 0) {
           btn.disabled = true;
@@ -122,7 +152,9 @@ async function chargerTrajets() {
     const trajets = await listTrajets();
     afficherTrajets(trajets);
   } catch (e) {
-    afficherMessage(e?.data?.message || e.message || "Impossible de charger les trajets.");
+    afficherMessage(
+      e?.data?.message || e.message || "Impossible de charger les trajets."
+    );
   } finally {
     loading?.classList.add("d-none");
   }

@@ -18,6 +18,10 @@ use Symfony\Component\Routing\Attribute\Route;
  * - On n’autorise PAS la création de ROLE_ADMIN / ROLE_EMPLOYE par l’inscription.
  * - Rôles autorisés : ROLE_PASSAGER ou ROLE_CHAUFFEUR.
  * - Mot de passe toujours hashé.
+ *
+ * Mini sécurité ajoutée :
+ * - Email valide (format)
+ * - Mot de passe robuste (regex)
  */
 #[Route('/api')]
 final class RegisterController extends AbstractController
@@ -43,6 +47,23 @@ final class RegisterController extends AbstractController
 
         if ($email === '' || $password === '' || $nom === '' || $prenom === '') {
             return $this->json(['message' => 'email, password, nom, prenom sont obligatoires'], 400);
+        }
+
+        // ✅ Validation email (format)
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $this->json(['message' => 'Email invalide'], 400);
+        }
+
+        // ✅ Validation mot de passe robuste
+        // - 8 caractères mini
+        // - 1 majuscule
+        // - 1 minuscule
+        // - 1 chiffre
+        // - 1 caractère spécial
+        if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/', $password)) {
+            return $this->json([
+                'message' => 'Mot de passe invalide : 8 caractères minimum, 1 majuscule, 1 minuscule, 1 chiffre, 1 caractère spécial.'
+            ], 400);
         }
 
         // Sécurité : rôles autorisés à l’inscription

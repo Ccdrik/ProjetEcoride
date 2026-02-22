@@ -1,33 +1,48 @@
-<div class="hero-scene text-center text-white">
-    <div class="hero-scene-content">
+<!-- ==========================================================
+     PAGE CONNEXION
+     ==========================================================
+     Cette page permet à un utilisateur de se connecter.
+     Le JS (signin.page.js) écoute le submit du formulaire
+     et envoie la requête POST /api/login
+     ========================================================== -->
 
-    </div>
+<div class="hero-scene text-center text-white">
+    <div class="hero-scene-content"></div>
 </div>
 
-
-
-
-<div class="container">
+<div class="container my-4">
     <form>
         <div>
             <h1 class="text-center">Connexion</h1>
         </div>
+
         <div class="mb-3">
             <label for="EmailInput" class="form-label">Email</label>
-            <input type="email" class="form-control" id="EmailInput" placeholder="test@mail.fr">
+            <input type="email" class="form-control" id="EmailInput" name="email" placeholder="test@mail.fr"
+                autocomplete="email" required />
             <div class="invalid-feedback text-center">
-                Le mail et le mot de pass ne correspondent pas !
+                Le mail et le mot de passe ne correspondent pas !
             </div>
         </div>
+
         <div class="mb-3">
             <label for="PasswordInput" class="form-label">Mot de passe</label>
-            <input type="password" class="form-control" id="PasswordInput" placeholder="**********">
+            <input type="password" class="form-control" id="PasswordInput" name="password" placeholder="**********"
+                autocomplete="current-password" required />
         </div>
+
         <div class="text-center">
-            <button type="button" class="btn btn-primary" id="btnSignin">Connexion</button>
+            <!-- IMPORTANT : submit pour déclencher l'event submit du JS -->
+            <button type="submit" class="btn btn-primary" id="btnSignin">
+                Connexion
+            </button>
         </div>
     </form>
+
     <div class="text-center pt-3">
-        <a href="/signup">Vous n'avez pas de compte ? Inscrivez vous ici ! </a>
+        <!-- IMPORTANT : Router SPA -->
+        <a href="/inscription" onclick="route(event)">
+            Vous n'avez pas de compte ? Inscrivez-vous ici !
+        </a>
     </div>
 </div>

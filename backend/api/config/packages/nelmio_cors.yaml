@@ -1,0 +1,38 @@
+# ==========================================================
+# CORS (Cross-Origin Resource Sharing)
+# ==========================================================
+# Objectif :
+# - autoriser le front (Vite) http://localhost:5173
+# - à appeler le backend Symfony http://localhost:8080
+# - notamment /api/login, /api/register, /api/trajets, etc.
+#
+# IMPORTANT :
+# - Le navigateur envoie parfois une requête "preflight" OPTIONS
+#   avant le POST/GET réel. Sans CORS, c'est bloqué.
+# ==========================================================
+
+nelmio_cors:
+  defaults:
+    origin_regex: false
+
+    # Autoriser uniquement ton front Vite
+    allow_origin: ['http://localhost:5173']
+
+    # Méthodes autorisées
+    allow_methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+
+    # Headers autorisés (important pour Authorization: Bearer ...)
+    allow_headers: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With']
+
+    # Headers exposés (facultatif)
+    expose_headers: ['Authorization']
+
+    max_age: 3600
+    allow_credentials: false
+
+  paths:
+    '^/api/':
+      allow_origin: ['http://localhost:5173']
+      allow_methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+      allow_headers: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With']
+      max_age: 3600
