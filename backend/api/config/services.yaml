@@ -1,23 +1,37 @@
 # yaml-language-server: $schema=../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
 
-# This file is the entry point to configure your own services.
-# Files in the packages/ subdirectory configure your dependencies.
-# See also https://symfony.com/doc/current/service_container/import.html
+# ============================================================
+# Configuration des services de l'application EcoRide
+# ============================================================
 
-# Put parameters here that don't need to change on each machine where the app is deployed
-# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+# Paramètres globaux de l'application
+# (Ne pas mettre de secrets ici en production)
 parameters:
+    # Paramètres MongoDB (valeurs récupérées depuis .env.local)
+    mongodb_uri: '%env(MONGODB_URI)%'
+    mongodb_db: '%env(MONGODB_DB)%'
 
 services:
-    # default configuration for services in *this* file
-    _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
+    # ------------------------------------------------------------
+    # Configuration par défaut des services
+    # ------------------------------------------------------------
+    _defaults:
+        autowire: true      # Injection automatique des dépendances
+        autoconfigure: true # Enregistre automatiquement commandes, events, etc.
+
+    # ------------------------------------------------------------
+    # Déclaration automatique des classes du dossier src/
+    # ------------------------------------------------------------
+    # Chaque classe devient un service avec son FQCN comme identifiant
     App\:
         resource: '../src/'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    # ------------------------------------------------------------
+    # Service MongoProvider (connexion MongoDB)
+    # ------------------------------------------------------------
+    # Permet d'accéder à la collection "avis"
+    App\Service\Mongo\MongoProvider:
+        arguments:
+            $uri: '%mongodb_uri%'
+            $dbName: '%mongodb_db%'
