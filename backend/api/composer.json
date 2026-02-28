@@ -4,7 +4,7 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
-        "php": ">=8.2 <8.4",
+        "php": ">=8.4 <8.6",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "doctrine/dbal": "^4.4",
@@ -30,7 +30,11 @@
             "symfony/runtime": true
         },
         "bump-after-update": true,
-        "sort-packages": true
+        "sort-packages": true,
+        "platform": {
+            "php": "8.4.18",
+            "ext-mongodb": "2.1.4"
+        }
     },
     "autoload": {
         "psr-4": {
