@@ -66,6 +66,8 @@ security:
     # Très important : c’est lu de haut en bas.
     # La première règle qui match s'applique.
     access_control:
+        # CORS preflight : j’autorise les requêtes OPTIONS sur /api sans token (sinon le CORS ne fonctionne pas)
+        - { path: ^/api, roles: PUBLIC_ACCESS, methods: [OPTIONS] }
 
         # 1) Login public
         - { path: ^/api/login$, roles: PUBLIC_ACCESS }
@@ -105,7 +107,7 @@ security:
 when@test:
     security:
         password_hashers:
-            # En environnement de test, je baisse le coût du hash pour accélérer les tests.
+            # En environnement de test, je réduis les coûts de hashage pour accélérer les tests
             App\Entity\Utilisateur:
                 algorithm: auto
                 cost: 4

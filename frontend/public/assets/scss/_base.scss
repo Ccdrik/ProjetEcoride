@@ -1,0 +1,25 @@
+/* frontend/assets/scss/_base.scss */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+    background-color: $black;
+}
+
+main {
+    margin-bottom: 270px;
+    background-color: $black;
+}
+
+h1,
+p,
+a,
+.erreur {
+    color: $primary;
+}

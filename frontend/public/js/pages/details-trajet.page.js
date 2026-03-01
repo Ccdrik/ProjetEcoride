@@ -1,0 +1,1 @@
+console.log("details-trajet.page.js chargé");
