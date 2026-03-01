@@ -2,37 +2,92 @@
 # CORS (Cross-Origin Resource Sharing)
 # ==========================================================
 # Objectif :
-# - autoriser le front (Vite) http://localhost:5173
-# - à appeler le backend Symfony http://localhost:8080
-# - notamment /api/login, /api/register, /api/trajets, etc.
+# Autoriser uniquement les frontends autorisés à appeler
+# ton API Symfony.
+#
+# En DEV :
+#   http://localhost:5173  (Vite)
+#
+# En PROD :
+#   https://covoiturageecoride.alwaysdata.net
 #
 # IMPORTANT :
-# - Le navigateur envoie parfois une requête "preflight" OPTIONS
-#   avant le POST/GET réel. Sans CORS, c'est bloqué.
+# - Le navigateur envoie parfois une requête "preflight"
+#   OPTIONS avant le GET/POST réel.
+# - Sans CORS correctement configuré → blocage navigateur.
 # ==========================================================
 
 nelmio_cors:
+
+  # ----------------------------------------------------------
+  # Configuration par défaut
+  # ----------------------------------------------------------
   defaults:
+
+    # On ne fait pas de regex sur les domaines
     origin_regex: false
 
-    # Autoriser uniquement ton front Vite
-    allow_origin: ['http://localhost:5173']
+    # Domaines autorisés (DEV + PROD)
+    allow_origin:
+      - 'http://localhost:5173'
+      - 'https://covoiturageecoride.alwaysdata.net'
 
-    # Méthodes autorisées
-    allow_methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+    # Méthodes HTTP autorisées
+    allow_methods:
+      - 'GET'
+      - 'POST'
+      - 'PUT'
+      - 'PATCH'
+      - 'DELETE'
+      - 'OPTIONS'
 
-    # Headers autorisés (important pour Authorization: Bearer ...)
-    allow_headers: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With']
+    # Headers autorisés
+    # IMPORTANT pour JWT (Authorization: Bearer ...)
+    allow_headers:
+      - 'Content-Type'
+      - 'Authorization'
+      - 'Accept'
+      - 'Origin'
+      - 'X-Requested-With'
 
-    # Headers exposés (facultatif)
-    expose_headers: ['Authorization']
+    # Headers exposés au frontend (facultatif)
+    expose_headers:
+      - 'Authorization'
 
+    # Durée de cache du preflight (en secondes)
     max_age: 3600
+
+    # IMPORTANT :
+    # false = plus simple
+    # true  = nécessite config spécifique (cookies, etc.)
     allow_credentials: false
 
+  # ----------------------------------------------------------
+  # Application uniquement aux routes API
+  # ----------------------------------------------------------
   paths:
+
     '^/api/':
-      allow_origin: ['http://localhost:5173']
-      allow_methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
-      allow_headers: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With']
+
+      # On répète explicitement les domaines autorisés
+      # pour éviter toute ambiguïté
+      allow_origin:
+        - 'http://localhost:5173'
+        - 'https://covoiturageecoride.alwaysdata.net'
+
+      allow_methods:
+        - 'GET'
+        - 'POST'
+        - 'PUT'
+        - 'PATCH'
+        - 'DELETE'
+        - 'OPTIONS'
+
+      allow_headers:
+        - 'Content-Type'
+        - 'Authorization'
+        - 'Accept'
+        - 'Origin'
+        - 'X-Requested-With'
+
       max_age: 3600
