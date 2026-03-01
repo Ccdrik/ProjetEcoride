@@ -69,6 +69,7 @@ security:
 
         # 1) Login public
         - { path: ^/api/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/health$, roles: PUBLIC_ACCESS }
 
         # 1bis) Inscription publique
         - { path: ^/api/register$, roles: PUBLIC_ACCESS, methods: [POST] }
