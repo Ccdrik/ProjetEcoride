@@ -1,1 +1,1 @@
-web: vendor/bin/heroku-php-apache2 public/
+web: bash -lc "mkdir -p /tmp/jwt && php -r \"file_put_contents('/tmp/jwt/private.pem', base64_decode(getenv('JWT_SECRET_KEY_B64')));\" && php -r \"file_put_contents('/tmp/jwt/public.pem', base64_decode(getenv('JWT_PUBLIC_KEY_B64')));\" && chmod 600 /tmp/jwt/private.pem /tmp/jwt/public.pem && vendor/bin/heroku-php-apache2 public/"
