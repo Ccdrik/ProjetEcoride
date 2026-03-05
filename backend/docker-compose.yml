@@ -58,6 +58,11 @@ services:
       dockerfile: Dockerfile
     container_name: ecoride-php
     working_dir: /var/www/api
+    environment:
+      DEFAULT_URI: "http://localhost"
+      JWT_SECRET_KEY_PATH: "%kernel.project_dir%/config/jwt/private.pem"
+      JWT_PUBLIC_KEY_PATH: "%kernel.project_dir%/config/jwt/public.pem"
+      JWT_PASSPHRASE: "change-moi"
     volumes:
       - ./api:/var/www/api
     depends_on:

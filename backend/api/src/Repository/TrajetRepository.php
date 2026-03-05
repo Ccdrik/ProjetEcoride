@@ -16,6 +16,38 @@ class TrajetRepository extends ServiceEntityRepository
         parent::__construct($registry, Trajet::class);
     }
 
+    public function search(array $filters)
+{
+    $qb = $this->createQueryBuilder('t')
+        ->where('t.statut = :statut')
+        ->setParameter('statut', 'OUVERT');
+
+    if (!empty($filters['depart'])) {
+        $qb->andWhere('LOWER(t.departVille) LIKE LOWER(:depart)')
+           ->setParameter('depart', $filters['depart'].'%');
+    }
+
+    if (!empty($filters['arrivee'])) {
+        $qb->andWhere('LOWER(t.arriveeVille) LIKE LOWER(:arrivee)')
+           ->setParameter('arrivee', $filters['arrivee'].'%');
+    }
+
+    if (!empty($filters['date'])) {
+        $qb->andWhere('DATE(t.dateDepart) = :date')
+           ->setParameter('date', $filters['date']);
+    }
+
+    if (!empty($filters['prixMax'])) {
+        $qb->andWhere('t.prixParPlace <= :prixMax')
+           ->setParameter('prixMax', $filters['prixMax']);
+    }
+
+    return $qb
+        ->orderBy('t.dateDepart', 'ASC')
+        ->getQuery()
+        ->getResult();
+}
+
     //    /**
     //     * @return Trajet[] Returns an array of Trajet objects
     //     */

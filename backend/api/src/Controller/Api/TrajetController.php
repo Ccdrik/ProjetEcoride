@@ -6,33 +6,42 @@ use App\Entity\Trajet;
 use App\Repository\TrajetRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 class TrajetController extends AbstractController
 {
-    #[Route('/api/trajets', name: 'api_trajets_list', methods: ['GET'])]
-    public function list(TrajetRepository $trajets): JsonResponse
-    {
-        $items = $trajets->findBy(
-            ['statut' => 'OUVERT'],
-            ['dateDepart' => 'ASC']
-        );
+   #[Route('/api/trajets', methods: ['GET'])]
+public function list(Request $request, TrajetRepository $trajets): JsonResponse
+{
+    $filters = [
+        'depart' => $request->query->get('depart'),
+        'arrivee' => $request->query->get('arrivee'),
+        'date' => $request->query->get('date'),
+        'prixMax' => $request->query->get('prixMax'),
+        'eco' => $request->query->get('eco'),
+    ];
 
-        $data = array_map(static function (Trajet $t) {
-            return [
-                'id' => $t->getId(),
-                'departVille' => $t->getDepartVille(),
-                'arriveeVille' => $t->getArriveeVille(),
-                'dateDepart' => $t->getDateDepart()->format('c'),
-                'prixParPlace' => $t->getPrixParPlace(),
-                'placesRestantes' => $t->getPlacesRestantes(),
-                'statut' => $t->getStatut(),
-                'conducteurId' => $t->getConducteur()?->getId(),
-            ];
-        }, $items);
+    $items = $trajets->search($filters);
 
-        return $this->json($data);
-    }
+    $data = array_map(function ($t) {
+        return [
+            'id' => $t->getId(),
+            'departVille' => $t->getDepartVille(),
+            'arriveeVille' => $t->getArriveeVille(),
+            'dateDepart' => $t->getDateDepart()->format('c'),
+            'prixParPlace' => $t->getPrixParPlace(),
+            'placesRestantes' => $t->getPlacesRestantes(),
+            'conducteur' => [
+                'id' => $t->getConducteur()->getId(),
+                'nom' => $t->getConducteur()->getNom(),
+                'prenom' => $t->getConducteur()->getPrenom(),
+            ],
+        ];
+    }, $items);
+
+    return $this->json($data);
+}
 
     #[Route('/api/trajets/{id}', name: 'api_trajet_show', methods: ['GET'])]
     public function show(int $id, TrajetRepository $trajets): JsonResponse
@@ -52,7 +61,11 @@ class TrajetController extends AbstractController
             'placesTotal' => $trajet->getPlacesTotal(),
             'placesRestantes' => $trajet->getPlacesRestantes(),
             'statut' => $trajet->getStatut(),
-            'conducteurId' => $trajet->getConducteur()?->getId(),
+            'conducteur' => $trajet->getConducteur() ? [
+                    'id' => $trajet->getConducteur()->getId(),
+                    'nom' => $trajet->getConducteur()->getNom(),
+                    'prenom' => $trajet->getConducteur()->getPrenom(),
+] : null,
         ]);
     }
 }
