@@ -11,7 +11,9 @@
 // - de déconnecter automatiquement si token invalide (401)
 // ==========================================================
 
-const API_BASE = window.__APP_CONFIG__?.API_BASE || "http://localhost:8080";
+const API_BASE =
+  window.__APP_CONFIG__?.API_BASE ||
+  "http://localhost:8080";
 
 // Récupération du token JWT stocké en localStorage
 export function getToken() {

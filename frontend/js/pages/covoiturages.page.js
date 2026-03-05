@@ -1,81 +1,107 @@
-import "../ui/covoiturages.js";
+import { chargerTrajets } from "../ui/covoiturages.js";
 
-function norm(s) {
-    return (s || "")
-        .toString()
-        .trim()
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
+/*
+  Ce fichier gère la page /covoiturages.
+
+  - Je lis les infos dans l’URL (depart, arrivee, date)
+  - Je gère le formulaire de recherche
+  - Si la recherche n’est pas complète, je n’affiche pas la liste
+  - Si elle est complète, je demande à l’UI de charger les trajets
+*/
+
+function getParams() {
+    const params = new URLSearchParams(window.location.search);
+    return {
+        depart: params.get("depart") || "",
+        arrivee: params.get("arrivee") || "",
+        date: params.get("date") || "",
+    };
 }
 
-function startsWithCity(city, typed) {
-    if (!typed) return true;
-    return norm(city).startsWith(norm(typed));
+function setParams({ depart, arrivee, date }) {
+    const params = new URLSearchParams();
+    params.set("depart", depart);
+    params.set("arrivee", arrivee);
+    params.set("date", date);
+
+    const newUrl = `/covoiturages?${params.toString()}`;
+    window.history.pushState({}, "", newUrl);
+
+    initCovoituragesPage();
 }
 
 export async function initCovoituragesPage() {
     const root = document.getElementById("trajetsRoot");
     const loading = document.getElementById("loading");
+    const hint = document.getElementById("hint");
 
-    if (!root) return;
+    const form = document.getElementById("searchForm");
+    const departInput = document.getElementById("departInput");
+    const arriveeInput = document.getElementById("arriveeInput");
+    const dateInput = document.getElementById("dateInput");
+    const resetBtn = document.getElementById("resetBtn");
 
-    loading?.classList.remove("d-none");
-    root.innerHTML = "";
+    if (!root || !form || !departInput || !arriveeInput || !dateInput) return;
 
-    try {
-        const trajets = await listTrajets();
+    // Je pré-remplis le formulaire avec ce qu’il y a déjà dans l’URL
+    const { depart, arrivee, date } = getParams();
+    departInput.value = depart;
+    arriveeInput.value = arrivee;
+    dateInput.value = date;
 
-        //  Lecture des paramètres URL
-        const params = new URLSearchParams(window.location.search);
-        const departParam = params.get("depart");
-        const arriveeParam = params.get("arrivee");
-        const dateParam = params.get("date");
+    // J’attache les events une seule fois (sinon en SPA ça double)
+    if (!form.dataset.bound) {
+        form.dataset.bound = "1";
 
-        const filtered = trajets.filter((t) => {
-            const okDepart = startsWithCity(t.departVille, departParam);
-            const okArrivee = startsWithCity(t.arriveeVille, arriveeParam);
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
 
-            let okDate = true;
-            if (dateParam && t.dateDepart) {
-                const trajetDate = new Date(t.dateDepart).toISOString().split("T")[0];
-                okDate = trajetDate === dateParam;
-            }
+            const d = departInput.value.trim();
+            const a = arriveeInput.value.trim();
+            const dt = dateInput.value;
 
-            return okDepart && okArrivee && okDate;
+            // Départ + arrivée + date obligatoires
+            if (!d || !a || !dt) return;
+
+            setParams({ depart: d, arrivee: a, date: dt });
         });
 
-        if (!filtered.length) {
-            root.innerHTML =
-                `<div class="alert alert-warning text-center">
-          Aucun trajet trouvé pour votre recherche.
-        </div>`;
-            return;
-        }
+        resetBtn?.addEventListener("click", () => {
+            window.history.pushState({}, "", "/covoiturages");
+            initCovoituragesPage();
+        });
+    }
 
-        root.innerHTML = filtered
-            .map((t) => `
-        <div class="card mb-3 shadow-sm">
-          <div class="card-body">
-            <h5 class="card-title">${t.departVille} → ${t.arriveeVille}</h5>
-            <div class="text-muted small mb-2">
-              Départ : ${new Date(t.dateDepart).toLocaleString("fr-FR")}
-            </div>
-            <div class="d-flex justify-content-between">
-              <div>Places restantes : <strong>${t.placesRestantes}</strong></div>
-              <div><strong>${t.prixParPlace} €</strong></div>
-            </div>
-          </div>
-        </div>
-      `)
-            .join("");
+    // Je nettoie l’écran
+    root.innerHTML = "";
+    loading?.classList.add("d-none");
 
-    } catch (err) {
-        root.innerHTML =
-            `<div class="alert alert-danger text-center">
-        Erreur lors du chargement des trajets.
-      </div>`;
+    // Si recherche incomplète : j’affiche juste le message d’aide
+    if (!depart || !arrivee || !date) {
+        hint?.classList.remove("d-none");
+        return;
+    }
+
+    // Sinon je charge les trajets
+    hint?.classList.add("d-none");
+    loading?.classList.remove("d-none");
+
+    try {
+        await chargerTrajets({ depart, arrivee, date });
     } finally {
         loading?.classList.add("d-none");
     }
+}
+
+// Petit bonus SPA : si tu reviens sur la page, je relance l’init
+window.addEventListener("route:changed", (e) => {
+    const url = e?.detail?.url || window.location.pathname;
+    if (url === "/covoiturages") {
+        initCovoituragesPage();
+    }
+});
+
+// Si on arrive directement sur /covoiturages
+if (window.location.pathname === "/covoiturages") {
+    initCovoituragesPage();
 }

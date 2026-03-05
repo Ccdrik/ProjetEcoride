@@ -1,1 +1,0 @@
-console.log("creer-trajet.page.js chargé");

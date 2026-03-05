@@ -1,15 +1,20 @@
-# Node
-**/node_modules/
-**/dist/
-**/.vite/
+# --- Front ---
+frontend/node_modules/
+frontend/dist/
+frontend/.env*
+frontend/.vite/
 
-# Symfony
-/backend/vendor/
-/backend/var/
-/backend/.env.local
-/backend/.env.*.local
+# --- Back ---
+backend/api/vendor/
+backend/api/var/
+backend/api/.env.local
+backend/api/.env.*.local
 
-# IDE / OS
-.vscode/
+# --- OS / IDE ---
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
+
+# --- Logs ---
+*.log

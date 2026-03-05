@@ -1,1 +1,0 @@
-console.log("mes-reservations.page.js chargé");

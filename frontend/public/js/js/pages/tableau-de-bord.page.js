@@ -1,1 +1,0 @@
-console.log("tableau-de-bord.page.js chargé");

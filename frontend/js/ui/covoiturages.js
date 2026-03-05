@@ -1,26 +1,15 @@
 import { listTrajets, createReservation, getTrajet } from "../api/trajets.js";
 import { isConnected, getFrontRoles } from "../auth/session.js";
 
-// ==========================================================
-// UI COVOITURAGES
-// ==========================================================
-// Ce fichier gère l’affichage des trajets sur /covoiturages :
-// - liste des trajets (GET /api/trajets)
-// - réservation d’un trajet (POST /api/trajets/{id}/reservations) -> PASSAGER
-//
-// BONUS :
-// - filtre automatique via query params (depuis la Home) :
-//   /covoiturages?depart=Paris&arrivee=Lyon&date=2026-02-26
-//   -> filtrage "commence par" (départ/arrivée) + date exacte (optionnelle)
-//
-// IMPORTANT (Router SPA) :
-// Le script est injecté après le HTML, donc DOMContentLoaded peut déjà être passé.
-// => on lance directement chargerTrajets() en bas de fichier.
-// ==========================================================
+/*
+  Ce fichier s’occupe juste de l’affichage + réservation :
 
-// ==========================================================
-// MINI TOAST (SIMPLE)
-// ==========================================================
+  - Je reçois des filtres (depart/arrivee/date) depuis la page
+  - Je récupère la liste des trajets avec l’API
+  - J’affiche les trajets sous forme de cartes
+  - Je permets de réserver si l’utilisateur est connecté et passager
+*/
+
 function afficherMessage(message) {
   const toast = document.getElementById("toast");
   if (!toast) return alert(message);
@@ -32,9 +21,6 @@ function afficherMessage(message) {
   afficherMessage._t = setTimeout(() => toast.classList.remove("show"), 2500);
 }
 
-// ==========================================================
-// FORMAT DATE (FR)
-// ==========================================================
 function formaterDate(iso) {
   if (!iso) return "";
   const d = new Date(iso);
@@ -42,19 +28,11 @@ function formaterDate(iso) {
   return d.toLocaleString("fr-FR");
 }
 
-// ==========================================================
-// REDIRECTION SPA (COHÉRENTE AVEC Router.js)
-// ==========================================================
-// On pushState puis on déclenche popstate pour que le Router recharge la page.
 function redirectTo(path) {
   window.history.pushState({}, "", path);
   window.dispatchEvent(new Event("popstate"));
 }
 
-// ==========================================================
-// OUTILS DE FILTRAGE (HOME -> /covoiturages?depart=...)
-// ==========================================================
-// norm() : normalise pour comparer (minuscules + sans accents)
 function norm(s) {
   return (s || "")
     .toString()
@@ -64,15 +42,13 @@ function norm(s) {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
-// "commence par" : priorité aux villes dont le nom commence par la saisie
 function startsWithCity(city, typed) {
   if (!typed) return true;
   return norm(city).startsWith(norm(typed));
 }
 
-// Comparaison date exacte (YYYY-MM-DD)
 function sameDate(isoDateTime, yyyyMmDd) {
-  if (!yyyyMmDd) return true; // pas de filtre date
+  if (!yyyyMmDd) return true;
   if (!isoDateTime) return false;
 
   const d = new Date(isoDateTime);
@@ -81,9 +57,6 @@ function sameDate(isoDateTime, yyyyMmDd) {
   return d.toISOString().split("T")[0] === yyyyMmDd;
 }
 
-// ==========================================================
-// AFFICHAGE DES TRAJETS (SANS onclick -> addEventListener)
-// ==========================================================
 function afficherTrajets(trajets) {
   const zone = document.getElementById("trajetsRoot");
   if (!zone) return;
@@ -96,7 +69,6 @@ function afficherTrajets(trajets) {
   }
 
   trajets.forEach((trajet) => {
-    // 1) créer la carte
     const card = document.createElement("div");
     card.className = "card shadow-sm mb-3";
     card.dataset.trajetId = trajet.id;
@@ -129,34 +101,28 @@ function afficherTrajets(trajets) {
       </div>
     `;
 
-    // 2) brancher l’événement du bouton
     const input = card.querySelector("input");
     const btn = card.querySelector("button[data-role='reserve']");
 
-    // Si complet => désactiver
     if (trajet.placesRestantes <= 0) {
       btn.disabled = true;
       btn.textContent = "Complet";
     }
 
     btn.addEventListener("click", async () => {
-      // ==========================================================
-      //  PROTECTION FRONT (UX) : réserver = PASSAGER uniquement
-      // ==========================================================
       if (!isConnected()) {
         afficherMessage("Connectez-vous pour réserver.");
         redirectTo("/connexion");
         return;
       }
 
-      const roles = getFrontRoles(); // ex: ["connected","passager"]
+      const roles = getFrontRoles();
       if (!roles.includes("passager")) {
         afficherMessage("Seuls les passagers peuvent réserver un trajet.");
         return;
       }
 
       const nbPlaces = Number(input.value || 1);
-
       if (!Number.isFinite(nbPlaces) || nbPlaces <= 0) {
         afficherMessage("Nombre de places invalide.");
         return;
@@ -170,7 +136,6 @@ function afficherTrajets(trajets) {
         const res = await createReservation(trajet.id, nbPlaces);
         afficherMessage(res?.message || "Réservation créée.");
 
-        // refresh places restantes
         const trajetMisAJour = await getTrajet(trajet.id);
         card.querySelector("[data-role='places']").textContent =
           trajetMisAJour.placesRestantes;
@@ -187,40 +152,31 @@ function afficherTrajets(trajets) {
         return;
       }
 
-      // réactiver si pas complet
       btn.disabled = false;
       btn.textContent = texteAvant;
     });
 
-    // 3) ajouter la carte dans la page
     zone.appendChild(card);
   });
 }
 
-// ==========================================================
-// CHARGEMENT INITIAL (LISTE + FILTRE URL)
-// ==========================================================
-async function chargerTrajets() {
-  const loading = document.getElementById("loading");
-  loading?.classList.remove("d-none");
+/*
+  Je charge les trajets en utilisant des filtres fournis par la page.
+  depart/arrivee : "commence par"
+  date : date exacte YYYY-MM-DD
+*/
+export async function chargerTrajets({ depart, arrivee, date }) {
+  const zone = document.getElementById("trajetsRoot");
+  if (!zone) return;
 
   try {
     const trajets = await listTrajets();
 
-    // ----------------------------------------------------------
-    // FILTRE VIA QUERY PARAMS
-    // ex: /covoiturages?depart=Paris&arrivee=Lyon&date=2026-02-26
-    // ----------------------------------------------------------
-    const params = new URLSearchParams(window.location.search);
-    const departParam = params.get("depart") || "";
-    const arriveeParam = params.get("arrivee") || "";
-    const dateParam = params.get("date") || ""; // YYYY-MM-DD
-
     const filtered = trajets.filter((t) => {
       return (
-        startsWithCity(t.departVille, departParam) &&
-        startsWithCity(t.arriveeVille, arriveeParam) &&
-        sameDate(t.dateDepart, dateParam)
+        startsWithCity(t.departVille, depart) &&
+        startsWithCity(t.arriveeVille, arrivee) &&
+        sameDate(t.dateDepart, date)
       );
     });
 
@@ -229,28 +185,5 @@ async function chargerTrajets() {
     afficherMessage(
       e?.data?.message || e.message || "Impossible de charger les trajets."
     );
-  } finally {
-    loading?.classList.add("d-none");
   }
-}
-
-
-
-// ==========================================================
-// RE-INIT SPA
-// ==========================================================
-// Le Router déclenche "route:changed" à chaque navigation.
-// Comme les modules peuvent être mis en cache, on relance
-// le chargement quand on arrive/revient sur /covoiturages.
-// ==========================================================
-window.addEventListener("route:changed", (e) => {
-  const url = e?.detail?.url || window.location.pathname;
-  if (url === "/covoiturages") {
-    chargerTrajets();
-  }
-});
-
-// Lancement initial (si on arrive directement sur /covoiturages)
-if (window.location.pathname === "/covoiturages") {
-  chargerTrajets();
 }
