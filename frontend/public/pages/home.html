@@ -1,29 +1,7 @@
-<!-- ==========================================================
-     PAGE ACCUEIL (HOME)
-     ==========================================================
-     Cette page :
-     - affiche la section hero (DA)
-     - propose un formulaire de recherche de trajet
-     - présente EcoRide (contenu marketing)
-
-     IMPORTANT (SPA) :
-     - Cette page est injectée dans #main-page par Router.js
-     - Pas de <html>, <head>, <body> ici
-
-     IMPORTANT (API / UX) :
-     - Le formulaire de recherche ne fait pas un vrai POST
-     - On redirige vers /covoiturages avec des query params
-       ex : /covoiturages?depart=...&arrivee=...&date=...
-     - Ensuite (plus tard) tu peux filtrer côté front sur la page covoiturages.
-     ========================================================== -->
-
+<h1 class="main-title text-center">Voyager vert avec EcoRide !</h1>
 <div class="hero-scene text-center text-white">
-    <div class="hero-scene-content">
-        <!-- Tu peux remettre ton titre ici si tu veux l’afficher sur l’accueil -->
-        <h1>Voyager vert avec EcoRide !</h1>
-    </div>
+    <div class="hero-scene-content"></div>
 </div>
-
 <section class="mb-3">
     <!-- ==========================================================
        FORMULAIRE RECHERCHE
@@ -92,7 +70,7 @@
            - puis utiliser : src="/images/startup-eco.jpg"
            Sinon, les chemins relatifs ../Images/... cassent souvent.
            ========================================================== -->
-            <img src="/images/Start-up Eco.jpg" alt="Start-up EcoRide" class="img-fluid my-3">
+            <img src="/frontend/assets/images/Start-up Eco.jpg" alt="Start-up EcoRide" class="img-fluid my-3">
 
             <br><br>
             Spécialisée exclusivement dans les trajets en voiture, notre plateforme web facilite la mise en relation de
@@ -100,7 +78,7 @@
             occasionnels, EcoRide encourage une mobilité plus responsable et solidaire.
             <br><br>
 
-            <img src="/images/Voiture eco.jpg" alt="Voiture écologique" class="img-fluid my-3">
+            <img src="/frontend/assets/images/Voiture eco.jpg" alt="Voiture écologique" class="img-fluid my-3">
 
             <br><br>
             💡 Notre ambition : devenir la plateforme de référence en matière de covoiturage écologique en France et, à

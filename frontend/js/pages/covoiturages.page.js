@@ -1,107 +1,258 @@
 import { chargerTrajets } from "../ui/covoiturages.js";
 
-/*
-  Ce fichier gère la page /covoiturages.
-
-  - Je lis les infos dans l’URL (depart, arrivee, date)
-  - Je gère le formulaire de recherche
-  - Si la recherche n’est pas complète, je n’affiche pas la liste
-  - Si elle est complète, je demande à l’UI de charger les trajets
-*/
-
-function getParams() {
+// Je récupère les paramètres dans l'URL
+function recupererParametresUrl() {
     const params = new URLSearchParams(window.location.search);
+
     return {
         depart: params.get("depart") || "",
         arrivee: params.get("arrivee") || "",
         date: params.get("date") || "",
+        afficherTous: params.get("all") === "1",
+
+        // Filtres
+        ecoOnly: params.get("ecoOnly") === "1",
+        prixMax: params.get("prixMax") || "",
+        dureeMax: params.get("dureeMax") || "",
+        noteMin: params.get("noteMin") || "",
     };
 }
 
-function setParams({ depart, arrivee, date }) {
+// Je mets à jour l'URL avec les valeurs du formulaire
+function mettreAJourUrl({
+    depart,
+    arrivee,
+    date,
+    afficherTous = false,
+    ecoOnly = false,
+    prixMax = "",
+    dureeMax = "",
+    noteMin = "",
+}) {
     const params = new URLSearchParams();
-    params.set("depart", depart);
-    params.set("arrivee", arrivee);
-    params.set("date", date);
 
-    const newUrl = `/covoiturages?${params.toString()}`;
-    window.history.pushState({}, "", newUrl);
+    if (depart) params.set("depart", depart);
+    if (arrivee) params.set("arrivee", arrivee);
+    if (date) params.set("date", date);
+    if (afficherTous) params.set("all", "1");
 
-    initCovoituragesPage();
+    if (ecoOnly) params.set("ecoOnly", "1");
+    if (prixMax) params.set("prixMax", prixMax);
+    if (dureeMax) params.set("dureeMax", dureeMax);
+    if (noteMin) params.set("noteMin", noteMin);
+
+    const queryString = params.toString();
+    const nouvelleUrl = queryString ? `/covoiturages?${queryString}` : `/covoiturages`;
+
+    window.history.pushState({}, "", nouvelleUrl);
+
+    // Je relance la page pour afficher les résultats
+    initialiserPageCovoiturages();
 }
 
-export async function initCovoituragesPage() {
-    const root = document.getElementById("trajetsRoot");
-    const loading = document.getElementById("loading");
-    const hint = document.getElementById("hint");
+// Cette fonction vide tous les champs du formulaire
+function viderFormulaire({
+    champDepart,
+    champArrivee,
+    champDate,
+    filtreEco,
+    filtrePrixMax,
+    filtreDureeMax,
+    filtreNoteMin,
+}) {
+    champDepart.value = "";
+    champArrivee.value = "";
+    champDate.value = "";
 
-    const form = document.getElementById("searchForm");
-    const departInput = document.getElementById("departInput");
-    const arriveeInput = document.getElementById("arriveeInput");
-    const dateInput = document.getElementById("dateInput");
-    const resetBtn = document.getElementById("resetBtn");
+    if (filtreEco) filtreEco.checked = false;
+    if (filtrePrixMax) filtrePrixMax.value = "";
+    if (filtreDureeMax) filtreDureeMax.value = "";
+    if (filtreNoteMin) filtreNoteMin.value = "";
+}
 
-    if (!root || !form || !departInput || !arriveeInput || !dateInput) return;
+// Cette fonction met les valeurs de l'URL dans le formulaire
+function remplirFormulaireAvecUrl({
+    parametres,
+    champDepart,
+    champArrivee,
+    champDate,
+    filtreEco,
+    filtrePrixMax,
+    filtreDureeMax,
+    filtreNoteMin,
+}) {
+    champDepart.value = parametres.depart;
+    champArrivee.value = parametres.arrivee;
+    champDate.value = parametres.date;
 
-    // Je pré-remplis le formulaire avec ce qu’il y a déjà dans l’URL
-    const { depart, arrivee, date } = getParams();
-    departInput.value = depart;
-    arriveeInput.value = arrivee;
-    dateInput.value = date;
+    if (filtreEco) filtreEco.checked = parametres.ecoOnly;
+    if (filtrePrixMax) filtrePrixMax.value = parametres.prixMax;
+    if (filtreDureeMax) filtreDureeMax.value = parametres.dureeMax;
+    if (filtreNoteMin) filtreNoteMin.value = parametres.noteMin;
+}
 
-    // J’attache les events une seule fois (sinon en SPA ça double)
-    if (!form.dataset.bound) {
-        form.dataset.bound = "1";
-
-        form.addEventListener("submit", (e) => {
-            e.preventDefault();
-
-            const d = departInput.value.trim();
-            const a = arriveeInput.value.trim();
-            const dt = dateInput.value;
-
-            // Départ + arrivée + date obligatoires
-            if (!d || !a || !dt) return;
-
-            setParams({ depart: d, arrivee: a, date: dt });
-        });
-
-        resetBtn?.addEventListener("click", () => {
-            window.history.pushState({}, "", "/covoiturages");
-            initCovoituragesPage();
-        });
-    }
-
-    // Je nettoie l’écran
-    root.innerHTML = "";
-    loading?.classList.add("d-none");
-
-    // Si recherche incomplète : j’affiche juste le message d’aide
-    if (!depart || !arrivee || !date) {
-        hint?.classList.remove("d-none");
-        return;
-    }
-
-    // Sinon je charge les trajets
-    hint?.classList.add("d-none");
-    loading?.classList.remove("d-none");
+// Cette fonction lance le chargement des trajets
+async function lancerChargementTrajets({
+    zoneChargement,
+    depart,
+    arrivee,
+    date,
+    ecoOnly,
+    prixMax,
+    dureeMax,
+    noteMin,
+}) {
+    if (zoneChargement) zoneChargement.classList.remove("d-none");
 
     try {
-        await chargerTrajets({ depart, arrivee, date });
+        await chargerTrajets({
+            depart,
+            arrivee,
+            date,
+            ecoOnly,
+            prixMax,
+            dureeMax,
+            noteMin,
+        });
     } finally {
-        loading?.classList.add("d-none");
+        if (zoneChargement) zoneChargement.classList.add("d-none");
     }
 }
 
-// Petit bonus SPA : si tu reviens sur la page, je relance l’init
-window.addEventListener("route:changed", (e) => {
-    const url = e?.detail?.url || window.location.pathname;
-    if (url === "/covoiturages") {
-        initCovoituragesPage();
-    }
-});
+// Fonction principale de la page
+export async function initialiserPageCovoiturages() {
+    const zoneTrajets = document.getElementById("trajetsRoot");
+    const zoneChargement = document.getElementById("loading");
+    const texteAide = document.getElementById("hint");
 
-// Si on arrive directement sur /covoiturages
-if (window.location.pathname === "/covoiturages") {
-    initCovoituragesPage();
+    const formulaire = document.getElementById("searchForm");
+    const champDepart = document.getElementById("departInput");
+    const champArrivee = document.getElementById("arriveeInput");
+    const champDate = document.getElementById("dateInput");
+    const boutonReset = document.getElementById("resetBtn");
+
+    // Filtres
+    const filtreEco = document.getElementById("ecoOnly");
+    const filtrePrixMax = document.getElementById("prixMax");
+    const filtreDureeMax = document.getElementById("dureeMax");
+    const filtreNoteMin = document.getElementById("noteMin");
+    const boutonAppliquerFiltres = document.getElementById("applyFiltersBtn");
+    const boutonVoirTous = document.getElementById("seeAllBtn");
+
+    if (!zoneTrajets || !formulaire || !champDepart || !champArrivee || !champDate) return;
+
+    const parametres = recupererParametresUrl();
+
+    remplirFormulaireAvecUrl({
+        parametres,
+        champDepart,
+        champArrivee,
+        champDate,
+        filtreEco,
+        filtrePrixMax,
+        filtreDureeMax,
+        filtreNoteMin,
+    });
+
+    // J'ajoute les événements une seule fois
+    if (!formulaire.dataset.evenementsAjoutes) {
+        formulaire.dataset.evenementsAjoutes = "1";
+
+        // Recherche classique
+        formulaire.addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            const depart = champDepart.value.trim();
+            const arrivee = champArrivee.value.trim();
+            const date = champDate.value;
+
+            // Je garde les 3 champs obligatoires pour une recherche normale
+            if (!depart || !arrivee || !date) return;
+
+            mettreAJourUrl({
+                depart,
+                arrivee,
+                date,
+                afficherTous: false,
+                ecoOnly: filtreEco?.checked || false,
+                prixMax: filtrePrixMax?.value || "",
+                dureeMax: filtreDureeMax?.value || "",
+                noteMin: filtreNoteMin?.value || "",
+            });
+        });
+
+        // Réinitialisation
+        boutonReset?.addEventListener("click", () => {
+            viderFormulaire({
+                champDepart,
+                champArrivee,
+                champDate,
+                filtreEco,
+                filtrePrixMax,
+                filtreDureeMax,
+                filtreNoteMin,
+            });
+
+            mettreAJourUrl({
+                depart: "",
+                arrivee: "",
+                date: "",
+                afficherTous: false,
+                ecoOnly: false,
+                prixMax: "",
+                dureeMax: "",
+                noteMin: "",
+            });
+        });
+
+        // Appliquer uniquement les filtres
+        boutonAppliquerFiltres?.addEventListener("click", () => {
+            mettreAJourUrl({
+                depart: champDepart.value.trim(),
+                arrivee: champArrivee.value.trim(),
+                date: champDate.value,
+                afficherTous: recupererParametresUrl().afficherTous,
+                ecoOnly: filtreEco?.checked || false,
+                prixMax: filtrePrixMax?.value || "",
+                dureeMax: filtreDureeMax?.value || "",
+                noteMin: filtreNoteMin?.value || "",
+            });
+        });
+
+        // Voir tous les trajets
+        boutonVoirTous?.addEventListener("click", () => {
+            mettreAJourUrl({
+                depart: "",
+                arrivee: "",
+                date: "",
+                afficherTous: true,
+                ecoOnly: filtreEco?.checked || false,
+                prixMax: filtrePrixMax?.value || "",
+                dureeMax: filtreDureeMax?.value || "",
+                noteMin: filtreNoteMin?.value || "",
+            });
+        });
+    }
+
+    // Cas 1 : vraie recherche
+    const rechercheComplete = !!(parametres.depart && parametres.arrivee && parametres.date);
+
+    // Cas 2 : clic sur voir tous
+    const afficherTous = parametres.afficherTous;
+
+    if (texteAide) texteAide.classList.toggle("d-none", rechercheComplete || afficherTous);
+    if (zoneTrajets) zoneTrajets.classList.toggle("d-none", !(rechercheComplete || afficherTous));
+
+    if (!(rechercheComplete || afficherTous)) return;
+
+    await lancerChargementTrajets({
+        zoneChargement,
+        depart: parametres.depart,
+        arrivee: parametres.arrivee,
+        date: parametres.date,
+        ecoOnly: parametres.ecoOnly,
+        prixMax: parametres.prixMax,
+        dureeMax: parametres.dureeMax,
+        noteMin: parametres.noteMin,
+    });
 }

@@ -1,55 +1,23 @@
-/* frontend/assets/scss/components/_forms.scss */
+.table-style h2 {
+    color: $white;
+    font-family: $font-title;
+    font-weight: 600;
+    text-shadow: none;
+}
 
-.input-group,
-.form-control,
-.heure-input,
-.form-select {
+.table-center {
+    width: 100%;
+    overflow-x: auto;
+    margin: 30px auto;
+    display: flex;
+    justify-content: center;
+}
+
+.table-style {
     width: 50%;
-    margin: 0 auto;
-}
-
-.input-group-text input[type="checkbox"] {
-    width: 24px;
-    height: 24px;
-}
-
-.search-form {
-    display: flex;
-    flex-direction: column;
-    max-width: 400px;
-    margin: auto;
-    gap: 10px;
-    background-color: $dark;
-    margin-top: 5px;
-}
-
-.checkbox-center {
-    display: grid;
-    place-items: center;
-
-    .form-check-label {
-        color: $primary;
-    }
-}
-
-.checkbox {
-    display: flex;
-    align-items: center;
-}
-
-.date {
-    width: 300px;
-    height: 50px;
-    font-size: 18px;
-}
-
-button.btn-primary {
-    width: 40%;
-    display: block;
-    margin: 0 auto;
-    background-color: $primary;
-    color: $black;
-    font-family: $font-family-serif;
-    font-size: 18px;
-    margin-bottom: 10px;
+    min-width: 600px;
+    background-color: #8fd19e;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
 }

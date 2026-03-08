@@ -1,11 +1,11 @@
 /* ======================================================
-   PAGE COVOITURAGES
+   CARTES
 ====================================================== */
 
-#trajetsRoot .card {
-    margin-bottom: 1rem;
+.card {
+    border-radius: $radius-main;
 }
 
-#closestDateBox {
-    border-radius: $radius-main;
+.card.shadow-sm {
+    box-shadow: $shadow-main;
 }
