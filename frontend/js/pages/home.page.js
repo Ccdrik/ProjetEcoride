@@ -1,32 +1,19 @@
-// ==========================================================
-// PAGE HOME - RECHERCHE + "TOUS LES TRAJETS" + AUTOCOMPLETE
-// ==========================================================
-// Objectifs :
-// - Recherche : redirige vers /covoiturages?depart=...&arrivee=...&date=...
-// - Date NON obligatoire
-// - Autocomplete (FR) :
-//    1) villes de tes trajets (API /api/trajets)
-//    2) fallback data.gouv (API Adresse) si pas assez de résultats
-//
-// Règles UI autocomplete :
-// - priorité aux villes qui COMMENCENT par la saisie
-// - puis celles qui CONTIENNENT
-// - debounce + abort => pas d’appels en boucle
-// ==========================================================
-
 import { listTrajets } from "../api/trajets.js";
 
-// ----------------------------------------------------------
-// Helpers
-// ----------------------------------------------------------
+// ==========================================================
+// PAGE ACCUEIL
+// - autocomplete des villes
+// - recherche
+// - bouton voir tous
+// ==========================================================
 
-function goTo(path) {
+function allerVers(path) {
     window.history.pushState({}, "", path);
     window.dispatchEvent(new CustomEvent("route:changed"));
 }
 
-function normalize(str) {
-    return (str || "")
+function normaliserTexte(texte) {
+    return (texte || "")
         .toString()
         .trim()
         .toLowerCase()
@@ -34,217 +21,205 @@ function normalize(str) {
         .replace(/[\u0300-\u036f]/g, "");
 }
 
-function uniqueSorted(arr) {
-    return Array.from(new Set(arr))
+function listeUniqueTriee(tableau) {
+    return Array.from(new Set(tableau))
         .filter(Boolean)
         .sort((a, b) => a.localeCompare(b, "fr"));
 }
 
-function rankMatches(items, query, max = 8) {
-    const q = normalize(query);
-    if (!q || q.length < 2) return [];
+function classerCorrespondances(elements, recherche, max = 8) {
+    const texteRecherche = normaliserTexte(recherche);
+    if (!texteRecherche || texteRecherche.length < 2) return [];
 
-    const starts = [];
-    const contains = [];
+    const commencePar = [];
+    const contient = [];
 
-    for (const it of items) {
-        const n = normalize(it);
-        if (n.startsWith(q)) starts.push(it);
-        else if (n.includes(q)) contains.push(it);
+    for (const element of elements) {
+        const texteNormalise = normaliserTexte(element);
+
+        if (texteNormalise.startsWith(texteRecherche)) {
+            commencePar.push(element);
+        } else if (texteNormalise.includes(texteRecherche)) {
+            contient.push(element);
+        }
     }
 
-    return starts.concat(contains).slice(0, max);
+    return commencePar.concat(contient).slice(0, max);
 }
 
-// ----------------------------------------------------------
-// Suggestions UI
-// ----------------------------------------------------------
+function afficherSuggestions(zoneSuggestions, elements, auChoix) {
+    if (!zoneSuggestions) return;
 
-function showSuggestions(container, items, onPick) {
-    if (!container) return;
+    zoneSuggestions.innerHTML = "";
 
-    container.innerHTML = "";
-    if (!items || items.length === 0) {
-        container.style.display = "none";
+    if (!elements || elements.length === 0) {
+        zoneSuggestions.style.display = "none";
         return;
     }
 
-    items.forEach((label) => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "list-group-item list-group-item-action";
-        btn.textContent = label;
-        btn.addEventListener("click", () => onPick(label));
-        container.appendChild(btn);
+    elements.forEach((element) => {
+        const bouton = document.createElement("button");
+        bouton.type = "button";
+        bouton.className = "list-group-item list-group-item-action";
+        bouton.textContent = element;
+
+        bouton.addEventListener("click", () => {
+            auChoix(element);
+        });
+
+        zoneSuggestions.appendChild(bouton);
     });
 
-    container.style.display = "";
+    zoneSuggestions.style.display = "";
 }
 
-function hideSuggestions(container) {
-    if (!container) return;
-    container.style.display = "none";
-    container.innerHTML = "";
+function masquerSuggestions(zoneSuggestions) {
+    if (!zoneSuggestions) return;
+    zoneSuggestions.innerHTML = "";
+    zoneSuggestions.style.display = "none";
 }
 
-// ----------------------------------------------------------
-// data.gouv - API Adresse (municipality)
-// ----------------------------------------------------------
-// On cherche uniquement des communes (villes)
-async function fetchCitiesFromDataGouv(query, { signal } = {}) {
-    const q = encodeURIComponent(query.trim());
-    const url = `https://api-adresse.data.gouv.fr/search/?q=${q}&limit=8&type=municipality`;
+function debounce(fonction, delai = 250) {
+    let timer = null;
 
-    const res = await fetch(url, { signal });
-    if (!res.ok) return [];
-
-    const json = await res.json();
-    const feats = json?.features || [];
-
-    // On récupère le nom de commune : properties.city
-    // (On filtre au cas où)
-    const cities = feats
-        .map((f) => f?.properties?.city)
-        .filter(Boolean);
-
-    return uniqueSorted(cities);
-}
-
-// ----------------------------------------------------------
-// Autocomplete hybride (trajets -> data.gouv fallback)
-// ----------------------------------------------------------
-
-function debounce(fn, delay = 250) {
-    let t = null;
     return (...args) => {
-        clearTimeout(t);
-        t = setTimeout(() => fn(...args), delay);
+        clearTimeout(timer);
+        timer = setTimeout(() => fonction(...args), delai);
     };
 }
 
-function bindAutocompleteHybrid(input, container, localCities) {
-    if (!input || !container) return;
+async function recupererVillesDepuisDataGouv(recherche, { signal } = {}) {
+    const texte = encodeURIComponent(recherche.trim());
+    const url = `https://api-adresse.data.gouv.fr/search/?q=${texte}&limit=8&type=municipality`;
 
-    let abortCtrl = null;
+    const reponse = await fetch(url, { signal });
+    if (!reponse.ok) return [];
 
-    const run = debounce(async () => {
-        const raw = input.value || "";
-        const q = raw.trim();
+    const json = await reponse.json();
+    const villes = (json?.features || [])
+        .map((element) => element?.properties?.city)
+        .filter(Boolean);
 
-        // Reset si trop court
-        if (q.length < 2) {
-            hideSuggestions(container);
-            if (abortCtrl) abortCtrl.abort();
+    return listeUniqueTriee(villes);
+}
+
+function activerAutocomplete(champ, zoneSuggestions, villesLocales) {
+    if (!champ || !zoneSuggestions) return;
+
+    let controleurAnnulation = null;
+
+    const lancerRecherche = debounce(async () => {
+        const texte = (champ.value || "").trim();
+
+        if (texte.length < 2) {
+            masquerSuggestions(zoneSuggestions);
+            if (controleurAnnulation) controleurAnnulation.abort();
             return;
         }
 
-        // 1) suggestions locales (trajets)
-        const localRanked = rankMatches(localCities, q, 8);
+        const resultatsLocaux = classerCorrespondances(villesLocales, texte, 8);
 
-        // Si déjà “assez” de résultats, on affiche direct
-        if (localRanked.length >= 4) {
-            showSuggestions(container, localRanked, (picked) => {
-                input.value = picked;
-                hideSuggestions(container);
-                input.focus();
+        if (resultatsLocaux.length >= 4) {
+            afficherSuggestions(zoneSuggestions, resultatsLocaux, (valeurChoisie) => {
+                champ.value = valeurChoisie;
+                masquerSuggestions(zoneSuggestions);
+                champ.focus();
             });
             return;
         }
 
-        // 2) fallback data.gouv
-        // Annule la requête précédente si elle existe
-        if (abortCtrl) abortCtrl.abort();
-        abortCtrl = new AbortController();
+        if (controleurAnnulation) controleurAnnulation.abort();
+        controleurAnnulation = new AbortController();
 
-        let remoteCities = [];
+        let resultatsDataGouv = [];
         try {
-            remoteCities = await fetchCitiesFromDataGouv(q, { signal: abortCtrl.signal });
+            resultatsDataGouv = await recupererVillesDepuisDataGouv(texte, {
+                signal: controleurAnnulation.signal
+            });
         } catch (e) {
-            // Abort => normal, on ignore
-            if (e?.name !== "AbortError") remoteCities = [];
-        }
-
-        // Merge local + remote (sans doublons), puis ranking
-        const merged = uniqueSorted([...localCities, ...remoteCities]);
-        const ranked = rankMatches(merged, q, 8);
-
-        showSuggestions(container, ranked, (picked) => {
-            input.value = picked;
-            hideSuggestions(container);
-            input.focus();
-        });
-    }, 250);
-
-    input.addEventListener("input", run);
-    input.addEventListener("focus", run);
-
-    // Click dehors => ferme
-    document.addEventListener("click", (e) => {
-        if (e.target === input || container.contains(e.target)) return;
-        hideSuggestions(container);
-    });
-
-    // ESC => ferme
-    input.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") hideSuggestions(container);
-    });
-}
-
-// ----------------------------------------------------------
-// Init page
-// ----------------------------------------------------------
-
-export async function initHome() {
-    const form = document.getElementById("homeSearchForm");
-    const btnAll = document.getElementById("btnAllTrajets");
-
-    const departInput = document.getElementById("depart");
-    const arriveeInput = document.getElementById("arrivee");
-    const dateInput = document.getElementById("date"); // optionnel
-
-    const departSug = document.getElementById("departSuggestions");
-    const arriveeSug = document.getElementById("arriveeSuggestions");
-
-    // Bouton "voir tous les trajets"
-    if (btnAll) btnAll.addEventListener("click", () => goTo("/covoiturages"));
-
-    // Charger les villes depuis tes trajets
-    let localCities = [];
-    try {
-        const trajets = await listTrajets();
-        const all = [];
-
-        if (Array.isArray(trajets)) {
-            for (const t of trajets) {
-                if (t?.departVille) all.push(t.departVille);
-                if (t?.arriveeVille) all.push(t.arriveeVille);
+            if (e?.name !== "AbortError") {
+                resultatsDataGouv = [];
             }
         }
 
-        localCities = uniqueSorted(all);
-    } catch {
-        localCities = [];
-    }
+        const listeFusionnee = listeUniqueTriee([...villesLocales, ...resultatsDataGouv]);
+        const resultatsFinaux = classerCorrespondances(listeFusionnee, texte, 8);
 
-    // Autocomplete hybride
-    bindAutocompleteHybrid(departInput, departSug, localCities);
-    bindAutocompleteHybrid(arriveeInput, arriveeSug, localCities);
-
-    // Submit recherche => redirection vers /covoiturages + query params
-    if (form) {
-        form.addEventListener("submit", (e) => {
-            e.preventDefault();
-
-            const depart = (departInput?.value || "").trim();
-            const arrivee = (arriveeInput?.value || "").trim();
-            const date = (dateInput?.value || "").trim(); // NON obligatoire
-
-            const params = new URLSearchParams();
-            if (depart) params.set("depart", depart);
-            if (arrivee) params.set("arrivee", arrivee);
-            if (date) params.set("date", date);
-
-            goTo(`/covoiturages${params.toString() ? "?" + params.toString() : ""}`);
+        afficherSuggestions(zoneSuggestions, resultatsFinaux, (valeurChoisie) => {
+            champ.value = valeurChoisie;
+            masquerSuggestions(zoneSuggestions);
+            champ.focus();
         });
+    }, 250);
+
+    champ.addEventListener("input", lancerRecherche);
+    champ.addEventListener("focus", lancerRecherche);
+
+    document.addEventListener("click", (event) => {
+        if (event.target === champ || zoneSuggestions.contains(event.target)) return;
+        masquerSuggestions(zoneSuggestions);
+    });
+
+    champ.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            masquerSuggestions(zoneSuggestions);
+        }
+    });
+}
+
+export async function initHome() {
+    const formulaire = document.getElementById("formulaireRechercheAccueil");
+    const boutonVoirTous = document.getElementById("boutonVoirTousAccueil");
+
+    const champDepart = document.getElementById("champDepartAccueil");
+    const champArrivee = document.getElementById("champArriveeAccueil");
+    const champDate = document.getElementById("champDateAccueil");
+
+    const suggestionsDepart = document.getElementById("suggestionsDepartAccueil");
+    const suggestionsArrivee = document.getElementById("suggestionsArriveeAccueil");
+
+    if (!formulaire || !boutonVoirTous || !champDepart || !champArrivee || !champDate) {
+        return;
     }
+
+    let villesLocales = [];
+
+    try {
+        const trajets = await listTrajets();
+        const toutesLesVilles = [];
+
+        if (Array.isArray(trajets)) {
+            for (const trajet of trajets) {
+                if (trajet?.departVille) toutesLesVilles.push(trajet.departVille);
+                if (trajet?.arriveeVille) toutesLesVilles.push(trajet.arriveeVille);
+            }
+        }
+
+        villesLocales = listeUniqueTriee(toutesLesVilles);
+    } catch {
+        villesLocales = [];
+    }
+
+    activerAutocomplete(champDepart, suggestionsDepart, villesLocales);
+    activerAutocomplete(champArrivee, suggestionsArrivee, villesLocales);
+
+    formulaire.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const depart = (champDepart.value || "").trim();
+        const arrivee = (champArrivee.value || "").trim();
+        const date = (champDate.value || "").trim();
+
+        const params = new URLSearchParams();
+
+        if (depart) params.set("depart", depart);
+        if (arrivee) params.set("arrivee", arrivee);
+        if (date) params.set("date", date);
+
+        allerVers(`/covoiturages${params.toString() ? "?" + params.toString() : ""}`);
+    });
+
+    boutonVoirTous.addEventListener("click", () => {
+        allerVers("/covoiturages?all=1");
+    });
 }

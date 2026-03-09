@@ -1,52 +1,53 @@
 <h1 class="main-title text-center">Voyager vert avec EcoRide !</h1>
+
 <div class="hero-scene text-center text-white">
     <div class="hero-scene-content"></div>
 </div>
+
 <section class="mb-3">
-    <!-- ==========================================================
-       FORMULAIRE RECHERCHE
-       ==========================================================
-       NOTE : action="#" ok, mais on va empêcher le submit
-       et rediriger en SPA vers /covoiturages.
-       ========================================================== -->
-    <form id="homeSearchForm" class="table-center" autocomplete="off">
+    <!--
+      Formulaire de recherche de la page d'accueil
+      Ici je ne montre pas les trajets.
+      Je redirige vers la page /covoiturages avec les paramètres dans l'URL.
+    -->
+    <form id="formulaireRechercheAccueil" class="table-center" autocomplete="off">
         <div class="table-style">
             <div class="mt-3">
                 <h2 class="text-center mb-3">Rechercher un trajet</h2>
             </div>
 
-            <!-- DEPART -->
+            <!-- Départ -->
             <div class="input-group mb-3 position-relative">
                 <span class="input-group-text"><i class="bi bi-geo-alt-fill"></i></span>
-                <input class="form-control" type="text" id="depart" name="depart" required placeholder="Départ">
-                <!-- suggestions -->
-                <div id="departSuggestions" class="list-group position-absolute w-100"
-                    style="top:100%; left:0; z-index: 1050; display:none;"></div>
+                <input class="form-control" type="text" id="champDepartAccueil" name="depart" required
+                    placeholder="Départ">
+                <div id="suggestionsDepartAccueil" class="list-group position-absolute w-100"
+                    style="top:100%; left:0; z-index:1050; display:none;"></div>
             </div>
 
-            <!-- ARRIVEE -->
+            <!-- Arrivée -->
             <div class="input-group mb-3 position-relative">
                 <span class="input-group-text"><i class="bi bi-geo-alt-fill"></i></span>
-                <input class="form-control" type="text" id="arrivee" name="arrivee" required placeholder="Arrivée">
-                <!-- suggestions -->
-                <div id="arriveeSuggestions" class="list-group position-absolute w-100"
-                    style="top:100%; left:0; z-index: 1050; display:none;"></div>
+                <input class="form-control" type="text" id="champArriveeAccueil" name="arrivee" required
+                    placeholder="Arrivée">
+                <div id="suggestionsArriveeAccueil" class="list-group position-absolute w-100"
+                    style="top:100%; left:0; z-index:1050; display:none;"></div>
             </div>
 
+            <!-- Date -->
             <div class="mb-3">
-                <input class="form-control date" type="date" id="date" name="date">
+                <input class="form-control date" type="date" id="champDateAccueil" name="date">
             </div>
 
             <button type="submit" class="btn btn-primary">Rechercher</button>
 
             <div class="text-center mt-3">
-                <button type="button" class="btn btn-outline-primary" id="btnAllTrajets">
+                <button type="button" class="btn btn-outline-primary" id="boutonVoirTousAccueil">
                     Voir tous les trajets
                 </button>
             </div>
         </div>
     </form>
-    <div id="trajets-results" class="mt-3"></div>
 </section>
 
 <section>
@@ -61,16 +62,7 @@
             particuliers.
             <br><br>
 
-            <!-- ==========================================================
-           IMAGES (IMPORTANT VITE)
-           ==========================================================
-           Avec Vite, le plus propre c’est :
-           - mettre les images dans /public/images
-             exemple : frontend/public/images/startup-eco.jpg
-           - puis utiliser : src="/images/startup-eco.jpg"
-           Sinon, les chemins relatifs ../Images/... cassent souvent.
-           ========================================================== -->
-            <img src="/frontend/assets/images/Start-up Eco.jpg" alt="Start-up EcoRide" class="img-fluid my-3">
+            <img src="/images/startup-eco.jpg" alt="Start-up EcoRide" class="img-fluid my-3">
 
             <br><br>
             Spécialisée exclusivement dans les trajets en voiture, notre plateforme web facilite la mise en relation de
@@ -78,7 +70,7 @@
             occasionnels, EcoRide encourage une mobilité plus responsable et solidaire.
             <br><br>
 
-            <img src="/frontend/assets/images/Voiture eco.jpg" alt="Voiture écologique" class="img-fluid my-3">
+            <img src="/images/Voiture eco.jpg" alt="Voiture écologique" class="img-fluid my-3">
 
             <br><br>
             💡 Notre ambition : devenir la plateforme de référence en matière de covoiturage écologique en France et, à

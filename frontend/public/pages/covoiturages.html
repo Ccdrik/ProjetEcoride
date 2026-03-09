@@ -1,59 +1,59 @@
 <h1 class="main-title text-center">Accès aux covoiturages</h1>
+
 <div class="hero-scene text-center text-white">
     <div class="hero-scene-content"></div>
 </div>
 
 <section class="container my-4">
 
-    <!-- Formulaire pour rechercher un trajet -->
-    <form id="searchForm" class="card p-3 shadow-sm">
+    <!-- Formulaire de recherche -->
+    <form id="formulaireRechercheCovoiturages" class="card p-3 shadow-sm">
         <div class="row g-3">
 
-            <!-- Ville de départ -->
             <div class="col-md-4">
-                <label for="departInput" class="form-label">Départ</label>
-                <input type="text" class="form-control" id="departInput" name="depart" placeholder="Ville de départ">
+                <label for="champDepartCovoiturages" class="form-label">Départ</label>
+                <input type="text" class="form-control" id="champDepartCovoiturages" name="depart"
+                    placeholder="Ville de départ">
             </div>
 
-            <!-- Ville d'arrivée -->
             <div class="col-md-4">
-                <label for="arriveeInput" class="form-label">Arrivée</label>
-                <input type="text" class="form-control" id="arriveeInput" name="arrivee" placeholder="Ville d’arrivée">
+                <label for="champArriveeCovoiturages" class="form-label">Arrivée</label>
+                <input type="text" class="form-control" id="champArriveeCovoiturages" name="arrivee"
+                    placeholder="Ville d’arrivée">
             </div>
 
-            <!-- Date du trajet -->
             <div class="col-md-4">
-                <label for="dateInput" class="form-label">Date</label>
-                <input type="date" class="form-control" id="dateInput" name="date">
+                <label for="champDateCovoiturages" class="form-label">Date</label>
+                <input type="date" class="form-control" id="champDateCovoiturages" name="date">
             </div>
         </div>
 
-        <!-- Les filtres -->
-        <div class="row g-2 mt-2" id="filtersRow">
+        <!-- Filtres -->
+        <div class="row g-2 mt-2" id="ligneFiltresCovoiturages">
             <div class="col-12 col-md-3">
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="ecoOnly">
-                    <label class="form-check-label" for="ecoOnly">
+                    <input class="form-check-input" type="checkbox" id="filtreEcologique">
+                    <label class="form-check-label" for="filtreEcologique">
                         Trajets écologiques
                     </label>
                 </div>
             </div>
 
             <div class="col-6 col-md-3">
-                <label class="form-label small mb-1" for="prixMax">Prix max (€)</label>
-                <input class="form-control form-control-sm" type="number" id="prixMax" min="0" step="1"
+                <label class="form-label small mb-1" for="filtrePrixMax">Prix max (€)</label>
+                <input class="form-control form-control-sm" type="number" id="filtrePrixMax" min="0" step="1"
                     placeholder="ex: 10">
             </div>
 
             <div class="col-6 col-md-3">
-                <label class="form-label small mb-1" for="dureeMax">Durée max (min)</label>
-                <input class="form-control form-control-sm" type="number" id="dureeMax" min="0" step="5"
+                <label class="form-label small mb-1" for="filtreDureeMax">Durée max (min)</label>
+                <input class="form-control form-control-sm" type="number" id="filtreDureeMax" min="0" step="5"
                     placeholder="ex: 120">
             </div>
 
             <div class="col-6 col-md-3">
-                <label class="form-label small mb-1" for="noteMin">Note min</label>
-                <select class="form-select form-select-sm" id="noteMin">
+                <label class="form-label small mb-1" for="filtreNoteMin">Note min</label>
+                <select class="form-select form-select-sm" id="filtreNoteMin">
                     <option value="">--</option>
                     <option value="1">1+</option>
                     <option value="2">2+</option>
@@ -63,29 +63,30 @@
                 </select>
             </div>
 
-            <!-- Les boutons -->
             <div class="col-12 d-flex gap-2 mt-2 flex-wrap">
                 <button class="btn btn-primary" type="submit">Rechercher</button>
-                <button class="btn btn-outline-secondary" type="button" id="applyFiltersBtn">Appliquer les
+                <button class="btn btn-outline-secondary" type="button" id="boutonAppliquerFiltres">Appliquer les
                     filtres</button>
-                <button class="btn btn-outline-dark" type="button" id="seeAllBtn">Voir tous les covoiturages</button>
-                <button class="btn btn-outline-danger" type="button" id="resetBtn">Réinitialiser</button>
+                <button class="btn btn-outline-dark" type="button" id="boutonVoirTousCovoiturages">Voir tous les
+                    covoiturages</button>
+                <button class="btn btn-outline-danger" type="button"
+                    id="boutonReinitialiserCovoiturages">Réinitialiser</button>
             </div>
         </div>
     </form>
 
-    <!-- Ici on affichera une date proche si besoin -->
-    <div class="alert alert-info mt-3 d-none" id="closestDateBox"></div>
+    <!-- Date proche si besoin -->
+    <div class="alert alert-info mt-3 d-none" id="zoneDateProche"></div>
 
-    <!-- Petit message d'aide -->
-    <p id="hint" class="text-muted mt-3">
+    <!-- Petit texte d'aide -->
+    <p id="texteAideCovoiturages" class="text-muted mt-3">
         Renseigne un départ, une arrivée et une date pour lancer une recherche,
         ou clique sur "Voir tous les covoiturages".
     </p>
 
-    <!-- Texte de chargement -->
-    <div id="loading" class="d-none mt-3">Chargement...</div>
+    <!-- Chargement -->
+    <div id="zoneChargementCovoiturages" class="d-none mt-3">Chargement...</div>
 
-    <!-- Résultats des trajets -->
-    <div id="trajetsRoot" class="mt-4 d-none"></div>
+    <!-- Résultats -->
+    <div id="zoneTrajets" class="mt-4 d-none"></div>
 </section>
