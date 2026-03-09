@@ -66,7 +66,7 @@ export async function apiFetch(path, options = {}) {
 
     if (window.location.pathname !== "/connexion") {
       window.history.pushState({}, "", "/connexion");
-      window.dispatchEvent(new CustomEvent("route:changed"));
+      window.dispatchEvent(new Event("popstate"));
     }
 
     // on continue et on lance l'erreur standard

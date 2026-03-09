@@ -127,7 +127,7 @@ async function run() {
                 alert("Compte anonymisé.");
                 clearToken();
                 window.history.pushState({}, "", "/connexion");
-                window.dispatchEvent(new CustomEvent("route:changed"));
+                window.dispatchEvent(new Event("popstate"));
             } catch (e) {
                 alert(e.message);
             }

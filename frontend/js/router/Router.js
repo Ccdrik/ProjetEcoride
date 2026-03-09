@@ -10,7 +10,7 @@
 // - injecte le script JS de page si nécessaire
 // - met à jour le titre
 // - met à jour le menu (connecté / rôles)
-// - déclenche un event "route:changed" pour init la page
+// 
 // ==========================================================
 
 import Route from "./Route.js";
@@ -147,7 +147,10 @@ const LoadContentPage = async () => {
         const scriptTag = document.createElement("script");
         scriptTag.setAttribute("id", "route-script");
         scriptTag.setAttribute("type", "module");
-        scriptTag.setAttribute("src", actualRoute.pathJS);
+
+        // important : on force la réexécution du script à chaque changement de page
+        scriptTag.setAttribute("src", `${actualRoute.pathJS}?t=${Date.now()}`);
+
         document.body.appendChild(scriptTag);
     }
 

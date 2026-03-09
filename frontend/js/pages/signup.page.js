@@ -65,7 +65,7 @@ export function initSignup() {
             alert("Compte créé. Vous pouvez vous connecter.");
 
             window.history.pushState({}, "", "/connexion");
-            window.dispatchEvent(new CustomEvent("route:changed"));
+            window.dispatchEvent(new Event("popstate"));
         } catch (err) {
             alert(err?.data?.message || err.message || "Erreur inscription.");
         }
