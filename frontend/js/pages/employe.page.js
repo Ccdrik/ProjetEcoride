@@ -2,7 +2,6 @@ import { apiFetch } from "../api/client.js";
 
 async function chargerAvisEnAttente() {
     const container = document.getElementById("liste-avis-en-attente");
-
     if (!container) return;
 
     try {

@@ -60,9 +60,14 @@ export const allRoutes = [
   new Route("/mes-reservations", "Mes réservations", "/pages/mes-reservations.html", ["passager", "chauffeur", "employe", "admin"], "/js/pages/mes-reservations.page.js"),
 
   // ==========================================================
-  // ADMIN / EMPLOYÉ
+  // EMPLOYÉ
   // ==========================================================
-  new Route("/tableau-de-bord", "Tableau de bord", "/pages/tableau-de-bord.html", ["employe", "admin"], "/js/pages/tableau-de-bord.page.js"),
+  new Route("/employe", "Espace employé", "/pages/employe.html", ["employe"], "/js/pages/employe.page.js"),
+
+  // ==========================================================
+  // ADMIN
+  // ==========================================================
+  new Route("/tableau-de-bord", "Espace administrateur", "/pages/administrateur.html", ["admin"], "/js/pages/tableau-de-bord.page.js"),
 ];
 
 // Nom du site (utilisé dans Router.js pour document.title)
