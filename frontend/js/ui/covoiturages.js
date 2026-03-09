@@ -187,7 +187,7 @@ function afficherTrajets(trajets) {
                       <strong>Places restantes :</strong>
                       <span data-role="places">${trajet.placesRestantes}</span>
                   </p>
-                  <p class="mb-2"><strong>Prix :</strong> ${trajet.prixParPlace} €</p>
+                  <p class="mb-2"><strong>Prix :</strong> ${trajet.prixParPlace} crédits</p>
 
                   <div class="d-flex flex-wrap gap-2 justify-content-md-end">
                       <button class="btn btn-outline-primary btn-sm" data-role="detail">

@@ -53,6 +53,8 @@ export const allRoutes = [
   // ==========================================================
   new Route("/creer-trajet", "Créer un trajet", "/pages/creer-trajet.html", ["chauffeur"], "/js/pages/creer-trajet.page.js"),
   new Route("/modifier-trajet", "Modifier un trajet", "/pages/modifier-trajet.html", ["chauffeur"], "/js/pages/modifier-trajet.page.js"),
+  new Route("/mes-trajets", "Mes trajets", "/pages/mes-trajets.html", ["chauffeur"], "/js/pages/mes-trajets.page.js"),
+  new Route("/ajouter-vehicule", "Ajouter un véhicule", "/pages/ajouter-vehicule.html", ["chauffeur"], "/js/pages/ajouter-vehicule.page.js"),
 
   // ==========================================================
   // RÉSERVATIONS (connecté)

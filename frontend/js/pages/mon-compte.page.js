@@ -26,7 +26,7 @@ function renderTrajets(items) {
               <div><strong>${t.departVille} → ${t.arriveeVille}</strong></div>
               <div class="small text-muted">${fmtDate(t.dateDepart)} • ${t.roleDansTrajet ?? ""}</div>
               ${t.statut ? `<div class="small">Statut : ${t.statut}</div>` : ""}
-              ${t.prixParPlace != null ? `<div class="small">Prix/place : ${t.prixParPlace} €</div>` : ""}
+              ${t.prixParPlace != null ? `<div class="small">Prix/place : ${t.prixParPlace} crédits</div>` : ""}
               ${t.nbPlaces != null ? `<div class="small">Places réservées : ${t.nbPlaces}</div>` : ""}
             </div>
             ${t.id ? `<a class="btn btn-sm btn-outline-primary" href="/details-trajet?id=${t.id}" onclick="route(event)">Détails</a>` : ""}
@@ -35,6 +35,26 @@ function renderTrajets(items) {
       `
             )
             .join("")}
+    </ul>
+  `;
+}
+
+function renderVehicules(items) {
+    if (!items || items.length === 0) {
+        return `<p class="text-muted">Aucun véhicule enregistré.</p>`;
+    }
+
+    return `
+    <ul class="list-group">
+      ${items.map((v) => `
+        <li class="list-group-item">
+          <div><strong>${v.marque} ${v.modele}</strong></div>
+          ${v.energie ? `<div class="small">Énergie : ${v.energie}</div>` : ""}
+          ${v.couleur ? `<div class="small">Couleur : ${v.couleur}</div>` : ""}
+          ${v.immatriculation ? `<div class="small">Immatriculation : ${v.immatriculation}</div>` : ""}
+          ${v.nbPlaces != null ? `<div class="small">Places : ${v.nbPlaces}</div>` : ""}
+        </li>
+      `).join("")}
     </ul>
   `;
 }
@@ -49,6 +69,7 @@ async function run() {
     const soldeEl = document.querySelector("#mc-solde");
     const avenirEl = document.querySelector("#mc-avenir");
     const passeEl = document.querySelector("#mc-passe");
+    const vehiculesEl = document.querySelector("#mc-vehicules");
     const deleteBtn = document.querySelector("#mc-delete");
 
     const avatarImageEl = document.querySelector("#mc-avatar-image");
@@ -74,6 +95,7 @@ async function run() {
     } catch (e) {
         if (avenirEl) avenirEl.innerHTML = `<p class="text-danger">Non connecté.</p>`;
         if (passeEl) passeEl.innerHTML = "";
+        if (vehiculesEl) vehiculesEl.innerHTML = "";
         return;
     }
 
@@ -117,7 +139,18 @@ async function run() {
         if (passeEl) passeEl.innerHTML = "";
     }
 
-    // 5) Supprimer / anonymiser le compte
+    // 5) Mes véhicules
+    // 5) Mes véhicules
+    if (vehiculesEl) vehiculesEl.innerHTML = "Chargement…";
+
+    try {
+        const vehicules = await apiFetch("/api/me/vehicules");
+        if (vehiculesEl) vehiculesEl.innerHTML = renderVehicules(vehicules);
+    } catch (e) {
+        if (vehiculesEl) vehiculesEl.innerHTML = `<p class="text-danger">${e.message}</p>`;
+    }
+
+    // 6) Supprimer / anonymiser le compte
     if (deleteBtn) {
         deleteBtn.addEventListener("click", async () => {
             if (!confirm("Confirmer la suppression/anonymisation du compte ?")) return;

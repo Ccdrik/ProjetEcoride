@@ -3,60 +3,38 @@
     <div class="hero-scene-content"></div>
 </div>
 
-
-<main class="container my-5">
-    <form action="/api/vehicule" method="POST" class="table-style">
-        <!-- MARQUE -->
+<section class="container my-4">
+    <form id="form-ajouter-vehicule" class="card p-4 shadow-sm">
         <div class="mb-3">
-            <label for="marque" class="form-label">Marque du véhicule</label>
-            <input type="text" id="marque" name="marque" class="form-control" required>
+            <label for="vehicule-marque" class="form-label">Marque</label>
+            <input id="vehicule-marque" class="form-control" type="text" required>
         </div>
 
-        <!-- MODÈLE -->
         <div class="mb-3">
-            <label for="modele" class="form-label">Modèle</label>
-            <input type="text" id="modele" name="modele" class="form-control" required>
+            <label for="vehicule-modele" class="form-label">Modèle</label>
+            <input id="vehicule-modele" class="form-control" type="text" required>
         </div>
 
-        <!-- COULEUR -->
         <div class="mb-3">
-            <label for="couleur" class="form-label">Couleur</label>
-            <input type="text" id="couleur" name="couleur" class="form-control">
+            <label for="vehicule-energie" class="form-label">Énergie</label>
+            <input id="vehicule-energie" class="form-control" type="text" required>
         </div>
 
-        <!-- IMMATRICULATION -->
         <div class="mb-3">
-            <label for="immatriculation" class="form-label">Plaque d'immatriculation</label>
-            <input type="text" id="immatriculation" name="immatriculation" class="form-control" required>
+            <label for="vehicule-couleur" class="form-label">Couleur</label>
+            <input id="vehicule-couleur" class="form-control" type="text">
         </div>
 
-        <!-- DATE 1re IMMAT -->
         <div class="mb-3">
-            <label for="dateImmat" class="form-label">Date de première immatriculation</label>
-            <input type="date" id="dateImmat" name="dateImmat" class="form-control" required>
+            <label for="vehicule-immatriculation" class="form-label">Immatriculation</label>
+            <input id="vehicule-immatriculation" class="form-control" type="text">
         </div>
 
-        <!-- TYPE DE MOTORISATION -->
         <div class="mb-3">
-            <label for="energie" class="form-label">Type d'énergie</label>
-            <select id="energie" name="energie" class="form-select" required>
-                <option value="">Sélectionner</option>
-                <option value="Essence">Essence</option>
-                <option value="Diesel">Diesel</option>
-                <option value="Électrique">Électrique ⚡</option>
-                <option value="Hybride">Hybride</option>
-            </select>
+            <label for="vehicule-nbPlaces" class="form-label">Nombre de places</label>
+            <input id="vehicule-nbPlaces" class="form-control" type="number" min="1">
         </div>
 
-        <!-- NOMBRE DE PLACES -->
-        <div class="mb-3">
-            <label for="places" class="form-label">Nombre de places disponibles</label>
-            <input type="number" id="places" name="places" class="form-control" min="1" required>
-        </div>
-
-        <!-- BOUTON -->
-        <div class="text-center">
-            <button type="submit" class="btn btn-success">Enregistrer le véhicule</button>
-        </div>
+        <button class="btn btn-success" type="submit">Ajouter le véhicule</button>
     </form>
-</main>
+</section>
