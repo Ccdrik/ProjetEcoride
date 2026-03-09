@@ -1,10 +1,14 @@
 import { apiFetch } from "../api/client.js";
 import { getToken } from "../auth/session.js";
 
+function getTrajetId() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("id");
+}
+
 async function chargerDetailsTrajet() {
 
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get("id");
+    const id = getTrajetId();
 
     if (!id) {
         afficherErreur("Trajet introuvable.");
@@ -15,49 +19,66 @@ async function chargerDetailsTrajet() {
 
         const trajet = await apiFetch(`/api/trajets/${id}`);
 
-        document.getElementById("trajet-depart").textContent = trajet.departVille;
-        document.getElementById("trajet-arrivee").textContent = trajet.arriveeVille;
+        afficherTrajet(trajet);
 
-        document.getElementById("trajet-date").textContent =
-            new Date(trajet.dateDepart).toLocaleString("fr-FR");
-
-        document.getElementById("trajet-prix").textContent =
-            trajet.prixParPlace;
-
-        document.getElementById("trajet-places").textContent =
-            trajet.placesRestantes;
-
-        document.getElementById("trajet-conducteur").textContent =
-            trajet.conducteurNomComplet || "Conducteur";
-
-        document.getElementById("trajet-vehicule").textContent =
-            trajet.vehiculeLabel || "Non renseigné";
-
-        document.getElementById("trajet-energie").textContent =
-            trajet.energie || "Non renseignée";
-
-        ajouterReservation(id);
+        initialiserReservation(id);
 
     } catch (error) {
 
         console.error(error);
-        afficherErreur("Impossible de charger le trajet");
+        afficherErreur("Impossible de charger le trajet.");
 
     }
 }
 
-function ajouterReservation(idTrajet) {
+function afficherTrajet(trajet) {
 
-    const btn = document.getElementById("btn-participer");
+    document.getElementById("trajet-depart").textContent =
+        trajet.departVille || "";
 
-    btn.addEventListener("click", async () => {
+    document.getElementById("trajet-arrivee").textContent =
+        trajet.arriveeVille || "";
+
+    document.getElementById("trajet-date").textContent =
+        new Date(trajet.dateDepart).toLocaleString("fr-FR");
+
+    document.getElementById("trajet-conducteur").textContent =
+        trajet.conducteurNomComplet || "Conducteur";
+
+    document.getElementById("trajet-vehicule").textContent =
+        trajet.vehiculeLabel || "Non renseigné";
+
+    document.getElementById("trajet-energie").textContent =
+        trajet.energie || "Non renseignée";
+
+    document.getElementById("trajet-places").textContent =
+        trajet.placesRestantes ?? "0";
+
+    document.getElementById("trajet-prix").textContent =
+        trajet.prixParPlace ?? "0";
+
+}
+
+function initialiserReservation(idTrajet) {
+
+    const bouton = document.getElementById("btn-participer");
+
+    if (!bouton) return;
+
+    bouton.addEventListener("click", async () => {
 
         if (!getToken()) {
-            window.location.href = "/pages/auth/signin.html";
+
+            alert("Vous devez être connecté pour réserver.");
+            window.history.pushState({}, "", "/connexion");
+            window.dispatchEvent(new Event("popstate"));
             return;
+
         }
 
-        const confirmation = confirm("Voulez-vous réserver ce trajet ?");
+        const confirmation = confirm(
+            "Voulez-vous participer à ce covoiturage ?"
+        );
 
         if (!confirmation) return;
 
@@ -65,16 +86,19 @@ function ajouterReservation(idTrajet) {
 
             await apiFetch("/api/reservations", {
                 method: "POST",
-                body: JSON.stringify({ trajetId: idTrajet })
+                body: JSON.stringify({
+                    trajetId: idTrajet
+                })
             });
 
-            alert("Réservation confirmée !");
+            alert("Réservation confirmée.");
+
             window.location.reload();
 
         } catch (error) {
 
             console.error(error);
-            alert("Impossible de réserver.");
+            alert("Impossible de réserver ce trajet.");
 
         }
 
@@ -83,9 +107,11 @@ function ajouterReservation(idTrajet) {
 
 function afficherErreur(message) {
 
-    const zone = document.getElementById("detail-trajet-container");
+    const container = document.getElementById("detail-trajet-container");
 
-    zone.innerHTML =
+    if (!container) return;
+
+    container.innerHTML =
         `<div class="alert alert-danger">${message}</div>`;
 }
 

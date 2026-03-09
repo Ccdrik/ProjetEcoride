@@ -95,25 +95,40 @@ export function getSession() {
 export function applyNavbarVisibility() {
     const session = getSession();
 
-    document.querySelectorAll("[data-show='connected']").forEach((el) => {
-        el.style.display = session.connected ? "" : "none";
-    });
+    document.querySelectorAll("[data-show]").forEach((el) => {
+        const condition = el.dataset.show;
+        let visible = false;
 
-    document.querySelectorAll("[data-show='disconnected']").forEach((el) => {
-        el.style.display = !session.connected ? "" : "none";
-    });
+        if (condition === "connected") {
+            visible = session.connected;
+        }
 
-    document.querySelectorAll("[data-show='admin']").forEach((el) => {
-        el.style.display =
-            session.connected && session.roles.includes("ROLE_ADMIN") ? "" : "none";
-    });
+        if (condition === "disconnected") {
+            visible = !session.connected;
+        }
 
-    document.querySelectorAll("[data-show='chauffeur']").forEach((el) => {
-        el.style.display =
-            session.connected && session.roles.includes("ROLE_CHAUFFEUR") ? "" : "none";
+        if (condition === "admin") {
+            visible =
+                session.connected && session.roles.includes("ROLE_ADMIN");
+        }
+
+        if (condition === "chauffeur") {
+            visible =
+                session.connected && session.roles.includes("ROLE_CHAUFFEUR");
+        }
+
+        if (condition === "employe") {
+            visible =
+                session.connected && session.roles.includes("ROLE_EMPLOYE");
+        }
+
+        if (visible) {
+            el.classList.remove("d-none");
+        } else {
+            el.classList.add("d-none");
+        }
     });
 }
-
 // ==========================================================
 // Bouton déconnexion (supprime token + retour accueil)
 // ==========================================================
@@ -121,13 +136,14 @@ export function bindSignoutButton() {
     const btn = document.getElementById("signout-btn");
     if (!btn) return;
 
-    // Empêche de binder plusieurs fois à chaque route:changed
     if (btn.dataset.bound === "1") return;
     btn.dataset.bound = "1";
 
     btn.addEventListener("click", () => {
         clearToken();
+        localStorage.removeItem("user");
         applyNavbarVisibility();
+
         window.history.pushState({}, "", "/");
         window.dispatchEvent(new Event("popstate"));
     });
