@@ -1,11 +1,15 @@
+import Chart from "chart.js/auto";
 import { apiFetch } from "../api/client.js";
+
+let chartCovoiturages = null;
+let chartGains = null;
 
 async function chargerStats() {
     const zoneResume = document.getElementById("admin-stats");
-    const zoneCovoiturages = document.getElementById("stats-covoiturages");
-    const zoneGains = document.getElementById("stats-gains");
+    const canvasCovoiturages = document.getElementById("chart-covoiturages");
+    const canvasGains = document.getElementById("chart-gains");
 
-    if (!zoneResume || !zoneCovoiturages || !zoneGains) return;
+    if (!zoneResume || !canvasCovoiturages || !canvasGains) return;
 
     try {
         const total = await apiFetch("/api/admin/stats/gains-total");
@@ -18,51 +22,41 @@ async function chargerStats() {
             </div>
         `;
 
-        if (!covoiturages.length) {
-            zoneCovoiturages.innerHTML = `<div class="alert alert-warning">Aucune donnée.</div>`;
-        } else {
-            zoneCovoiturages.innerHTML = `
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Jour</th>
-                            <th>Places réservées</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${covoiturages.map(item => `
-                            <tr>
-                                <td>${item.jour}</td>
-                                <td>${item.nbPlacesReservees}</td>
-                            </tr>
-                        `).join("")}
-                    </tbody>
-                </table>
-            `;
+        const labelsCovoiturages = covoiturages.map(item => item.jour);
+        const dataCovoiturages = covoiturages.map(item => item.nbPlacesReservees);
+
+        const labelsGains = gains.map(item => item.jour);
+        const dataGains = gains.map(item => item.creditsPlateforme);
+
+        if (chartCovoiturages) {
+            chartCovoiturages.destroy();
         }
 
-        if (!gains.length) {
-            zoneGains.innerHTML = `<div class="alert alert-warning">Aucune donnée.</div>`;
-        } else {
-            zoneGains.innerHTML = `
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Jour</th>
-                            <th>Crédits gagnés</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${gains.map(item => `
-                            <tr>
-                                <td>${item.jour}</td>
-                                <td>${item.creditsPlateforme}</td>
-                            </tr>
-                        `).join("")}
-                    </tbody>
-                </table>
-            `;
+        if (chartGains) {
+            chartGains.destroy();
         }
+
+        chartCovoiturages = new Chart(canvasCovoiturages, {
+            type: "bar",
+            data: {
+                labels: labelsCovoiturages,
+                datasets: [{
+                    label: "Places réservées",
+                    data: dataCovoiturages
+                }]
+            }
+        });
+
+        chartGains = new Chart(canvasGains, {
+            type: "line",
+            data: {
+                labels: labelsGains,
+                datasets: [{
+                    label: "Crédits gagnés",
+                    data: dataGains
+                }]
+            }
+        });
 
     } catch (error) {
         console.error(error);
