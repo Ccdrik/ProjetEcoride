@@ -10,16 +10,24 @@
     <form id="formulaireRechercheCovoiturages" class="card p-3 shadow-sm">
         <div class="row g-3">
 
-            <div class="col-md-4">
+            <div class="col-md-4 position-relative">
                 <label for="champDepartCovoiturages" class="form-label">Départ</label>
                 <input type="text" class="form-control" id="champDepartCovoiturages" name="depart"
-                    placeholder="Ville de départ">
+                    placeholder="Ville de départ" autocomplete="off">
+
+                <div id="suggestionsDepartCovoiturages" class="list-group position-absolute w-100 shadow-sm"
+                    style="z-index: 1000; display: none;">
+                </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-4 position-relative">
                 <label for="champArriveeCovoiturages" class="form-label">Arrivée</label>
                 <input type="text" class="form-control" id="champArriveeCovoiturages" name="arrivee"
-                    placeholder="Ville d’arrivée">
+                    placeholder="Ville d’arrivée" autocomplete="off">
+
+                <div id="suggestionsArriveeCovoiturages" class="list-group position-absolute w-100 shadow-sm"
+                    style="z-index: 1000; display: none;">
+                </div>
             </div>
 
             <div class="col-md-4">

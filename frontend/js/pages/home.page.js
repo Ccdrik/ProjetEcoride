@@ -2,7 +2,7 @@ import { listTrajets } from "../api/trajets.js";
 
 function allerVers(path) {
     window.history.pushState({}, "", path);
-    window.dispatchEvent(new CustomEvent("route:changed"));
+    window.dispatchEvent(new Event("popstate"));
 }
 
 function normaliserTexte(texte) {
@@ -83,7 +83,7 @@ function debounce(fonction, delai = 250) {
 
 async function recupererVillesDepuisDataGouv(recherche, { signal } = {}) {
     const texte = encodeURIComponent(recherche.trim());
-    const url = `https://api-adresse.data.gouv.fr/search/?q=${texte}&limit=8&type=municipality`;
+    const url = `https://api-adresse.data.gouv.fr/search/?q=${texte}&limit=8`;
 
     const reponse = await fetch(url, { signal });
     if (!reponse.ok) return [];
