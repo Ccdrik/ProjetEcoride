@@ -22,7 +22,7 @@ function listeUniqueTriee(tableau) {
 
 function classerCorrespondances(elements, recherche, max = 8) {
     const texteRecherche = normaliserTexte(recherche);
-    if (!texteRecherche || texteRecherche.length < 2) return [];
+    if (!texteRecherche || texteRecherche.length < 3) return [];
 
     const commencePar = [];
     const contient = [];
@@ -104,7 +104,7 @@ function activerAutocomplete(champ, zoneSuggestions, villesLocales) {
     const lancerRecherche = debounce(async () => {
         const texte = (champ.value || "").trim();
 
-        if (texte.length < 2) {
+        if (texte.length < 3) {
             masquerSuggestions(zoneSuggestions);
             if (controleurAnnulation) controleurAnnulation.abort();
             return;
@@ -175,27 +175,14 @@ async function initHome() {
         return;
     }
 
-    let villesLocales = [];
+    // Tableau partagé : on l'initialise vide, puis on le remplit après
+    const villesLocales = [];
 
-    try {
-        const trajets = await listTrajets();
-        const toutesLesVilles = [];
-
-        if (Array.isArray(trajets)) {
-            for (const trajet of trajets) {
-                if (trajet?.departVille) toutesLesVilles.push(trajet.departVille);
-                if (trajet?.arriveeVille) toutesLesVilles.push(trajet.arriveeVille);
-            }
-        }
-
-        villesLocales = listeUniqueTriee(toutesLesVilles);
-    } catch {
-        villesLocales = [];
-    }
-
+    // J'active l'autocomplete tout de suite
     activerAutocomplete(champDepart, suggestionsDepart, villesLocales);
     activerAutocomplete(champArrivee, suggestionsArrivee, villesLocales);
 
+    // Je branche les boutons tout de suite
     formulaire.addEventListener("submit", (event) => {
         event.preventDefault();
 
@@ -215,6 +202,26 @@ async function initHome() {
     boutonVoirTous.addEventListener("click", () => {
         allerVers("/covoiturages?all=1");
     });
+
+    // Je charge les villes ensuite, sans bloquer la page
+    try {
+        const trajets = await listTrajets();
+        const toutesLesVilles = [];
+
+        if (Array.isArray(trajets)) {
+            for (const trajet of trajets) {
+                if (trajet?.departVille) toutesLesVilles.push(trajet.departVille);
+                if (trajet?.arriveeVille) toutesLesVilles.push(trajet.arriveeVille);
+            }
+        }
+
+        const villesTriees = listeUniqueTriee(toutesLesVilles);
+
+        // Je remplis le tableau existant au lieu de le remplacer
+        villesLocales.splice(0, villesLocales.length, ...villesTriees);
+    } catch {
+        // On laisse simplement l'autocomplete data.gouv fonctionner
+    }
 }
 
 initHome();

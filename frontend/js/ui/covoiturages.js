@@ -132,7 +132,11 @@ function afficherTrajets(trajets) {
   zone.innerHTML = "";
 
   if (!Array.isArray(trajets) || trajets.length === 0) {
-    zone.innerHTML = `<p class="text-center my-4">Aucun trajet disponible.</p>`;
+    zone.innerHTML = `
+    <div class="alert alert-warning text-center my-4">
+      Aucun trajet disponible pour ces critères.
+    </div>
+  `;
     return;
   }
 
@@ -209,7 +213,7 @@ function afficherTrajets(trajets) {
     }
 
     boutonDetail.addEventListener("click", () => {
-      allerVers(`/trajet?id=${trajet.id}`);
+      allerVers(`/details-trajet?id=${trajet.id}`);
     });
 
     boutonReserver.addEventListener("click", async () => {

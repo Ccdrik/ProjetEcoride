@@ -39,6 +39,10 @@ function renderTrajets(items) {
   `;
 }
 
+function getAvatarPath(nomFichier) {
+    return `/assets/images/avatars/${nomFichier || "passager.png"}`;
+}
+
 async function run() {
     const nomEl = document.querySelector("#mc-nom");
     const emailEl = document.querySelector("#mc-email");
@@ -46,6 +50,10 @@ async function run() {
     const avenirEl = document.querySelector("#mc-avenir");
     const passeEl = document.querySelector("#mc-passe");
     const deleteBtn = document.querySelector("#mc-delete");
+
+    const avatarImageEl = document.querySelector("#mc-avatar-image");
+    const avatarSelectEl = document.querySelector("#mc-avatar");
+    const avatarSaveBtn = document.querySelector("#mc-save-avatar");
 
     // 1) Récap utilisateur
     try {
@@ -55,13 +63,48 @@ async function run() {
         if (nomEl) nomEl.textContent = nom || "—";
         if (emailEl) emailEl.textContent = me.email ?? "—";
         if (soldeEl) soldeEl.textContent = String(me.soldeCredits ?? "0");
+
+        if (avatarImageEl) {
+            avatarImageEl.src = getAvatarPath(me.avatar);
+        }
+
+        if (avatarSelectEl && me.avatar) {
+            avatarSelectEl.value = me.avatar;
+        }
     } catch (e) {
         if (avenirEl) avenirEl.innerHTML = `<p class="text-danger">Non connecté.</p>`;
         if (passeEl) passeEl.innerHTML = "";
         return;
     }
 
-    // 2) Historique trajets (nouvel endpoint)
+    // 2) Aperçu avatar en direct
+    if (avatarSelectEl && avatarImageEl) {
+        avatarSelectEl.addEventListener("change", () => {
+            avatarImageEl.src = getAvatarPath(avatarSelectEl.value);
+        });
+    }
+
+    // 3) Sauvegarde avatar
+    if (avatarSaveBtn && avatarSelectEl && avatarImageEl) {
+        avatarSaveBtn.addEventListener("click", async () => {
+            try {
+                const reponse = await apiFetch("/api/me/avatar", {
+                    method: "PATCH",
+                    body: JSON.stringify({
+                        avatar: avatarSelectEl.value
+                    })
+                });
+
+                avatarImageEl.src = getAvatarPath(reponse.avatar);
+                alert("Avatar mis à jour.");
+            } catch (e) {
+                console.error(e);
+                alert(e.message || "Impossible de mettre à jour l'avatar.");
+            }
+        });
+    }
+
+    // 4) Historique trajets
     if (avenirEl) avenirEl.innerHTML = "Chargement…";
     if (passeEl) passeEl.innerHTML = "Chargement…";
 
@@ -74,7 +117,7 @@ async function run() {
         if (passeEl) passeEl.innerHTML = "";
     }
 
-    // 3) Supprimer / anonymiser le compte (DELETE /api/me)
+    // 5) Supprimer / anonymiser le compte
     if (deleteBtn) {
         deleteBtn.addEventListener("click", async () => {
             if (!confirm("Confirmer la suppression/anonymisation du compte ?")) return;

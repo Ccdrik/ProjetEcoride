@@ -133,6 +133,9 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: TransactionCredit::class, mappedBy: 'utilisateur')]
     private Collection $transactionsCredits;
 
+    #[ORM\Column(length: 100, options: ['default' => 'passager.png'])]
+    private string $avatar = 'passager.png';
+
     public function __construct()
     {
         // Je mets une date de création automatique à la construction.
@@ -409,5 +412,16 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function getPassword(): ?string
     {
         return $this->motDePasseHash;
+    }
+
+    public function getAvatar(): string
+    {
+    return $this->avatar;
+    }
+
+    public function setAvatar(string $avatar): static
+    {
+    $this->avatar = $avatar;
+    return $this;
     }
 }

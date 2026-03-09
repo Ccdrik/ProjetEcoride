@@ -9,6 +9,28 @@
         <p><strong>Nom :</strong> <span id="mc-nom">—</span></p>
         <p><strong>Email :</strong> <span id="mc-email">—</span></p>
         <p><strong>Solde crédits :</strong> <span id="mc-solde">—</span></p>
+        <p><strong>Avatar actuel :</strong></p>
+        <img id="mc-avatar-image" src="/assets/images/avatars/passager.png" alt="Avatar utilisateur"
+            class="rounded-circle mb-3" style="width:90px; height:90px; object-fit:cover;">
+
+        <div class="mb-3">
+            <label for="mc-avatar" class="form-label"><strong>Choisir un avatar :</strong></label>
+            <select id="mc-avatar" class="form-select">
+                <option value="passager.png">Passager 1</option>
+                <option value="passager(1).png">Passager 2</option>
+                <option value="passager(2).png">Passager 3</option>
+                <option value="chauffeur.png">Chauffeur 1</option>
+                <option value="chauffeur(1).png">Chauffeur 2</option>
+                <option value="chauffeur(2).png">Chauffeur 3</option>
+                <option value="employe.png">Employé 1</option>
+                <option value="employe(1).png">Employé 2</option>
+                <option value="directeur.png">Administrateur</option>
+            </select>
+        </div>
+
+        <button id="mc-save-avatar" class="btn btn-outline-success" type="button">
+            Enregistrer mon avatar
+        </button>
 
         <div class="mt-2">
             <a class="btn btn-outline-primary" href="/mot-de-passe" onclick="route(event)">Modifier mon mot de passe</a>

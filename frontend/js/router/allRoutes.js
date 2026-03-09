@@ -45,8 +45,8 @@ export const allRoutes = [
   // ==========================================================
   // ESPACE UTILISATEUR (connecté)
   // ==========================================================
-  new Route("/mon-compte", "Mon Compte", "/pages/auth/mon-compte.html", ["passager", "chauffeur", "employe", "admin"]),
-  new Route("/mot-de-passe", "Changement de mot de passe", "/pages/auth/editPassword.html", ["passager", "chauffeur", "employe", "admin"]),
+  new Route("/mon-compte", "Mon Compte", "/pages/auth/mon-compte.html", ["passager", "chauffeur", "employe", "admin"], "/js/pages/mon-compte.page.js"),
+  new Route("/mot-de-passe", "Changement de mot de passe", "/pages/auth/editPassword.html", ["passager", "chauffeur", "employe", "admin"], "/js/pages/editPassword.page.js"),
 
   // ==========================================================
   // CHAUFFEUR

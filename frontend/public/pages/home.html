@@ -17,21 +17,25 @@
             </div>
 
             <!-- Départ -->
-            <div class="input-group mb-3 position-relative">
-                <span class="input-group-text"><i class="bi bi-geo-alt-fill"></i></span>
-                <input class="form-control" type="text" id="champDepartAccueil" name="depart" required
-                    placeholder="Départ">
-                <div id="suggestionsDepartAccueil" class="list-group position-absolute w-100"
-                    style="top:100%; left:0; z-index:1050; display:none;"></div>
+            <div class="col-md-4 position-relative">
+                <label for="champDepartAccueil" class="form-label">Départ</label>
+                <input type="text" class="form-control" id="champDepartAccueil" name="depart"
+                    placeholder="Ville de départ" autocomplete="off" required>
+
+                <div id="suggestionsDepartAccueil" class="list-group position-absolute w-100 shadow-sm"
+                    style="z-index: 1000; display: none;">
+                </div>
             </div>
 
             <!-- Arrivée -->
-            <div class="input-group mb-3 position-relative">
-                <span class="input-group-text"><i class="bi bi-geo-alt-fill"></i></span>
-                <input class="form-control" type="text" id="champArriveeAccueil" name="arrivee" required
-                    placeholder="Arrivée">
-                <div id="suggestionsArriveeAccueil" class="list-group position-absolute w-100"
-                    style="top:100%; left:0; z-index:1050; display:none;"></div>
+            <div class="col-md-4 position-relative">
+                <label for="champArriveeAccueil" class="form-label">Arrivée</label>
+                <input type="text" class="form-control" id="champArriveeAccueil" name="arrivee"
+                    placeholder="Ville d’arrivée" autocomplete="off" required>
+
+                <div id="suggestionsArriveeAccueil" class="list-group position-absolute w-100 shadow-sm"
+                    style="z-index: 1000; display: none;">
+                </div>
             </div>
 
             <!-- Date -->

@@ -9,6 +9,7 @@ use Symfony\Bundle\SecurityBundle\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Controller permettant de gérer les informations
@@ -54,6 +55,7 @@ final class MeController extends AbstractController
             'rolePrincipal' => $utilisateur->getRole(),
             'roles' => $utilisateur->getRoles(),
             'soldeCredits' => $utilisateur->getSoldeCredits(),
+            'avatar' => $utilisateur->getAvatar(),
         ]);
     }
 
@@ -104,4 +106,49 @@ final class MeController extends AbstractController
             'message' => 'Compte anonymisé. Les données personnelles ont été supprimées.'
         ], 200);
     }
+
+    #[IsGranted('ROLE_USER')]
+    #[Route('/api/me/avatar', name: 'api_me_avatar_update', methods: ['PATCH'])]
+    public function updateAvatar(
+        Request $request,
+        EntityManagerInterface $em
+): JsonResponse {
+        $user = $this->getUser();
+
+        if (!$user instanceof Utilisateur) {
+            return $this->json(['message' => 'Non authentifié'], 401);
+        }   
+
+        $data = json_decode($request->getContent() ?: '', true);
+
+        if (!is_array($data)) {
+            return $this->json(['message' => 'JSON invalide'], 400);
+        }
+
+        $avatar = trim((string) ($data['avatar'] ?? ''));
+
+        $avatarsAutorises = [
+            'passager.png',
+            'passager(1).png',
+            'passager(2).png',
+            'chauffeur.png',
+            'chauffeur(1).png',
+            'chauffeur(2).png',
+            'employe.png',
+            'employe(1).png',
+            'directeur.png',
+        ];
+
+        if (!in_array($avatar, $avatarsAutorises, true)) {
+            return $this->json(['message' => 'Avatar non autorisé'], 400);
+        }
+
+        $user->setAvatar($avatar);
+        $em->flush();
+
+        return $this->json([
+            'message' => 'Avatar mis à jour',
+            'avatar' => $user->getAvatar(),
+        ], 200);
+}
 }

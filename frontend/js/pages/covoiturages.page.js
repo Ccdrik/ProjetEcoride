@@ -18,7 +18,7 @@ function listeUniqueTriee(tableau) {
 
 function classerCorrespondances(elements, recherche, max = 8) {
     const texteRecherche = normaliserTexte(recherche);
-    if (!texteRecherche || texteRecherche.length < 2) return [];
+    if (!texteRecherche || texteRecherche.length < 3) return [];
 
     const commencePar = [];
     const contient = [];
@@ -100,7 +100,7 @@ function activerAutocomplete(champ, zoneSuggestions, villesLocales) {
     const lancerRecherche = debounce(async () => {
         const texte = (champ.value || "").trim();
 
-        if (texte.length < 2) {
+        if (texte.length < 3) {
             masquerSuggestions(zoneSuggestions);
             if (controleurAnnulation) controleurAnnulation.abort();
             return;
@@ -342,13 +342,17 @@ async function initCovoituragesPage() {
         });
 
         boutonFiltres?.addEventListener("click", () => {
-            const paramsActuels = recupererParametresUrl();
+            const depart = champDepart.value.trim();
+            const arrivee = champArrivee.value.trim();
+            const date = champDate.value;
+
+            const aRecherchePrincipale = !!(depart && arrivee && date);
 
             mettreAJourUrl({
-                depart: champDepart.value.trim(),
-                arrivee: champArrivee.value.trim(),
-                date: champDate.value,
-                afficherTous: paramsActuels.afficherTous,
+                depart,
+                arrivee,
+                date,
+                afficherTous: !aRecherchePrincipale,
                 ecologique: filtreEcologique?.checked || false,
                 prixMax: filtrePrixMax?.value || "",
                 dureeMax: filtreDureeMax?.value || "",
