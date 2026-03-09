@@ -67,7 +67,7 @@ export const allRoutes = [
   // ==========================================================
   // ADMIN
   // ==========================================================
-  new Route("/tableau-de-bord", "Espace administrateur", "/pages/administrateur.html", ["admin"], "/js/pages/tableau-de-bord.page.js"),
+  new Route("/admin", "Espace administrateur", "/pages/administrateur.html", ["admin"], "/js/pages/administrateur.page.js"),
 ];
 
 // Nom du site (utilisé dans Router.js pour document.title)

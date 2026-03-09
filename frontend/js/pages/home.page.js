@@ -1,12 +1,5 @@
 import { listTrajets } from "../api/trajets.js";
 
-// ==========================================================
-// PAGE ACCUEIL
-// - autocomplete des villes
-// - recherche
-// - bouton voir tous
-// ==========================================================
-
 function allerVers(path) {
     window.history.pushState({}, "", path);
     window.dispatchEvent(new CustomEvent("route:changed"));
@@ -167,7 +160,7 @@ function activerAutocomplete(champ, zoneSuggestions, villesLocales) {
     });
 }
 
-export async function initHome() {
+async function initHome() {
     const formulaire = document.getElementById("formulaireRechercheAccueil");
     const boutonVoirTous = document.getElementById("boutonVoirTousAccueil");
 
@@ -223,3 +216,5 @@ export async function initHome() {
         allerVers("/covoiturages?all=1");
     });
 }
+
+initHome();

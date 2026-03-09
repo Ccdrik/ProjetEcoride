@@ -28,6 +28,7 @@ export function setToken(token) {
 // Suppression du token (logout ou erreur 401)
 export function clearToken() {
   localStorage.removeItem("token");
+  localStorage.removeItem("user");
 }
 
 // Fonction générique pour toutes les requêtes API
