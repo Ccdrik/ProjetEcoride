@@ -4,24 +4,24 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
-        "php": ">=8.4 <8.6",
+        "php": "^8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "doctrine/dbal": "^4.4",
-        "doctrine/doctrine-bundle": "^3.2",
-        "doctrine/doctrine-migrations-bundle": "^4.0",
-        "doctrine/orm": "^3.6",
-        "lexik/jwt-authentication-bundle": "*",
-        "mongodb/mongodb": "^2.1",
+        "doctrine/dbal": "^4.4.2",
+        "doctrine/doctrine-bundle": "^2.18.2",
+        "doctrine/doctrine-migrations-bundle": "^3.7",
+        "doctrine/orm": "^3.6.2",
         "ext-mongodb": "^2.1",
-        "nelmio/cors-bundle": "^2.6",
-        "symfony/console": "8.0.*",
-        "symfony/dotenv": "8.0.*",
-        "symfony/flex": "^2",
-        "symfony/framework-bundle": "8.0.*",
-        "symfony/runtime": "8.0.*",
-        "symfony/uid": "8.0.*",
-        "symfony/yaml": "8.0.*"
+        "lexik/jwt-authentication-bundle": ">=3.2",
+        "mongodb/mongodb": "^2.1.2",
+        "nelmio/cors-bundle": "^2.6.1",
+        "symfony/console": "7.3.*",
+        "symfony/dotenv": "7.3.*",
+        "symfony/flex": "^2.10",
+        "symfony/framework-bundle": "7.3.*",
+        "symfony/runtime": "7.3.*",
+        "symfony/uid": "7.3.*",
+        "symfony/yaml": "7.3.*"
     },
     "config": {
         "allow-plugins": {
@@ -32,7 +32,7 @@
         "bump-after-update": true,
         "sort-packages": true,
         "platform": {
-            "php": "8.4.18",
+            "php": "8.2.12",
             "ext-mongodb": "2.1.4"
         }
     },
@@ -76,11 +76,11 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "8.0.*"
+            "require": "7.3.*"
         }
     },
     "require-dev": {
-        "doctrine/doctrine-fixtures-bundle": "^4.3",
-        "symfony/maker-bundle": "^1.65"
+        "doctrine/doctrine-fixtures-bundle": "^3.7.3",
+        "symfony/maker-bundle": "^1.66"
     }
 }

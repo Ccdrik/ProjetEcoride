@@ -68,6 +68,15 @@ public function list(Request $request, TrajetRepository $trajets): JsonResponse
                     'prenom' => $trajet->getConducteur()->getPrenom(),
                     'avatar' => $trajet->getConducteur()->getAvatar(),
                     ] : null,
+                       'vehicule' => $trajet->getVehicule() ? [
+            'id' => $trajet->getVehicule()->getId(),
+            'marque' => $trajet->getVehicule()->getMarque(),
+            'modele' => $trajet->getVehicule()->getModele(),
+            'energie' => $trajet->getVehicule()->getEnergie(),
+            'couleur' => $trajet->getVehicule()->getCouleur(),
+            'immatriculation' => $trajet->getVehicule()->getImmatriculation(),
+                    ] : null,
+
         ]);
     }
 }

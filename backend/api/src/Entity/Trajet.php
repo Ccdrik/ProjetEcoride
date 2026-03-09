@@ -37,6 +37,10 @@ class Trajet
     #[ORM\Column(length: 30)]
     private ?string $statut = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Vehicule $vehicule = null;
+
     #[ORM\ManyToOne(inversedBy: 'trajets')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Utilisateur $conducteur = null;
@@ -150,6 +154,17 @@ class Trajet
     {
         $this->conducteur = $conducteur;
 
+        return $this;
+    }
+
+        public function getVehicule(): ?Vehicule
+    {
+        return $this->vehicule;
+    }
+
+    public function setVehicule(?Vehicule $vehicule): static
+    {
+        $this->vehicule = $vehicule;
         return $this;
     }
 

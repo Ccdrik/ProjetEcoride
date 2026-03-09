@@ -3,50 +3,38 @@
 namespace App\Controller\Api;
 
 use App\Entity\Utilisateur;
+use App\Entity\Vehicule;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Uid\Uuid;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Controller permettant de gérer les informations
  * de l'utilisateur actuellement connecté.
  *
  * J'ai mis ici :
- * - GET /api/me : récupérer mon profil (solde crédits, rôles, etc.)
- * - DELETE /api/me : anonymiser mon compte (conformité RGPD)
- *
- * Niveau sécurité :
- * - toutes les routes ici demandent ROLE_USER (donc utilisateur authentifié)
+ * - GET /api/me : récupérer mon profil
+ * - DELETE /api/me : anonymiser mon compte
+ * - PATCH /api/me/avatar : modifier l'avatar
+ * - GET /api/me/vehicules : lister mes véhicules
+ * - POST /api/me/vehicules : ajouter un véhicule
  */
 final class MeController extends AbstractController
 {
-    /**
-     * GET /api/me
-     *
-     * Permet au front de récupérer les informations
-     * de l'utilisateur connecté via JWT.
-     *
-     * Utile pour :
-     * - afficher le solde de crédits
-     * - adapter l'interface selon le rôle
-     */
     #[IsGranted('ROLE_USER')]
     #[Route('/api/me', name: 'api_me', methods: ['GET'])]
     public function recupererUtilisateurConnecte(): JsonResponse
     {
-        // Grâce au JWT, Symfony me donne l'utilisateur connecté via getUser()
         $utilisateur = $this->getUser();
 
-        // Sécurité : on vérifie bien que c'est mon entité Utilisateur
         if (!$utilisateur instanceof Utilisateur) {
             return $this->json(['message' => 'Non authentifié'], 401);
         }
 
-        // Je ne renvoie que les infos utiles pour le front
         return $this->json([
             'id' => $utilisateur->getId(),
             'email' => $utilisateur->getEmail(),
@@ -59,20 +47,6 @@ final class MeController extends AbstractController
         ]);
     }
 
-    /**
-     * DELETE /api/me
-     *
-     * Permet à un utilisateur de demander la suppression de son compte.
-     *
-     * Pour rester cohérent en base (réservations, transactions, trajets),
-     * je ne supprime pas la ligne SQL, je fais une anonymisation :
-     * - nom/prénom remplacés
-     * - email remplacé par un email technique unique en .invalid
-     * - mot de passe rendu inutilisable
-     * - crédits remis à 0
-     *
-     * Objectif : conformité au droit à l’effacement (RGPD) + intégrité des données.
-     */
     #[IsGranted('ROLE_USER')]
     #[Route('/api/me', name: 'api_me_delete', methods: ['DELETE'])]
     public function supprimerMonCompte(EntityManagerInterface $em): JsonResponse
@@ -83,23 +57,14 @@ final class MeController extends AbstractController
             return $this->json(['message' => 'Non authentifié'], 401);
         }
 
-        // Je génère un UUID pour garantir un email unique (conflit unique en base évité)
         $uuid = Uuid::v4()->toRfc4122();
 
-        // 1) Anonymisation des données personnelles
         $utilisateur->setNom('Utilisateur');
         $utilisateur->setPrenom('Supprimé');
-
-        // Email technique non délivrable
         $utilisateur->setEmail('deleted_' . $utilisateur->getId() . '_' . $uuid . '@example.invalid');
-
-        // Mot de passe rendu inutilisable (empêche de se reconnecter avec un ancien MDP)
         $utilisateur->setMotDePasseHash(password_hash($uuid, PASSWORD_BCRYPT));
-
-        // Solde remis à zéro (choix projet)
         $utilisateur->setSoldeCredits(0);
 
-        // Sauvegarde en base
         $em->flush();
 
         return $this->json([
@@ -112,12 +77,12 @@ final class MeController extends AbstractController
     public function updateAvatar(
         Request $request,
         EntityManagerInterface $em
-): JsonResponse {
+    ): JsonResponse {
         $user = $this->getUser();
 
         if (!$user instanceof Utilisateur) {
             return $this->json(['message' => 'Non authentifié'], 401);
-        }   
+        }
 
         $data = json_decode($request->getContent() ?: '', true);
 
@@ -150,5 +115,95 @@ final class MeController extends AbstractController
             'message' => 'Avatar mis à jour',
             'avatar' => $user->getAvatar(),
         ], 200);
-}
+    }
+
+    #[IsGranted('ROLE_USER')]
+    #[Route('/api/me/vehicules', name: 'api_me_vehicules_list', methods: ['GET'])]
+    public function listerMesVehicules(): JsonResponse
+    {
+        $user = $this->getUser();
+
+        if (!$user instanceof Utilisateur) {
+            return $this->json(['message' => 'Non authentifié'], 401);
+        }
+
+        if (!in_array('ROLE_CHAUFFEUR', $user->getRoles(), true)) {
+            return $this->json(['message' => 'Accès réservé aux chauffeurs'], 403);
+        }
+
+        $items = $user->getVehicules()->map(static function (Vehicule $vehicule) {
+            return [
+                'id' => $vehicule->getId(),
+                'marque' => $vehicule->getMarque(),
+                'modele' => $vehicule->getModele(),
+                'energie' => $vehicule->getEnergie(),
+                'couleur' => $vehicule->getCouleur(),
+                'immatriculation' => $vehicule->getImmatriculation(),
+                'nbPlaces' => $vehicule->getNbPlaces(),
+            ];
+        })->toArray();
+
+        return $this->json($items, 200);
+    }
+
+    #[IsGranted('ROLE_USER')]
+    #[Route('/api/me/vehicules', name: 'api_me_vehicules_create', methods: ['POST'])]
+    public function creerVehicule(
+        Request $request,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        $user = $this->getUser();
+
+        if (!$user instanceof Utilisateur) {
+            return $this->json(['message' => 'Non authentifié'], 401);
+        }
+
+        if (!in_array('ROLE_CHAUFFEUR', $user->getRoles(), true)) {
+            return $this->json(['message' => 'Accès réservé aux chauffeurs'], 403);
+        }
+
+        $data = json_decode($request->getContent() ?: '', true);
+
+        if (!is_array($data)) {
+            return $this->json(['message' => 'JSON invalide'], 400);
+        }
+
+        $marque = trim((string) ($data['marque'] ?? ''));
+        $modele = trim((string) ($data['modele'] ?? ''));
+        $energie = trim((string) ($data['energie'] ?? ''));
+        $couleur = trim((string) ($data['couleur'] ?? ''));
+        $immatriculation = trim((string) ($data['immatriculation'] ?? ''));
+        $nbPlaces = isset($data['nbPlaces']) && $data['nbPlaces'] !== ''
+            ? (int) $data['nbPlaces']
+            : null;
+
+        if ($marque === '' || $modele === '' || $energie === '') {
+            return $this->json(['message' => 'marque, modele et energie sont obligatoires'], 400);
+        }
+
+        $vehicule = new Vehicule();
+        $vehicule->setMarque($marque);
+        $vehicule->setModele($modele);
+        $vehicule->setEnergie($energie);
+        $vehicule->setCouleur($couleur !== '' ? $couleur : null);
+        $vehicule->setImmatriculation($immatriculation !== '' ? $immatriculation : null);
+        $vehicule->setNbPlaces($nbPlaces);
+        $vehicule->setProprietaire($user);
+
+        $em->persist($vehicule);
+        $em->flush();
+
+        return $this->json([
+            'message' => 'Véhicule ajouté',
+            'vehicule' => [
+                'id' => $vehicule->getId(),
+                'marque' => $vehicule->getMarque(),
+                'modele' => $vehicule->getModele(),
+                'energie' => $vehicule->getEnergie(),
+                'couleur' => $vehicule->getCouleur(),
+                'immatriculation' => $vehicule->getImmatriculation(),
+                'nbPlaces' => $vehicule->getNbPlaces(),
+            ]
+        ], 201);
+    }
 }
