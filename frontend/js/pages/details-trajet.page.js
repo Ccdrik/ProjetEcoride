@@ -115,4 +115,4 @@ function afficherErreur(message) {
         `<div class="alert alert-danger">${message}</div>`;
 }
 
-document.addEventListener("DOMContentLoaded", chargerDetailsTrajet);
+chargerDetailsTrajet();

@@ -279,4 +279,25 @@ final class AdminController extends AbstractController
 
         return $this->json(['creditsPlateformeTotal' => $total], 200);
     }
+
+
+
+    #[Route('/utilisateurs', name: 'api_admin_users_list', methods: ['GET'])]
+public function listerUtilisateurs(UtilisateurRepository $users): JsonResponse
+{
+    $items = $users->findBy([], ['id' => 'DESC']);
+
+    $data = array_map(static function (Utilisateur $u) {
+        return [
+            'id' => $u->getId(),
+            'nom' => $u->getNom(),
+            'prenom' => $u->getPrenom(),
+            'email' => $u->getEmail(),
+            'role' => $u->getRole(),
+            'isSuspended' => $u->isSuspended(),
+        ];
+    }, $items);
+
+    return $this->json(['items' => $data], 200);
+}
 }

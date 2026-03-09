@@ -1,43 +1,61 @@
-<h1 class="main-title text-center">Gestion des comptes utilisateurs!</h1>
+<h1 class="main-title text-center">Espace administrateur</h1>
 <div class="hero-scene text-center text-white">
     <div class="hero-scene-content"></div>
 </div>
 
+<section class="mb-5">
+    <h2 class="mb-4">Statistiques</h2>
 
+    <div id="admin-stats" class="mb-4">
+        <div class="alert alert-info">Chargement des statistiques...</div>
+    </div>
 
-<main class="container my-5">
+    <div class="row">
+        <div class="col-12 col-lg-6">
+            <h3>Covoiturages par jour</h3>
+            <div id="stats-covoiturages"></div>
+        </div>
 
-    <p class="mb-4">Voici la liste des comptes actifs sur la plateforme. Vous pouvez suspendre un compte si nécessaire.
-    </p>
+        <div class="col-12 col-lg-6">
+            <h3>Gains par jour</h3>
+            <div id="stats-gains"></div>
+        </div>
+    </div>
+</section>
 
-    <!-- Tableau de comptes -->
-    <table class="table table-bordered table-striped">
-        <thead class="table-success">
-            <tr>
-                <th>Nom d'utilisateur</th>
-                <th>Email</th>
-                <th>Rôle</th>
-                <th>Statut</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Exemple statique -->
-            <tr>
-                <td>Jean75</td>
-                <td>jean@example.com</td>
-                <td>Utilisateur</td>
-                <td><span class="badge bg-success">Actif</span></td>
-                <td><button class="btn btn-danger btn-sm">Suspendre</button></td>
-            </tr>
-            <tr>
-                <td>LucieDev</td>
-                <td>lucie@employe.com</td>
-                <td>Employé</td>
-                <td><span class="badge bg-danger">Suspendu</span></td>
-                <td><button class="btn btn-secondary btn-sm" disabled>Déjà suspendu</button></td>
-            </tr>
-        </tbody>
-    </table>
+<section class="mb-5">
+    <h2 class="mb-4">Créer un compte employé</h2>
 
-</main>
+    <form id="form-employe" class="card p-3">
+        <div class="mb-3">
+            <label for="prenom" class="form-label">Prénom</label>
+            <input type="text" id="prenom" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="nom" class="form-label">Nom</label>
+            <input type="text" id="nom" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Mot de passe</label>
+            <input type="text" id="password" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-success">
+            Créer l'employé
+        </button>
+    </form>
+</section>
+
+<section>
+    <h2 class="mb-4">Gestion des utilisateurs</h2>
+    <div id="admin-users">
+        <div class="alert alert-info">Chargement des utilisateurs...</div>
+    </div>
+</section>
