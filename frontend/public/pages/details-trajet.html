@@ -2,21 +2,42 @@
 <div class="hero-scene text-center text-white">
     <div class="hero-scene-content"></div>
 </div>
-<div>
-    <h1 class="text-center">Details</h1>
+
+<div id="detail-trajet-container" class="card p-4">
+
+    <h4>
+        <span id="trajet-depart"></span>
+        →
+        <span id="trajet-arrivee"></span>
+    </h4>
+
+    <p><strong>Date :</strong> <span id="trajet-date"></span></p>
+
+    <p><strong>Conducteur :</strong>
+        <span id="trajet-conducteur"></span>
+    </p>
+
+    <p><strong>Véhicule :</strong>
+        <span id="trajet-vehicule"></span>
+    </p>
+
+    <p><strong>Énergie :</strong>
+        <span id="trajet-energie"></span>
+    </p>
+
+    <p><strong>Places disponibles :</strong>
+        <span id="trajet-places"></span>
+    </p>
+
+    <p><strong>Prix :</strong>
+        <span id="trajet-prix"></span> crédits
+    </p>
+
+    <hr />
+
+    <button id="btn-participer" class="btn btn-success">
+        Participer à ce trajet
+    </button>
+
 </div>
-
-
-<main class="container mt-5">
-    <h2 class="mb-4">Détails du trajet</h2>
-    <div class="card p-4">
-        <h4>Paris → Lyon</h4>
-        <p><strong>Date :</strong> 10 mai 2025</p>
-        <p><strong>Heure de départ :</strong> 08h00</p>
-        <p><strong>Conducteur :</strong> Alice Dupont</p>
-        <p><strong>Véhicule :</strong> Renault Clio - Gris</p>
-        <p><strong>Places disponibles :</strong> 2</p>
-        <p><strong>Prix par passager :</strong> 18 €</p>
-        <hr />
-        <button class="btn btn-success">Réserver ce trajet</button>
-    </div>
+</main>
