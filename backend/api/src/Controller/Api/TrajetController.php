@@ -33,10 +33,11 @@ public function list(Request $request, TrajetRepository $trajets): JsonResponse
             'prixParPlace' => $t->getPrixParPlace(),
             'placesRestantes' => $t->getPlacesRestantes(),
             'conducteur' => [
-                'id' => $t->getConducteur()->getId(),
-                'nom' => $t->getConducteur()->getNom(),
-                'prenom' => $t->getConducteur()->getPrenom(),
-            ],
+                    'id' => $t->getConducteur()->getId(),
+                    'nom' => $t->getConducteur()->getNom(),
+                    'prenom' => $t->getConducteur()->getPrenom(),
+                    'avatar' => $t->getConducteur()->getAvatar()
+                            ],
         ];
     }, $items);
 
@@ -65,7 +66,8 @@ public function list(Request $request, TrajetRepository $trajets): JsonResponse
                     'id' => $trajet->getConducteur()->getId(),
                     'nom' => $trajet->getConducteur()->getNom(),
                     'prenom' => $trajet->getConducteur()->getPrenom(),
-] : null,
+                    'avatar' => $trajet->getConducteur()->getAvatar(),
+                    ] : null,
         ]);
     }
 }
