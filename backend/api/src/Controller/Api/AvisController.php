@@ -129,7 +129,7 @@ final class AvisController extends AbstractController
             return $this->json(['message' => 'Trajet introuvable'], 404);
         }
 
-        if ($reservation->getStatut() !== 'CONFIRMEE') {
+        if ($reservation->getStatut() !== 'CONFIRME') {
             return $this->json(['message' => 'Seules les réservations confirmées peuvent être notées'], 400);
         }
 
@@ -137,7 +137,6 @@ final class AvisController extends AbstractController
         // par le chauffeur.
         if ($trajet->getStatut() !== 'termine') {
             return $this->json(['message' => 'Le trajet doit être terminé pour laisser un avis'], 400);
-
         }           
 
         // Anti doublon : un seul avis par réservation
