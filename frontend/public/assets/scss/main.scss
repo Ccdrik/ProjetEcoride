@@ -1,20 +1,11 @@
-/* frontend/assets/scss/main.scss */
-
-/* Base */
-@import "variables";
-@import "base";
-@import "layout";
-
-/* Components */
-@import "components/navbar";
-@import "components/hero";
-@import "components/forms";
-@import "components/tables";
-@import "components/card";
-@import "components/buttons";
-@import "components/footer";
-
-/* Pages */
-@import "pages/auth";
-@import "pages/contact";
-@import "pages/covoiturages";
+@use "variables";
+@use "base";
+@use "layout";
+@use "navbar";
+@use "hero";
+@use "buttons";
+@use "forms";
+@use "card";
+@use "tables";
+@use "footer";
+@use "contact";

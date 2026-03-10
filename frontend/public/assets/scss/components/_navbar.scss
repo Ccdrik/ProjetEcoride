@@ -1,39 +1,33 @@
-/* frontend/assets/scss/components/_navbar.scss */
+@use "variables" as *;
 
-// ==========================================================
-// NAVBAR (EcoRide)
-// ==========================================================
-// Objectif :
-// - garder une navbar "dark" Bootstrap
-// - forcer les textes (brand + liens) en vert EcoRide ($primary)
-// - hover légèrement plus clair
-// ==========================================================
+// ========================================
+// NAVBAR
+// ========================================
 
 .navbar {
+    background: $color-surface-dark !important;
+    box-shadow: $shadow-sm;
+    padding: 0.9rem 1rem;
+    background-color: $bg-navbar;
+}
 
-    // Police / taille générale de la navbar
-    .navbar-brand,
-    .nav-link {
-        font-family: $font-family-serif;
-        font-size: 22px;
+.navbar-brand {
+    font-size: 2rem;
+    font-weight: 700;
+    color: $color-primary-light !important;
+}
 
-        // Couleur EcoRide (vert)
-        color: $primary !important;
+.navbar-nav .nav-link {
+    color: $color-primary-light !important;
+    font-weight: 500;
+    margin-left: 0.75rem;
+    transition: $transition;
+
+    &:hover {
+        color: $color-text-light !important;
     }
+}
 
-    .navbar-brand {
-        font-size: 30px;
-        font-weight: 700; // "bold" en vrai CSS
-    }
-
-    // Hover
-    .nav-link:hover,
-    .navbar-brand:hover {
-        color: lighten($primary, 10%) !important;
-    }
-
-    // Icône du burger en blanc (utile sur fond dark)
-    .navbar-toggler-icon {
-        filter: invert(1);
-    }
+.navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.25);
 }

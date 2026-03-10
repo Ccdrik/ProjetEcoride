@@ -1,15 +1,72 @@
-/* ==========================================================
-   VARIABLES GLOBALES ECO RIDE
-   ========================================================== */
+// =======================================
+// COULEURS PRINCIPALES (thème EcoRide)
+// =======================================
 
-/* Couleurs principales */
-$black: #0b0b0b;
-$dark: #1a1a1a;
-$primary: #5BE37D;
+$primary: #81c784;
+$primary-dark: #2e7d32;
+$primary-light: #a5d6a7;
 
-/* Typographie */
-$font-family-serif: "Georgia", serif;
+$secondary: #1f2933;
 
-/* Ombres & arrondis */
-$radius: 10px;
-$shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+$text-light: #ffffff;
+$text-dark: #1f2933;
+$text-muted: #6b7280;
+
+
+// =======================================
+// BACKGROUND
+// =======================================
+
+$bg-main: #f4f7f6;
+$bg-card: #ffffff;
+$bg-navbar: #1f2933;
+$bg-footer: #1f2933;
+
+
+// =======================================
+// BORDURES
+// =======================================
+
+$border-color: #e5e7eb;
+
+
+// =======================================
+// RADIUS
+// =======================================
+
+$radius-small: 8px;
+$radius-medium: 12px;
+$radius-large: 16px;
+
+
+// =======================================
+// OMBRES
+// =======================================
+
+$shadow-small: 0 2px 8px rgba(0, 0, 0, 0.08);
+$shadow-medium: 0 6px 18px rgba(0, 0, 0, 0.12);
+
+
+// =======================================
+// ESPACEMENTS
+// =======================================
+
+$space-xs: 0.5rem;
+$space-sm: 0.75rem;
+$space-md: 1rem;
+$space-lg: 1.5rem;
+$space-xl: 2rem;
+
+
+// =======================================
+// CONTAINER
+// =======================================
+
+$container-max-width: 1100px;
+
+
+// =======================================
+// TRANSITION
+// =======================================
+
+$transition-fast: 0.2s ease;

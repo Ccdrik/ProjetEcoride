@@ -3,28 +3,26 @@
     <div class="hero-scene-content"></div>
 </div>
 
-
-
-<form action="covoiturages.html" method="GET" class="table-center">
+<form id="creer-trajet-form" class="table-center">
     <div class="table-style">
         <div class="mt-3">
-            <h2 class="text-center ">Créer un trajet</h2>
+            <h2 class="text-center">Créer un trajet</h2>
         </div>
 
+        <div id="message-trajet"></div>
 
         <div class="input-group mb-3">
             <span class="input-group-text"><i class="bi bi-geo-alt-fill"></i></span>
-            <input class="form-control " type="text" id="depart" name="depart" required placeholder="Départ">
+            <input class="form-control" type="text" id="depart" name="depart" required placeholder="Départ">
         </div>
-
 
         <div class="input-group mb-3">
             <span class="input-group-text"><i class="bi bi-geo-alt-fill"></i></span>
-            <input class="form-control " type="text" id="arrivee" name="arrivee" required placeholder="Arrivée">
+            <input class="form-control" type="text" id="arrivee" name="arrivee" required placeholder="Arrivée">
         </div>
 
         <div class="mb-3">
-            <input class="form-control" type="date" id="date" name="date" required placeholder="Date">
+            <input class="form-control" type="date" id="date" name="date" required>
         </div>
 
         <div class="mb-3">
@@ -35,13 +33,18 @@
             <input class="form-control" type="number" id="places" name="places" min="1" required
                 placeholder="Nombre de places">
         </div>
-        <div class="input-group mb-3 align-items-center ">
+
+        <div class="mb-3">
+            <input class="form-control" type="number" id="prix" name="prix" min="1" required
+                placeholder="Prix par place (crédits)">
+        </div>
+
+        <div class="input-group mb-3 align-items-center">
             <div class="input-group-text">
                 <input class="form-check-input mt-0" type="checkbox" value="1" id="ecologique" name="ecologique">
             </div>
             <label class="form-control ps-3" for="ecologique">Voyage écologique 🌱</label>
         </div>
-
 
         <button type="submit" class="btn btn-primary mb-3">Publier mon trajet</button>
     </div>

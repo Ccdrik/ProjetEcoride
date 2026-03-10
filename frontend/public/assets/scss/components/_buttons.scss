@@ -1,8 +1,47 @@
-.btn {
-    border-radius: $radius;
-    transition: all 0.2s ease;
+@use "variables" as *;
 
-    &:hover {
-        transform: translateY(-2px);
+// ========================================
+// BUTTONS
+// ========================================
+
+.btn {
+    border-radius: $radius-sm;
+    font-weight: 600;
+    transition: $transition;
+    width: 100%;
+}
+
+.btn-primary {
+    background-color: $color-primary;
+    border-color: $color-primary;
+    color: $color-text-light;
+
+    &:hover,
+    &:focus {
+        background-color: $color-primary-dark;
+        border-color: $color-primary-dark;
+        color: $color-text-light;
+    }
+}
+
+.btn-outline-primary {
+    border-color: $color-primary;
+    color: $color-primary;
+
+    &:hover,
+    &:focus {
+        background-color: $color-primary;
+        border-color: $color-primary;
+        color: $color-text-light;
+    }
+}
+
+.btn-full {
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .btn {
+        width: auto;
     }
 }

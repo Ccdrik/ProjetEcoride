@@ -1,61 +1,83 @@
 <h1 class="main-title text-center">Espace administrateur</h1>
+
 <div class="hero-scene text-center text-white">
     <div class="hero-scene-content"></div>
 </div>
 
-<section class="mb-5">
-    <h2 class="mb-4">Statistiques</h2>
+<main class="page-container">
 
-    <div id="admin-stats" class="mb-4">
-        <div class="alert alert-info">Chargement des statistiques...</div>
-    </div>
+    <section class="section-card mb-5">
+        <h2 class="mb-4">Statistiques</h2>
 
-    <div class="row">
-        <div class="col-12 col-lg-6 mb-4">
-            <h3>Covoiturages par jour</h3>
-            <canvas id="chart-covoiturages"></canvas>
+        <div id="admin-stats" class="mb-4">
+            <div class="alert alert-info">Chargement des statistiques...</div>
         </div>
 
-        <div class="col-12 col-lg-6 mb-4">
-            <h3>Gains par jour</h3>
-            <canvas id="chart-gains"></canvas>
+        <div class="row chart-wrapper">
+
+            <div class="chart-container mb-4">
+                <h3>Covoiturages par jour</h3>
+                <canvas id="chart-covoiturages"></canvas>
+            </div>
+
+            <div class="chart-container mb-4">
+                <h3>Gains par jour</h3>
+                <canvas id="chart-gains"></canvas>
+            </div>
+
         </div>
-    </div>
-</section>
+    </section>
 
-<section class="mb-5">
-    <h2 class="mb-4">Créer un compte employé</h2>
 
-    <form id="form-employe" class="card p-3">
-        <div class="mb-3">
-            <label for="prenom" class="form-label">Prénom</label>
-            <input type="text" id="prenom" class="form-control" required>
+    <section class="section-card mb-5">
+
+        <h2 class="mb-4">Créer un compte employé</h2>
+
+        <form id="form-employe" class="form-container card p-3">
+
+            <div class="mb-3">
+                <label for="prenom" class="form-label">Prénom</label>
+                <input type="text" id="prenom" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="nom" class="form-label">Nom</label>
+                <input type="text" id="nom" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" id="email" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">Mot de passe</label>
+                <input type="text" id="password" class="form-control" required>
+            </div>
+
+            <button type="submit" class="btn btn-success btn-full">
+                Créer l'employé
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <section class="section-card">
+
+        <h2 class="mb-4">Gestion des utilisateurs</h2>
+
+        <div class="table-container">
+
+            <div id="admin-users">
+                <div class="alert alert-info">
+                    Chargement des utilisateurs...
+                </div>
+            </div>
+
         </div>
 
-        <div class="mb-3">
-            <label for="nom" class="form-label">Nom</label>
-            <input type="text" id="nom" class="form-control" required>
-        </div>
+    </section>
 
-        <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" id="email" class="form-control" required>
-        </div>
-
-        <div class="mb-3">
-            <label for="password" class="form-label">Mot de passe</label>
-            <input type="text" id="password" class="form-control" required>
-        </div>
-
-        <button type="submit" class="btn btn-success">
-            Créer l'employé
-        </button>
-    </form>
-</section>
-
-<section>
-    <h2 class="mb-4">Gestion des utilisateurs</h2>
-    <div id="admin-users">
-        <div class="alert alert-info">Chargement des utilisateurs...</div>
-    </div>
-</section>
+</main>

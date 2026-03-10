@@ -317,10 +317,7 @@ final class ReservationController extends AbstractController
         ], 201);
     }
 
-    /**
-     * Méthode utilitaire : lire le JSON du body.
-     * Je la centralise pour éviter de dupliquer du code.
-     */
+
     private function lireJson(Request $request): array
     {
         $contenu = $request->getContent();

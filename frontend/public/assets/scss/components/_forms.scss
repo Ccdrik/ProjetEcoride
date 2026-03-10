@@ -1,55 +1,63 @@
-/* frontend/assets/scss/components/_forms.scss */
+@use "variables" as *;
 
-.input-group,
-.form-control,
-.heure-input,
-.form-select {
-    width: 50%;
-    margin: 0 auto;
-}
+// ========================================
+// FORMS
+// ========================================
 
-.input-group-text input[type="checkbox"] {
-    width: 24px;
-    height: 24px;
-}
-
-.search-form {
-    display: flex;
-    flex-direction: column;
-    max-width: 400px;
+form {
+    max-width: 600px;
     margin: auto;
-    gap: 10px;
-    background-color: $dark;
-    margin-top: 5px;
 }
 
-.checkbox-center {
-    display: grid;
-    place-items: center;
+.form-control,
+.form-select {
+    border-radius: $radius-sm;
+    border: 1px solid $color-border;
+    min-height: 46px;
+    padding: 0.75rem 0.9rem;
+    box-shadow: none;
 
-    .form-check-label {
-        color: $primary;
+    &:focus {
+        border-color: $color-primary;
+        box-shadow: 0 0 0 0.18rem rgba(46, 125, 50, 0.15);
     }
 }
 
-.checkbox {
-    display: flex;
-    align-items: center;
+.input-group-text {
+    background-color: #f8f9fa;
+    border: 1px solid $color-border;
+    border-radius: $radius-sm 0 0 $radius-sm;
 }
 
-.date {
-    width: 300px;
-    height: 50px;
-    font-size: 18px;
+.heure-input {
+    text-align: center;
 }
 
-button.btn-primary {
-    width: 40%;
-    display: block;
-    margin: 0 auto;
-    background-color: $primary;
-    color: $black;
-    font-family: $font-family-serif;
-    font-size: 18px;
-    margin-bottom: 10px;
+.form-label {
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+}
+
+.autocomplete-list {
+    border: 1px solid $color-border;
+    border-top: none;
+    background: $color-surface;
+    border-radius: 0 0 $radius-sm $radius-sm;
+    box-shadow: $shadow-sm;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.autocomplete-list .list-group-item {
+    border: none;
+    border-bottom: 1px solid #f1f1f1;
+
+    &:hover {
+        background: #f8faf8;
+    }
+}
+
+.form-container {
+    max-width: 500px;
+    margin: auto;
 }

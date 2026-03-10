@@ -76,6 +76,7 @@ class TrajetController extends AbstractController
                 'dateDepart' => $t->getDateDepart()->format('c'),
                 'prixParPlace' => $t->getPrixParPlace(),
                 'placesRestantes' => $t->getPlacesRestantes(),
+                'ecologique' => $this->estEcologique($t),
                 'conducteur' => [
                     'id' => $t->getConducteur()->getId(),
                     'nom' => $t->getConducteur()->getNom(),
@@ -105,6 +106,7 @@ class TrajetController extends AbstractController
             'prixParPlace' => $trajet->getPrixParPlace(),
             'placesTotal' => $trajet->getPlacesTotal(),
             'placesRestantes' => $trajet->getPlacesRestantes(),
+            'ecologique' => $this->estEcologique($trajet),
             'statut' => $trajet->getStatut(),
             'conducteur' => $trajet->getConducteur() ? [
                 'id' => $trajet->getConducteur()->getId(),
@@ -119,6 +121,7 @@ class TrajetController extends AbstractController
                 'energie' => $trajet->getVehicule()->getEnergie(),
                 'couleur' => $trajet->getVehicule()->getCouleur(),
                 'immatriculation' => $trajet->getVehicule()->getImmatriculation(),
+                
             ] : null,
         ]);
     }
@@ -155,4 +158,15 @@ class TrajetController extends AbstractController
             'statut' => $trajet->getStatut()
         ]);
     }
+
+    private function estEcologique(Trajet $trajet): bool
+{
+    $energie = strtolower($trajet->getVehicule()?->getEnergie() ?? '');
+
+    return in_array($energie, [
+        'electrique',
+        'électrique',
+        'hybride',
+    ]);
+}
 }
