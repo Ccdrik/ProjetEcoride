@@ -123,17 +123,22 @@ final class AvisController extends AbstractController
             return $this->json(['message' => 'trajetId ne correspond pas à la réservation'], 400);
         }
 
-        $trajet = $trajets->find($trajetId);
+       $trajet = $trajets->find($trajetId);
 
         if (!$trajet) {
             return $this->json(['message' => 'Trajet introuvable'], 404);
         }
 
-        // MVP : je bloque l'avis avant le départ du trajet
-        // Plus tard, je pourrai raffiner avec une vraie notion de trajet terminé
-        if ($trajet->getDateDepart() > new \DateTimeImmutable()) {
-            return $this->json(['message' => 'Vous ne pouvez pas noter avant le départ'], 400);
+        if ($reservation->getStatut() !== 'CONFIRMEE') {
+            return $this->json(['message' => 'Seules les réservations confirmées peuvent être notées'], 400);
         }
+
+        // L'avis n'est autorisé que lorsque le trajet a été marqué comme terminé
+        // par le chauffeur.
+        if ($trajet->getStatut() !== 'termine') {
+            return $this->json(['message' => 'Le trajet doit être terminé pour laisser un avis'], 400);
+
+        }           
 
         // Anti doublon : un seul avis par réservation
         $existing = $mongo->avisCollection()->findOne([
