@@ -1,5 +1,5 @@
 import { apiFetch } from "../api/client.js";
-import { getToken } from "../auth/session.js";
+import { getToken } from "../api/client.js";
 
 function getTrajetId() {
     const params = new URLSearchParams(window.location.search);
@@ -32,7 +32,6 @@ async function chargerDetailsTrajet() {
 }
 
 function afficherTrajet(trajet) {
-
     document.getElementById("trajet-depart").textContent =
         trajet.departVille || "";
 
@@ -40,23 +39,28 @@ function afficherTrajet(trajet) {
         trajet.arriveeVille || "";
 
     document.getElementById("trajet-date").textContent =
-        new Date(trajet.dateDepart).toLocaleString("fr-FR");
+        trajet.dateDepart
+            ? new Date(trajet.dateDepart).toLocaleString("fr-FR")
+            : "";
 
     document.getElementById("trajet-conducteur").textContent =
-        trajet.conducteurNomComplet || "Conducteur";
+        trajet.conducteur
+            ? `${trajet.conducteur.prenom || ""} ${trajet.conducteur.nom || ""}`.trim()
+            : "Conducteur";
 
     document.getElementById("trajet-vehicule").textContent =
-        trajet.vehiculeLabel || "Non renseigné";
+        trajet.vehicule
+            ? `${trajet.vehicule.marque || ""} ${trajet.vehicule.modele || ""}`.trim()
+            : "Non renseigné";
 
     document.getElementById("trajet-energie").textContent =
-        trajet.energie || "Non renseignée";
+        trajet.vehicule?.energie || "Non renseignée";
 
     document.getElementById("trajet-places").textContent =
         trajet.placesRestantes ?? "0";
 
     document.getElementById("trajet-prix").textContent =
         trajet.prixParPlace ?? "0";
-
 }
 
 function initialiserReservation(idTrajet) {
