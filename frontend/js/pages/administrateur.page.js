@@ -1,4 +1,3 @@
-import Chart from "chart.js/auto";
 import { apiFetch } from "../api/client.js";
 
 let chartCovoiturages = null;

@@ -2,9 +2,12 @@
 
 namespace App\Controller\Api;
 
+use App\Entity\Utilisateur;
 use App\Repository\ReservationRepository;
 use App\Repository\TrajetRepository;
 use App\Service\Mongo\MongoProvider;
+use MongoDB\BSON\ObjectId;
+use MongoDB\BSON\UTCDateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,38 +17,63 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[Route('/api')]
 final class AvisController extends AbstractController
 {
-    // Affiche les avis validés (pour la page détail du trajet)
+    /**
+     * Affiche les avis validés d'un trajet.
+     *
+     * Cette route sera utilisée sur la page détail du trajet.
+     * Je ne retourne que les avis APPROVED pour éviter d'afficher
+     * des avis encore en attente ou refusés.
+     */
     #[Route('/avis', methods: ['GET'])]
     public function list(Request $request, MongoProvider $mongo): JsonResponse
     {
         $trajetId = $request->query->getInt('trajetId');
+
         if ($trajetId <= 0) {
             return $this->json(['message' => 'trajetId manquant'], 400);
         }
 
         $cursor = $mongo->avisCollection()->find(
-            ['trajetId' => $trajetId, 'status' => 'APPROVED'],
-            ['sort' => ['createdAt' => -1]]
+            [
+                'trajetId' => $trajetId,
+                'status' => 'APPROVED',
+            ],
+            [
+                'sort' => ['createdAt' => -1],
+            ]
         );
 
         $items = [];
+
         foreach ($cursor as $doc) {
             $items[] = [
                 'id' => (string) $doc->_id,
-                'trajetId' => (int) $doc->trajetId,
-                'chauffeurId' => (int) $doc->chauffeurId,
+                'trajetId' => (int) ($doc->trajetId ?? 0),
+                'chauffeurId' => (int) ($doc->chauffeurId ?? 0),
+
+                // Si je n'ai pas de pseudo dédié, j'affiche au moins une valeur lisible
                 'passagerPseudo' => (string) ($doc->passagerPseudo ?? ''),
-                'note' => (int) $doc->note,
-                'commentaire' => (string) $doc->commentaire,
+
+                'note' => (int) ($doc->note ?? 0),
+                'commentaire' => (string) ($doc->commentaire ?? ''),
                 'isProblem' => (bool) ($doc->isProblem ?? false),
-                'createdAt' => $doc->createdAt ?? null,
+
+                // Je formate la date Mongo en ISO pour le front
+                'createdAt' => isset($doc->createdAt) && $doc->createdAt instanceof UTCDateTime
+                    ? $doc->createdAt->toDateTime()->format('c')
+                    : null,
             ];
         }
 
         return $this->json(['items' => $items]);
     }
 
-    // Dépôt d’un avis (participant connecté) -> status PENDING (validation employé)
+    /**
+     * Dépôt d'un avis par un utilisateur connecté.
+     *
+     * L'avis part en PENDING pour qu'un employé puisse le valider
+     * ou le refuser avant publication.
+     */
     #[IsGranted('ROLE_USER')]
     #[Route('/avis', methods: ['POST'])]
     public function create(
@@ -55,7 +83,8 @@ final class AvisController extends AbstractController
         TrajetRepository $trajets,
     ): JsonResponse {
         $user = $this->getUser();
-        if (!$user || !method_exists($user, 'getId')) {
+
+        if (!$user instanceof Utilisateur) {
             return $this->json(['message' => 'Non authentifié'], 401);
         }
 
@@ -70,52 +99,68 @@ final class AvisController extends AbstractController
         if ($reservationId <= 0 || $trajetId <= 0) {
             return $this->json(['message' => 'reservationId et trajetId requis'], 400);
         }
+
         if ($note < 1 || $note > 5) {
             return $this->json(['message' => 'La note doit être entre 1 et 5'], 400);
         }
+
         if (mb_strlen($commentaire) < 3) {
             return $this->json(['message' => 'Commentaire trop court'], 400);
         }
 
-        // Sécurité : l’avis doit venir du passager de la réservation
+        // Sécurité : seul le passager de la réservation peut laisser un avis
         $reservation = $reservations->find($reservationId);
+
         if (!$reservation) {
             return $this->json(['message' => 'Réservation introuvable'], 404);
         }
+
         if ($reservation->getPassager()->getId() !== $user->getId()) {
             return $this->json(['message' => 'Cette réservation ne vous appartient pas'], 403);
         }
+
         if ($reservation->getTrajet()->getId() !== $trajetId) {
             return $this->json(['message' => 'trajetId ne correspond pas à la réservation'], 400);
         }
 
         $trajet = $trajets->find($trajetId);
+
         if (!$trajet) {
             return $this->json(['message' => 'Trajet introuvable'], 404);
         }
 
-        // MVP : empêcher l’avis avant le départ (amélioration : après "arrivée")
+        // MVP : je bloque l'avis avant le départ du trajet
+        // Plus tard, je pourrai raffiner avec une vraie notion de trajet terminé
         if ($trajet->getDateDepart() > new \DateTimeImmutable()) {
             return $this->json(['message' => 'Vous ne pouvez pas noter avant le départ'], 400);
         }
 
-        // Anti doublon : 1 avis par réservation
-        $existing = $mongo->avisCollection()->findOne(['reservationId' => $reservationId]);
+        // Anti doublon : un seul avis par réservation
+        $existing = $mongo->avisCollection()->findOne([
+            'reservationId' => $reservationId,
+        ]);
+
         if ($existing) {
             return $this->json(['message' => 'Avis déjà envoyé pour cette réservation'], 409);
         }
 
+        // Je stocke l'avis dans MongoDB avec un statut PENDING
         $doc = [
             'reservationId' => $reservationId,
             'trajetId' => $trajetId,
             'chauffeurId' => $trajet->getConducteur()->getId(),
             'passagerId' => $user->getId(),
-            'passagerPseudo' => method_exists($user, 'getPseudo') ? $user->getPseudo() : '',
+
+            // Je mets un nom lisible pour l'affichage côté front
+            'passagerPseudo' => trim(($user->getPrenom() ?? '') . ' ' . ($user->getNom() ?? '')),
+
             'note' => $note,
             'commentaire' => $commentaire,
             'isProblem' => $isProblem,
             'status' => 'PENDING',
-            'createdAt' => new \MongoDB\BSON\UTCDateTime(),
+            'createdAt' => new UTCDateTime(),
+            'moderatedAt' => null,
+            'moderatedBy' => null,
         ];
 
         $result = $mongo->avisCollection()->insertOne($doc);
@@ -124,5 +169,100 @@ final class AvisController extends AbstractController
             'message' => 'Avis envoyé (en attente de validation).',
             'id' => (string) $result->getInsertedId(),
         ], 201);
+    }
+
+    /**
+     * Liste des avis en attente pour l'employé.
+     *
+     * Cette route servira à la modération.
+     */
+    #[IsGranted('ROLE_EMPLOYE')]
+    #[Route('/employe/avis/en-attente', methods: ['GET'])]
+    public function listPending(MongoProvider $mongo): JsonResponse
+    {
+        $cursor = $mongo->avisCollection()->find(
+            ['status' => 'PENDING'],
+            ['sort' => ['createdAt' => -1]]
+        );
+
+        $items = [];
+
+        foreach ($cursor as $doc) {
+            $items[] = [
+                'id' => (string) $doc->_id,
+                'reservationId' => (int) ($doc->reservationId ?? 0),
+                'trajetId' => (int) ($doc->trajetId ?? 0),
+                'chauffeurId' => (int) ($doc->chauffeurId ?? 0),
+                'passagerId' => (int) ($doc->passagerId ?? 0),
+                'passagerPseudo' => (string) ($doc->passagerPseudo ?? ''),
+                'note' => (int) ($doc->note ?? 0),
+                'commentaire' => (string) ($doc->commentaire ?? ''),
+                'isProblem' => (bool) ($doc->isProblem ?? false),
+                'status' => (string) ($doc->status ?? ''),
+                'createdAt' => isset($doc->createdAt) && $doc->createdAt instanceof UTCDateTime
+                    ? $doc->createdAt->toDateTime()->format('c')
+                    : null,
+            ];
+        }
+
+        return $this->json(['items' => $items]);
+    }
+
+    /**
+     * Validation d'un avis par un employé.
+     */
+    #[IsGranted('ROLE_EMPLOYE')]
+    #[Route('/employe/avis/{id}/valider', methods: ['PATCH'])]
+    public function validateAvis(string $id, MongoProvider $mongo): JsonResponse
+    {
+        $user = $this->getUser();
+
+        if (!$user instanceof Utilisateur) {
+            return $this->json(['message' => 'Non authentifié'], 401);
+        }
+
+        $result = $mongo->avisCollection()->updateOne(
+            ['_id' => new ObjectId($id)],
+            ['$set' => [
+                'status' => 'APPROVED',
+                'moderatedAt' => new UTCDateTime(),
+                'moderatedBy' => $user->getId(),
+            ]]
+        );
+
+        if ($result->getMatchedCount() === 0) {
+            return $this->json(['message' => 'Avis introuvable'], 404);
+        }
+
+        return $this->json(['message' => 'Avis validé']);
+    }
+
+    /**
+     * Refus d'un avis par un employé.
+     */
+    #[IsGranted('ROLE_EMPLOYE')]
+    #[Route('/employe/avis/{id}/refuser', methods: ['PATCH'])]
+    public function rejectAvis(string $id, MongoProvider $mongo): JsonResponse
+    {
+        $user = $this->getUser();
+
+        if (!$user instanceof Utilisateur) {
+            return $this->json(['message' => 'Non authentifié'], 401);
+        }
+
+        $result = $mongo->avisCollection()->updateOne(
+            ['_id' => new ObjectId($id)],
+            ['$set' => [
+                'status' => 'REJECTED',
+                'moderatedAt' => new UTCDateTime(),
+                'moderatedBy' => $user->getId(),
+            ]]
+        );
+
+        if ($result->getMatchedCount() === 0) {
+            return $this->json(['message' => 'Avis introuvable'], 404);
+        }
+
+        return $this->json(['message' => 'Avis refusé']);
     }
 }
