@@ -248,8 +248,8 @@ final class ReservationController extends AbstractController
             return $this->json(['message' => 'nbPlaces doit être >= 1'], 400);
         }
 
-        if ($trajet->getStatut() !== 'OUVERT') {
-            return $this->json(['message' => 'Trajet non réservable (statut != OUVERT)'], 409);
+        if ($trajet->getStatut() !== 'PLANIFIE') {
+            return $this->json(['message' => 'Trajet non réservable'], 409);
         }
 
         if ((int)$trajet->getPlacesRestantes() < $nbPlaces) {
@@ -278,7 +278,7 @@ final class ReservationController extends AbstractController
             ->setTrajet($trajet)
             ->setPassager($utilisateur)
             ->setNbPlaces($nbPlaces)
-            ->setStatut('CONFIRME')
+            ->setStatut('CONFIRMEE')
             ->setDateCreation(new \DateTimeImmutable());
 
         $trajet->setPlacesRestantes(((int)$trajet->getPlacesRestantes()) - $nbPlaces);

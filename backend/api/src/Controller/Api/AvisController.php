@@ -21,7 +21,7 @@ final class AvisController extends AbstractController
      * Affiche les avis validés d'un trajet.
      *
      * Cette route sera utilisée sur la page détail du trajet.
-     * Je ne retourne que les avis APPROVED pour éviter d'afficher
+     * Je ne retourne que les avis VALIDE pour éviter d'afficher
      * des avis encore en attente ou refusés.
      */
     #[Route('/avis', methods: ['GET'])]
@@ -36,7 +36,7 @@ final class AvisController extends AbstractController
         $cursor = $mongo->avisCollection()->find(
             [
                 'trajetId' => $trajetId,
-                'status' => 'APPROVED',
+                'status' => 'VALIDE',
             ],
             [
                 'sort' => ['createdAt' => -1],
@@ -71,7 +71,7 @@ final class AvisController extends AbstractController
     /**
      * Dépôt d'un avis par un utilisateur connecté.
      *
-     * L'avis part en PENDING pour qu'un employé puisse le valider
+     * L'avis part en EN_ATTENTE pour qu'un employé puisse le valider
      * ou le refuser avant publication.
      */
     #[IsGranted('ROLE_USER')]
@@ -129,13 +129,13 @@ final class AvisController extends AbstractController
             return $this->json(['message' => 'Trajet introuvable'], 404);
         }
 
-        if ($reservation->getStatut() !== 'CONFIRME') {
+        if ($reservation->getStatut() !== 'CONFIRMEE') {
             return $this->json(['message' => 'Seules les réservations confirmées peuvent être notées'], 400);
         }
 
         // L'avis n'est autorisé que lorsque le trajet a été marqué comme terminé
         // par le chauffeur.
-        if ($trajet->getStatut() !== 'termine') {
+        if ($trajet->getStatut() !== 'TERMINE') {
             return $this->json(['message' => 'Le trajet doit être terminé pour laisser un avis'], 400);
         }           
 
@@ -148,7 +148,7 @@ final class AvisController extends AbstractController
             return $this->json(['message' => 'Avis déjà envoyé pour cette réservation'], 409);
         }
 
-        // Je stocke l'avis dans MongoDB avec un statut PENDING
+        // Je stocke l'avis dans MongoDB avec un statut EN_ATTENTE pour modération
         $doc = [
             'reservationId' => $reservationId,
             'trajetId' => $trajetId,
@@ -161,7 +161,7 @@ final class AvisController extends AbstractController
             'note' => $note,
             'commentaire' => $commentaire,
             'isProblem' => $isProblem,
-            'status' => 'PENDING',
+            'status' => 'EN_ATTENTE',
             'createdAt' => new UTCDateTime(),
             'moderatedAt' => null,
             'moderatedBy' => null,
@@ -185,7 +185,7 @@ final class AvisController extends AbstractController
     public function listPending(MongoProvider $mongo): JsonResponse
     {
         $cursor = $mongo->avisCollection()->find(
-            ['status' => 'PENDING'],
+            ['status' => 'EN_ATTENTE'],
             ['sort' => ['createdAt' => -1]]
         );
 
@@ -228,7 +228,7 @@ final class AvisController extends AbstractController
         $result = $mongo->avisCollection()->updateOne(
             ['_id' => new ObjectId($id)],
             ['$set' => [
-                'status' => 'APPROVED',
+                'status' => 'VALIDE',
                 'moderatedAt' => new UTCDateTime(),
                 'moderatedBy' => $user->getId(),
             ]]
@@ -257,7 +257,7 @@ final class AvisController extends AbstractController
         $result = $mongo->avisCollection()->updateOne(
             ['_id' => new ObjectId($id)],
             ['$set' => [
-                'status' => 'REJECTED',
+                'status' => 'REFUSE',
                 'moderatedAt' => new UTCDateTime(),
                 'moderatedBy' => $user->getId(),
             ]]

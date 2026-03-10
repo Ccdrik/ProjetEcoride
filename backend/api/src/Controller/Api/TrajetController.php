@@ -13,7 +13,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class TrajetController extends AbstractController
 {
-    #[IsGranted('ROLE_USER')]
+    #[IsGranted('ROLE_CHAUFFEUR')]
     #[Route('/api/trajets', name: 'api_trajet_create', methods: ['POST'])]
     public function create(
         Request $request,
@@ -43,7 +43,7 @@ class TrajetController extends AbstractController
         $trajet->setPrixParPlace((int) $data['prixParPlace']);
         $trajet->setPlacesTotal((int) $data['placesTotal']);
         $trajet->setPlacesRestantes((int) $data['placesTotal']);
-        $trajet->setStatut('OUVERT');
+        $trajet->setStatut('PLANIFIE');
         $trajet->setConducteur($this->getUser());
 
         $em->persist($trajet);
@@ -123,7 +123,7 @@ class TrajetController extends AbstractController
         ]);
     }
 
-    #[IsGranted('ROLE_USER')]
+    #[IsGranted('ROLE_CHAUFFEUR')]
     #[Route('/api/trajets/{id}/terminer', name: 'api_trajet_terminer', methods: ['PATCH'])]
     public function terminer(
         int $id,
@@ -142,11 +142,12 @@ class TrajetController extends AbstractController
             return $this->json(['message' => 'Accès refusé'], 403);
         }
 
-        if ($trajet->getStatut() === 'termine') {
+        if ($trajet->getStatut() === 'TERMINE') {
             return $this->json(['message' => 'Ce trajet est déjà terminé'], 400);
         }
+        
 
-        $trajet->setStatut('termine');
+        $trajet->setStatut('TERMINE');
         $em->flush();
 
         return $this->json([
