@@ -4,11 +4,9 @@
     <div class="hero-scene-content"></div>
 </div>
 
-<section class="container my-4">
-
-    <!-- Formulaire de recherche -->
-    <form id="formulaireRechercheCovoiturages" class="card p-3 shadow-sm">
-        <div class="row g-3">
+<section class="page-container my-4">
+    <div class="section-card">
+        <form id="formulaireRechercheCovoiturages" class="card p-3 shadow-sm">
 
             <div class="col-md-4 position-relative">
                 <label for="champDepartCovoiturages" class="form-label">Départ</label>
@@ -34,53 +32,53 @@
                 <label for="champDateCovoiturages" class="form-label">Date</label>
                 <input type="date" class="form-control" id="champDateCovoiturages" name="date">
             </div>
-        </div>
+    </div>
 
-        <!-- Filtres -->
-        <div class="row g-2 mt-2" id="ligneFiltresCovoiturages">
-            <div class="col-12 col-md-3">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="filtreEcologique">
-                    <label class="form-check-label" for="filtreEcologique">
-                        Trajets écologiques
-                    </label>
-                </div>
-            </div>
-
-            <div class="col-6 col-md-3">
-                <label class="form-label small mb-1" for="filtrePrixMax">Prix max (€)</label>
-                <input class="form-control form-control-sm" type="number" id="filtrePrixMax" min="0" step="1"
-                    placeholder="ex: 10">
-            </div>
-
-            <div class="col-6 col-md-3">
-                <label class="form-label small mb-1" for="filtreDureeMax">Durée max (min)</label>
-                <input class="form-control form-control-sm" type="number" id="filtreDureeMax" min="0" step="5"
-                    placeholder="ex: 120">
-            </div>
-
-            <div class="col-6 col-md-3">
-                <label class="form-label small mb-1" for="filtreNoteMin">Note min</label>
-                <select class="form-select form-select-sm" id="filtreNoteMin">
-                    <option value="">--</option>
-                    <option value="1">1+</option>
-                    <option value="2">2+</option>
-                    <option value="3">3+</option>
-                    <option value="4">4+</option>
-                    <option value="5">5</option>
-                </select>
-            </div>
-
-            <div class="col-12 d-flex gap-2 mt-2 flex-wrap">
-                <button class="btn btn-primary" type="submit">Rechercher</button>
-                <button class="btn btn-outline-secondary" type="button" id="boutonAppliquerFiltres">Appliquer les
-                    filtres</button>
-                <button class="btn btn-outline-dark" type="button" id="boutonVoirTousCovoiturages">Voir tous les
-                    covoiturages</button>
-                <button class="btn btn-outline-danger" type="button"
-                    id="boutonReinitialiserCovoiturages">Réinitialiser</button>
+    <!-- Filtres -->
+    <div class="row g-2 mt-2" id="ligneFiltresCovoiturages">
+        <div class="col-12 col-md-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="filtreEcologique">
+                <label class="form-check-label" for="filtreEcologique">
+                    Trajets écologiques
+                </label>
             </div>
         </div>
+
+        <div class="col-6 col-md-3">
+            <label class="form-label small mb-1" for="filtrePrixMax">Prix max (€)</label>
+            <input class="form-control form-control-sm" type="number" id="filtrePrixMax" min="0" step="1"
+                placeholder="ex: 10">
+        </div>
+
+        <div class="col-6 col-md-3">
+            <label class="form-label small mb-1" for="filtreDureeMax">Durée max (min)</label>
+            <input class="form-control form-control-sm" type="number" id="filtreDureeMax" min="0" step="5"
+                placeholder="ex: 120">
+        </div>
+
+        <div class="col-6 col-md-3">
+            <label class="form-label small mb-1" for="filtreNoteMin">Note min</label>
+            <select class="form-select form-select-sm" id="filtreNoteMin">
+                <option value="">--</option>
+                <option value="1">1+</option>
+                <option value="2">2+</option>
+                <option value="3">3+</option>
+                <option value="4">4+</option>
+                <option value="5">5</option>
+            </select>
+        </div>
+
+        <div class="col-12 d-flex gap-2 mt-2 flex-wrap">
+            <button class="btn btn-primary" type="submit">Rechercher</button>
+            <button class="btn btn-outline-secondary" type="button" id="boutonAppliquerFiltres">Appliquer les
+                filtres</button>
+            <button class="btn btn-outline-dark" type="button" id="boutonVoirTousCovoiturages">Voir tous les
+                covoiturages</button>
+            <button class="btn btn-outline-danger" type="button"
+                id="boutonReinitialiserCovoiturages">Réinitialiser</button>
+        </div>
+    </div>
     </form>
 
     <!-- Date proche si besoin -->
