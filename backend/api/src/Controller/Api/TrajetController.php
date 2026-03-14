@@ -59,38 +59,68 @@ class TrajetController extends AbstractController
     }
 
     #[Route('/api/trajets', methods: ['GET'])]
-    public function list(Request $request, TrajetRepository $trajets): JsonResponse
-    {
-        $filters = [
-            'depart' => $request->query->get('depart'),
-            'arrivee' => $request->query->get('arrivee'),
-            'date' => $request->query->get('date'),
-            'prixMax' => $request->query->get('prixMax'),
-            'eco' => $request->query->get('eco'),
-        ];
+public function list(
+    Request $request,
+    TrajetRepository $trajets,
+    MongoProvider $mongo
+): JsonResponse {
+    $filters = [
+        'depart' => $request->query->get('depart'),
+        'arrivee' => $request->query->get('arrivee'),
+        'date' => $request->query->get('date'),
+        'prixMax' => $request->query->get('prixMax'),
+        'eco' => $request->query->get('eco'),
+    ];
 
-        $items = $trajets->search($filters);
+    $items = $trajets->search($filters);
 
-        $data = array_map(function ($t) {
-            return [
-                'id' => $t->getId(),
-                'departVille' => $t->getDepartVille(),
-                'arriveeVille' => $t->getArriveeVille(),
-                'dateDepart' => $t->getDateDepart()->format('c'),
-                'prixParPlace' => $t->getPrixParPlace(),
-                'placesRestantes' => $t->getPlacesRestantes(),
-                'ecologique' => $this->estEcologique($t),
-                'conducteur' => [
-                    'id' => $t->getConducteur()->getId(),
-                    'nom' => $t->getConducteur()->getNom(),
-                    'prenom' => $t->getConducteur()->getPrenom(),
-                    'avatar' => $t->getConducteur()->getAvatar()
+    $data = array_map(function ($t) use ($mongo) {
+        $noteMoyenne = null;
+        $chauffeur = $t->getConducteur();
+
+        if ($chauffeur) {
+            $pipeline = [
+                [
+                    '$match' => [
+                        'chauffeurId' => $chauffeur->getId(),
+                        'status' => 'VALIDE',
+                    ]
                 ],
+                [
+                    '$group' => [
+                        '_id' => null,
+                        'moyenne' => ['$avg' => '$note'],
+                    ]
+                ]
             ];
-        }, $items);
 
-        return $this->json($data);
-    }
+            $result = $mongo->avisCollection()->aggregate($pipeline)->toArray();
+
+            if (!empty($result) && isset($result[0]->moyenne)) {
+                $noteMoyenne = round((float) $result[0]->moyenne, 1);
+            }
+        }
+
+        return [
+            'id' => $t->getId(),
+            'departVille' => $t->getDepartVille(),
+            'arriveeVille' => $t->getArriveeVille(),
+            'dateDepart' => $t->getDateDepart()->format('c'),
+            'prixParPlace' => $t->getPrixParPlace(),
+            'placesRestantes' => $t->getPlacesRestantes(),
+            'ecologique' => $this->estEcologique($t),
+            'noteMoyenne' => $noteMoyenne,
+            'conducteur' => [
+                'id' => $t->getConducteur()->getId(),
+                'nom' => $t->getConducteur()->getNom(),
+                'prenom' => $t->getConducteur()->getPrenom(),
+                'avatar' => $t->getConducteur()->getAvatar()
+            ],
+        ];
+    }, $items);
+
+    return $this->json($data);
+}
 
     #[Route('/api/trajets/{id}', name: 'api_trajet_show', methods: ['GET'])]
     public function show(

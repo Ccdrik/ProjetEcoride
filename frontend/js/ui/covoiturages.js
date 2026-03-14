@@ -151,7 +151,7 @@ function afficherTrajets(trajets) {
         ? `/assets/images/avatars/${trajet.conducteur.avatar}`
         : "/assets/images/avatars/passager.png";
 
-    const note = trajet.chauffeurNote ?? "Non noté";
+    const note = trajet.noteMoyenne ?? "Non noté";
     const dateDepart = formaterDate(trajet.dateDepart);
     const dateArrivee = trajet.dateArrivee ? formaterDate(trajet.dateArrivee) : "Non renseignée";
     const eco = trajet.ecologique ? "Oui" : "Non";
@@ -178,7 +178,6 @@ function afficherTrajets(trajets) {
                   <p class="mb-1"><strong>Conducteur :</strong> ${pseudo}</p>
                   <p class="mb-1"><strong>Note :</strong> ${note}</p>
                   <p class="mb-1"><strong>Départ :</strong> ${dateDepart}</p>
-                  <p class="mb-1"><strong>Arrivée :</strong> ${dateArrivee}</p>
                   <p class="mb-1"><strong>Écologique :</strong> ${eco}</p>
               </div>
 
