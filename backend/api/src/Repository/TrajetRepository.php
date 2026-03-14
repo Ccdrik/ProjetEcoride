@@ -22,9 +22,9 @@ class TrajetRepository extends ServiceEntityRepository
             ->leftJoin('t.vehicule', 'v')
             ->orderBy('t.dateDepart', 'ASC');
 
-        // On limite aux trajets visibles publiquement
-        $qb->andWhere('t.statut IN (:statuts)')
-            ->setParameter('statuts', ['PLANIFIE', 'OUVERT']);
+        // On garde les trajets visibles publiquement
+        $qb->andWhere('LOWER(t.statut) IN (:statuts)')
+            ->setParameter('statuts', ['planifie', 'ouvert']);
 
         if (!empty($filters['depart'])) {
             $qb->andWhere('LOWER(t.departVille) LIKE LOWER(:depart)')
@@ -45,7 +45,7 @@ class TrajetRepository extends ServiceEntityRepository
                     ->setParameter('debutJour', $debutJour)
                     ->setParameter('finJour', $finJour);
             } catch (\Exception $e) {
-                // Si la date est invalide, on n'applique pas le filtre
+                // date invalide : on ignore le filtre
             }
         }
 
