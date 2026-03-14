@@ -17,14 +17,15 @@ class TrajetRepository extends ServiceEntityRepository
     }
 
     public function search(array $filters): array
-    {
-        $qb = $this->createQueryBuilder('t')
-            ->leftJoin('t.vehicule', 'v')
-            ->orderBy('t.dateDepart', 'ASC');
+{
+    $qb = $this->createQueryBuilder('t')
+        ->leftJoin('t.vehicule', 'v')
+        ->andWhere('t.dateDepart >= :now')
+        ->setParameter('now', new \DateTimeImmutable())
+        ->orderBy('t.dateDepart', 'ASC');
 
-        // On garde les trajets visibles publiquement
-        $qb->andWhere('LOWER(t.statut) IN (:statuts)')
-            ->setParameter('statuts', ['planifie', 'ouvert']);
+    $qb->andWhere('LOWER(t.statut) IN (:statuts)')
+        ->setParameter('statuts', ['planifie', 'ouvert']);
 
         if (!empty($filters['depart'])) {
             $qb->andWhere('LOWER(t.departVille) LIKE LOWER(:depart)')
