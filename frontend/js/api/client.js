@@ -3,8 +3,9 @@
 // ==========================================================
 
 const API_BASE =
-  import.meta.env.VITE_API_BASE ||
-  "http://127.0.0.1:8000";
+  window.location.hostname.includes("alwaysdata.net")
+    ? "https://ecoride-api-cedric-eu-d4394ce466c6.herokuapp.com"
+    : "http://127.0.0.1:8000";
 
 // Récupération du token JWT stocké en localStorage
 export function getToken() {

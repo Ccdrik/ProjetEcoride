@@ -16,60 +16,49 @@ class TrajetRepository extends ServiceEntityRepository
         parent::__construct($registry, Trajet::class);
     }
 
-    public function search(array $filters)
-{
-    $qb = $this->createQueryBuilder('t')
-        ->where('t.statut = :statut')
-        ->setParameter('statut', 'PLANIFIE');
+    public function search(array $filters): array
+    {
+        $qb = $this->createQueryBuilder('t')
+            ->leftJoin('t.vehicule', 'v')
+            ->orderBy('t.dateDepart', 'ASC');
 
-    if (!empty($filters['depart'])) {
-        $qb->andWhere('LOWER(t.departVille) LIKE LOWER(:depart)')
-           ->setParameter('depart', $filters['depart'].'%');
+        // On limite aux trajets visibles publiquement
+        $qb->andWhere('t.statut IN (:statuts)')
+            ->setParameter('statuts', ['PLANIFIE', 'OUVERT']);
+
+        if (!empty($filters['depart'])) {
+            $qb->andWhere('LOWER(t.departVille) LIKE LOWER(:depart)')
+                ->setParameter('depart', trim($filters['depart']) . '%');
+        }
+
+        if (!empty($filters['arrivee'])) {
+            $qb->andWhere('LOWER(t.arriveeVille) LIKE LOWER(:arrivee)')
+                ->setParameter('arrivee', trim($filters['arrivee']) . '%');
+        }
+
+        if (!empty($filters['date'])) {
+            try {
+                $debutJour = new \DateTimeImmutable($filters['date'] . ' 00:00:00');
+                $finJour = new \DateTimeImmutable($filters['date'] . ' 23:59:59');
+
+                $qb->andWhere('t.dateDepart BETWEEN :debutJour AND :finJour')
+                    ->setParameter('debutJour', $debutJour)
+                    ->setParameter('finJour', $finJour);
+            } catch (\Exception $e) {
+                // Si la date est invalide, on n'applique pas le filtre
+            }
+        }
+
+        if (!empty($filters['prixMax'])) {
+            $qb->andWhere('t.prixParPlace <= :prixMax')
+                ->setParameter('prixMax', (int) $filters['prixMax']);
+        }
+
+        if (!empty($filters['eco']) && (string) $filters['eco'] === '1') {
+            $qb->andWhere('LOWER(v.energie) IN (:energies)')
+                ->setParameter('energies', ['electrique', 'électrique', 'hybride']);
+        }
+
+        return $qb->getQuery()->getResult();
     }
-
-    if (!empty($filters['arrivee'])) {
-        $qb->andWhere('LOWER(t.arriveeVille) LIKE LOWER(:arrivee)')
-           ->setParameter('arrivee', $filters['arrivee'].'%');
-    }
-
-    if (!empty($filters['date'])) {
-        $qb->andWhere('DATE(t.dateDepart) = :date')
-           ->setParameter('date', $filters['date']);
-    }
-
-    if (!empty($filters['prixMax'])) {
-        $qb->andWhere('t.prixParPlace <= :prixMax')
-           ->setParameter('prixMax', $filters['prixMax']);
-    }
-
-    return $qb
-        ->orderBy('t.dateDepart', 'ASC')
-        ->getQuery()
-        ->getResult();
-}
-
-    //    /**
-    //     * @return Trajet[] Returns an array of Trajet objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('t')
-    //            ->andWhere('t.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('t.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Trajet
-    //    {
-    //        return $this->createQueryBuilder('t')
-    //            ->andWhere('t.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
 }
