@@ -15,30 +15,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-/**
- * Controller API pour gérer les réservations de trajets.
- *
- * J'ai choisi de mettre ici l'essentiel de la logique métier,
- * pour que ça soit simple à lire / expliquer :
- * - création réservation
- * - décrémentation des places
- * - débit des crédits du passager
- * - création d'une transaction DEBIT
- * - annulation + remboursement (transaction CREDIT)
- * - récupération des réservations du user connecté
- *
- * Sécurité :
- * - réserver = ROLE_PASSAGER
- * - voir mes réservations / annuler = ROLE_USER
- */
 final class ReservationController extends AbstractController
 {
-    /**
-     * Endpoint historique :
-     * POST /api/trajets/{id}/reservations
-     *
-     * Crée une réservation pour un trajet donné.
-     */
     #[IsGranted('ROLE_PASSAGER')]
     #[Route('/api/trajets/{id}/reservations', name: 'api_trajet_reservation_create', methods: ['POST'])]
     public function creerReservationLegacy(
@@ -53,15 +31,11 @@ final class ReservationController extends AbstractController
         }
 
         $donnees = $this->lireJson($request);
-        $nbPlaces = (int)($donnees['nbPlaces'] ?? 1);
+        $nbPlaces = (int) ($donnees['nbPlaces'] ?? 1);
 
         return $this->effectuerReservation($trajet, $nbPlaces, $em);
     }
 
-    /**
-     * Endpoint simple pour le front :
-     * POST /api/trajets/{id}/reserver
-     */
     #[IsGranted('ROLE_PASSAGER')]
     #[Route('/api/trajets/{id}/reserver', name: 'api_trajet_reserver', methods: ['POST'])]
     public function reserverDepuisTrajet(
@@ -76,18 +50,11 @@ final class ReservationController extends AbstractController
         }
 
         $donnees = $this->lireJson($request);
-        $nbPlaces = (int)($donnees['nbPlaces'] ?? 1);
+        $nbPlaces = (int) ($donnees['nbPlaces'] ?? 1);
 
         return $this->effectuerReservation($trajet, $nbPlaces, $em);
     }
 
-    /**
-     * Endpoint REST :
-     * POST /api/reservations
-     *
-     * Body attendu :
-     * { "trajetId": 1, "nbPlaces": 2 }
-     */
     #[IsGranted('ROLE_PASSAGER')]
     #[Route('/api/reservations', name: 'api_reservation_create', methods: ['POST'])]
     public function creerReservation(
@@ -102,21 +69,16 @@ final class ReservationController extends AbstractController
             return $this->json(['message' => 'trajetId est obligatoire'], 400);
         }
 
-        $trajet = $trajetRepository->find((int)$trajetId);
+        $trajet = $trajetRepository->find((int) $trajetId);
         if (!$trajet) {
             return $this->json(['message' => 'Trajet introuvable'], 404);
         }
 
-        $nbPlaces = (int)($donnees['nbPlaces'] ?? 1);
+        $nbPlaces = (int) ($donnees['nbPlaces'] ?? 1);
 
         return $this->effectuerReservation($trajet, $nbPlaces, $em);
     }
 
-    /**
-     * GET /api/reservations/moi
-     *
-     * Renvoie toutes les réservations du passager connecté.
-     */
     #[IsGranted('ROLE_USER')]
     #[Route('/api/reservations/moi', name: 'api_reservations_moi', methods: ['GET'])]
     public function listerMesReservations(ReservationRepository $repo): JsonResponse
@@ -131,12 +93,13 @@ final class ReservationController extends AbstractController
             ['dateCreation' => 'DESC']
         );
 
-        $data = array_map(static fn(Reservation $r) => [
+        $data = array_map(static fn (Reservation $r) => [
             'id' => $r->getId(),
             'trajetId' => $r->getTrajet()?->getId(),
             'nbPlaces' => $r->getNbPlaces(),
             'statut' => $r->getStatut(),
             'dateCreation' => $r->getDateCreation()?->format('c'),
+            'creditVerseAuChauffeur' => $r->isCreditVerseAuChauffeur(),
             'departVille' => $r->getTrajet()?->getDepartVille(),
             'arriveeVille' => $r->getTrajet()?->getArriveeVille(),
             'dateDepart' => $r->getTrajet()?->getDateDepart()?->format('c'),
@@ -146,15 +109,6 @@ final class ReservationController extends AbstractController
         return $this->json($data);
     }
 
-    /**
-     * DELETE /api/reservations/{id}
-     *
-     * Annule une réservation si elle appartient à l'utilisateur connecté :
-     * - statut -> ANNULEE
-     * - places du trajet remises
-     * - crédits remboursés
-     * - transaction CREDIT créée (trace financière)
-     */
     #[IsGranted('ROLE_USER')]
     #[Route('/api/reservations/{id}', name: 'api_reservation_annuler', methods: ['DELETE'])]
     public function annulerReservation(
@@ -172,12 +126,10 @@ final class ReservationController extends AbstractController
             return $this->json(['message' => 'Réservation introuvable'], 404);
         }
 
-        // Sécurité : seul le passager propriétaire peut annuler
         if ($reservation->getPassager()?->getId() !== $utilisateur->getId()) {
             return $this->json(['message' => 'Interdit : réservation non propriétaire'], 403);
         }
 
-        // Éviter une double annulation
         if ($reservation->getStatut() === 'ANNULEE') {
             return $this->json(['message' => 'Réservation déjà annulée'], 409);
         }
@@ -187,19 +139,19 @@ final class ReservationController extends AbstractController
             return $this->json(['message' => 'Trajet manquant sur la réservation'], 500);
         }
 
-        $nbPlaces = (int)$reservation->getNbPlaces();
-        $prixTotal = ((int)$trajet->getPrixParPlace()) * $nbPlaces;
+        if (in_array($trajet->getStatut(), ['EN_COURS', 'TERMINE'], true)) {
+            return $this->json(['message' => 'Impossible d’annuler une réservation pour un trajet déjà commencé ou terminé'], 409);
+        }
 
-        // 1) On passe la réservation en ANNULEE
+        $nbPlaces = (int) $reservation->getNbPlaces();
+        $prixTotal = ((int) $trajet->getPrixParPlace()) * $nbPlaces;
+
         $reservation->setStatut('ANNULEE');
 
-        // 2) On remet les places
-        $trajet->setPlacesRestantes(((int)$trajet->getPlacesRestantes()) + $nbPlaces);
+        $trajet->setPlacesRestantes(((int) $trajet->getPlacesRestantes()) + $nbPlaces);
 
-        // 3) On rembourse les crédits
-        $utilisateur->setSoldeCredits(((int)$utilisateur->getSoldeCredits()) + $prixTotal);
+        $utilisateur->setSoldeCredits(((int) $utilisateur->getSoldeCredits()) + $prixTotal);
 
-        // 4) On trace le remboursement
         $transaction = (new TransactionCredit())
             ->setUtilisateur($utilisateur)
             ->setReservation($reservation)
@@ -228,15 +180,6 @@ final class ReservationController extends AbstractController
         ]);
     }
 
-    /**
-     * Méthode centrale : applique toutes les règles et fait les écritures en base :
-     * - user connecté
-     * - nbPlaces ok
-     * - trajet OUVERT
-     * - places restantes suffisantes
-     * - crédits suffisants
-     * - création réservation + transaction DEBIT
-     */
     private function effectuerReservation(Trajet $trajet, int $nbPlaces, EntityManagerInterface $em): JsonResponse
     {
         $utilisateur = $this->getUser();
@@ -252,21 +195,36 @@ final class ReservationController extends AbstractController
             return $this->json(['message' => 'Trajet non réservable'], 409);
         }
 
-        if ((int)$trajet->getPlacesRestantes() < $nbPlaces) {
+        if ((int) $trajet->getPlacesRestantes() < $nbPlaces) {
             return $this->json([
                 'message' => 'Pas assez de places restantes',
                 'placesRestantes' => $trajet->getPlacesRestantes(),
             ], 409);
         }
 
-        // On empêche le conducteur de réserver son propre trajet
         if ($trajet->getConducteur()?->getId() === $utilisateur->getId()) {
             return $this->json(['message' => 'Le conducteur ne peut pas réserver son propre trajet'], 409);
         }
 
-        $prixTotal = ((int)$trajet->getPrixParPlace()) * $nbPlaces;
+        $prixParPlace = (int) $trajet->getPrixParPlace();
+        $prixTotal = $prixParPlace * $nbPlaces;
 
-        if ((int)$utilisateur->getSoldeCredits() < $prixTotal) {
+        $commissionPlateforme = 2 * $nbPlaces;
+        $gainChauffeur = $prixTotal - $commissionPlateforme;
+
+        if ($prixParPlace < 2) {
+            return $this->json([
+                'message' => 'Le prix par place doit être au minimum de 2 crédits',
+            ], 409);
+        }
+
+        if ($gainChauffeur < 0) {
+            return $this->json([
+                'message' => 'Montant invalide pour le calcul des crédits',
+            ], 409);
+        }
+
+        if ((int) $utilisateur->getSoldeCredits() < $prixTotal) {
             return $this->json([
                 'message' => 'Crédits insuffisants',
                 'soldeCredits' => $utilisateur->getSoldeCredits(),
@@ -279,13 +237,14 @@ final class ReservationController extends AbstractController
             ->setPassager($utilisateur)
             ->setNbPlaces($nbPlaces)
             ->setStatut('CONFIRMEE')
-            ->setDateCreation(new \DateTimeImmutable());
+            ->setDateCreation(new \DateTimeImmutable())
+            ->setCreditVerseAuChauffeur(false);
 
-        $trajet->setPlacesRestantes(((int)$trajet->getPlacesRestantes()) - $nbPlaces);
+        $trajet->setPlacesRestantes(((int) $trajet->getPlacesRestantes()) - $nbPlaces);
 
-        $utilisateur->setSoldeCredits(((int)$utilisateur->getSoldeCredits()) - $prixTotal);
+        $utilisateur->setSoldeCredits(((int) $utilisateur->getSoldeCredits()) - $prixTotal);
 
-        $transaction = (new TransactionCredit())
+        $transactionDebit = (new TransactionCredit())
             ->setUtilisateur($utilisateur)
             ->setReservation($reservation)
             ->setTypeOperation('DEBIT')
@@ -293,8 +252,17 @@ final class ReservationController extends AbstractController
             ->setMotif('Réservation trajet #' . $trajet->getId())
             ->setDateCreation(new \DateTimeImmutable());
 
+        $transactionCommission = (new TransactionCredit())
+            ->setUtilisateur($utilisateur)
+            ->setReservation($reservation)
+            ->setTypeOperation('COMMISSION')
+            ->setMontant($commissionPlateforme)
+            ->setMotif('Commission plateforme trajet #' . $trajet->getId())
+            ->setDateCreation(new \DateTimeImmutable());
+
         $em->persist($reservation);
-        $em->persist($transaction);
+        $em->persist($transactionDebit);
+        $em->persist($transactionCommission);
         $em->flush();
 
         return $this->json([
@@ -305,6 +273,7 @@ final class ReservationController extends AbstractController
                 'passagerId' => $utilisateur->getId(),
                 'nbPlaces' => $reservation->getNbPlaces(),
                 'statut' => $reservation->getStatut(),
+                'creditVerseAuChauffeur' => $reservation->isCreditVerseAuChauffeur(),
                 'dateCreation' => $reservation->getDateCreation()?->format('c'),
             ],
             'trajet' => [
@@ -312,11 +281,12 @@ final class ReservationController extends AbstractController
             ],
             'credits' => [
                 'prixTotal' => $prixTotal,
+                'commissionPlateforme' => $commissionPlateforme,
+                'gainChauffeurPrevu' => $gainChauffeur,
                 'soldeCredits' => $utilisateur->getSoldeCredits(),
             ],
         ], 201);
     }
-
 
     private function lireJson(Request $request): array
     {

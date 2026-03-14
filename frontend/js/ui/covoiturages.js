@@ -24,9 +24,18 @@ function afficherMessage(message) {
 
 function formaterDate(dateIso) {
   if (!dateIso) return "";
+
   const date = new Date(dateIso);
   if (Number.isNaN(date.getTime())) return dateIso;
-  return date.toLocaleString("fr-FR");
+
+  return date.toLocaleString("fr-FR", {
+    timeZone: "Europe/Paris",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 }
 
 function allerVers(path) {
@@ -176,7 +185,6 @@ function afficherTrajets(trajets) {
               <div class="col-md-6">
                   <h5 class="card-title mb-1">${trajet.departVille} → ${trajet.arriveeVille}</h5>
                   <p class="mb-1"><strong>Conducteur :</strong> ${pseudo}</p>
-                  <p class="mb-1"><strong>Note :</strong> ${note}</p>
                   <p class="mb-1"><strong>Départ :</strong> ${dateDepart}</p>
                   <p class="mb-1"><strong>Écologique :</strong> ${eco}</p>
               </div>

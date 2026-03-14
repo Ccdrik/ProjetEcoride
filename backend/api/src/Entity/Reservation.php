@@ -25,6 +25,9 @@ class Reservation
     #[ORM\Column]
     private ?\DateTimeImmutable $dateCreation = null;
 
+    #[ORM\Column(options: ['default' => false])]
+    private bool $creditVerseAuChauffeur = false;
+
     #[ORM\ManyToOne(inversedBy: 'reservations')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Trajet $trajet = null;
@@ -42,6 +45,8 @@ class Reservation
     public function __construct()
     {
         $this->transactionsCredits = new ArrayCollection();
+        $this->dateCreation = new \DateTimeImmutable();
+        $this->creditVerseAuChauffeur = false;
     }
 
     public function getId(): ?int
@@ -81,6 +86,18 @@ class Reservation
     public function setDateCreation(\DateTimeImmutable $dateCreation): static
     {
         $this->dateCreation = $dateCreation;
+
+        return $this;
+    }
+
+    public function isCreditVerseAuChauffeur(): bool
+    {
+        return $this->creditVerseAuChauffeur;
+    }
+
+    public function setCreditVerseAuChauffeur(bool $creditVerseAuChauffeur): static
+    {
+        $this->creditVerseAuChauffeur = $creditVerseAuChauffeur;
 
         return $this;
     }
@@ -127,14 +144,14 @@ class Reservation
         return $this;
     }
 
-   public function removeTransactionCredit(TransactionCredit $transactionCredit): static
+    public function removeTransactionCredit(TransactionCredit $transactionCredit): static
     {
-         if ($this->transactionsCredits->removeElement($transactionCredit)) {
-             if ($transactionCredit->getReservation() === $this) {
-            $transactionCredit->setReservation(null);
+        if ($this->transactionsCredits->removeElement($transactionCredit)) {
+            if ($transactionCredit->getReservation() === $this) {
+                $transactionCredit->setReservation(null);
+            }
         }
-    }
 
-    return $this;
-}
+        return $this;
+    }
 }

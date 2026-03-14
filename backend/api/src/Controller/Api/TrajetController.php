@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\Trajet;
+use App\Entity\TransactionCredit;
 use App\Entity\Utilisateur;
 use App\Repository\ReservationRepository;
 use App\Repository\TrajetRepository;
@@ -38,16 +39,32 @@ class TrajetController extends AbstractController
             return $this->json(['message' => 'Champs obligatoires manquants'], 400);
         }
 
+        if ((int) $data['prixParPlace'] < 2) {
+            return $this->json(['message' => 'Le prix par place doit être au minimum de 2 crédits'], 400);
+        }
+
         $trajet = new Trajet();
 
         $trajet->setDepartVille($data['departVille']);
         $trajet->setArriveeVille($data['arriveeVille']);
-        $trajet->setDateDepart(new \DateTimeImmutable($data['dateDepart']));
-        $trajet->setPrixParPlace((int) $data['prixParPlace']);
-        $trajet->setPlacesTotal((int) $data['placesTotal']);
-        $trajet->setPlacesRestantes((int) $data['placesTotal']);
-        $trajet->setStatut('PLANIFIE');
-        $trajet->setConducteur($this->getUser());
+
+        $dateDepart = \DateTimeImmutable::createFromFormat(
+        'Y-m-d\TH:i',
+        $data['dateDepart'],
+        new \DateTimeZone('Europe/Paris')
+);
+
+if (!$dateDepart) {
+    return $this->json(['message' => 'Date de départ invalide'], 400);
+}
+
+$trajet->setDateDepart($dateDepart);
+
+$trajet->setPrixParPlace((int) $data['prixParPlace']);
+$trajet->setPlacesTotal((int) $data['placesTotal']);
+$trajet->setPlacesRestantes((int) $data['placesTotal']);
+$trajet->setStatut('PLANIFIE');
+$trajet->setConducteur($this->getUser());
 
         $em->persist($trajet);
         $em->flush();
@@ -59,68 +76,68 @@ class TrajetController extends AbstractController
     }
 
     #[Route('/api/trajets', methods: ['GET'])]
-public function list(
-    Request $request,
-    TrajetRepository $trajets,
-    MongoProvider $mongo
-): JsonResponse {
-    $filters = [
-        'depart' => $request->query->get('depart'),
-        'arrivee' => $request->query->get('arrivee'),
-        'date' => $request->query->get('date'),
-        'prixMax' => $request->query->get('prixMax'),
-        'eco' => $request->query->get('eco'),
-    ];
-
-    $items = $trajets->search($filters);
-
-    $data = array_map(function ($t) use ($mongo) {
-        $noteMoyenne = null;
-        $chauffeur = $t->getConducteur();
-
-        if ($chauffeur) {
-            $pipeline = [
-                [
-                    '$match' => [
-                        'chauffeurId' => $chauffeur->getId(),
-                        'status' => 'VALIDE',
-                    ]
-                ],
-                [
-                    '$group' => [
-                        '_id' => null,
-                        'moyenne' => ['$avg' => '$note'],
-                    ]
-                ]
-            ];
-
-            $result = $mongo->avisCollection()->aggregate($pipeline)->toArray();
-
-            if (!empty($result) && isset($result[0]->moyenne)) {
-                $noteMoyenne = round((float) $result[0]->moyenne, 1);
-            }
-        }
-
-        return [
-            'id' => $t->getId(),
-            'departVille' => $t->getDepartVille(),
-            'arriveeVille' => $t->getArriveeVille(),
-            'dateDepart' => $t->getDateDepart()->format('c'),
-            'prixParPlace' => $t->getPrixParPlace(),
-            'placesRestantes' => $t->getPlacesRestantes(),
-            'ecologique' => $this->estEcologique($t),
-            'noteMoyenne' => $noteMoyenne,
-            'conducteur' => [
-                'id' => $t->getConducteur()->getId(),
-                'nom' => $t->getConducteur()->getNom(),
-                'prenom' => $t->getConducteur()->getPrenom(),
-                'avatar' => $t->getConducteur()->getAvatar()
-            ],
+    public function list(
+        Request $request,
+        TrajetRepository $trajets,
+        MongoProvider $mongo
+    ): JsonResponse {
+        $filters = [
+            'depart' => $request->query->get('depart'),
+            'arrivee' => $request->query->get('arrivee'),
+            'date' => $request->query->get('date'),
+            'prixMax' => $request->query->get('prixMax'),
+            'eco' => $request->query->get('eco'),
         ];
-    }, $items);
 
-    return $this->json($data);
-}
+        $items = $trajets->search($filters);
+
+        $data = array_map(function ($t) use ($mongo) {
+            $noteMoyenne = null;
+            $chauffeur = $t->getConducteur();
+
+            if ($chauffeur) {
+                $pipeline = [
+                    [
+                        '$match' => [
+                            'chauffeurId' => $chauffeur->getId(),
+                            'status' => 'VALIDE',
+                        ]
+                    ],
+                    [
+                        '$group' => [
+                            '_id' => null,
+                            'moyenne' => ['$avg' => '$note'],
+                        ]
+                    ]
+                ];
+
+                $result = $mongo->avisCollection()->aggregate($pipeline)->toArray();
+
+                if (!empty($result) && isset($result[0]->moyenne)) {
+                    $noteMoyenne = round((float) $result[0]->moyenne, 1);
+                }
+            }
+
+            return [
+                'id' => $t->getId(),
+                'departVille' => $t->getDepartVille(),
+                'arriveeVille' => $t->getArriveeVille(),
+                'dateDepart' => $t->getDateDepart()->format('c'),
+                'prixParPlace' => $t->getPrixParPlace(),
+                'placesRestantes' => $t->getPlacesRestantes(),
+                'ecologique' => $this->estEcologique($t),
+                'noteMoyenne' => $noteMoyenne,
+                'conducteur' => [
+                    'id' => $t->getConducteur()->getId(),
+                    'nom' => $t->getConducteur()->getNom(),
+                    'prenom' => $t->getConducteur()->getPrenom(),
+                    'avatar' => $t->getConducteur()->getAvatar()
+                ],
+            ];
+        }, $items);
+
+        return $this->json($data);
+    }
 
     #[Route('/api/trajets/{id}', name: 'api_trajet_show', methods: ['GET'])]
     public function show(
@@ -226,7 +243,12 @@ public function list(
             return $this->json(['message' => 'Trajet introuvable'], 404);
         }
 
-        if ($trajet->getConducteur()->getId() !== $this->getUser()->getId()) {
+        $user = $this->getUser();
+        if (!$user instanceof Utilisateur) {
+            return $this->json(['message' => 'Non authentifié'], 401);
+        }
+
+        if ($trajet->getConducteur()?->getId() !== $user->getId()) {
             return $this->json(['message' => 'Accès refusé'], 403);
         }
 
@@ -261,8 +283,11 @@ public function list(
         }
 
         $user = $this->getUser();
+        if (!$user instanceof Utilisateur) {
+            return $this->json(['message' => 'Non authentifié'], 401);
+        }
 
-        if ($trajet->getConducteur()->getId() !== $user->getId()) {
+        if ($trajet->getConducteur()?->getId() !== $user->getId()) {
             return $this->json(['message' => 'Accès refusé'], 403);
         }
 
@@ -271,11 +296,53 @@ public function list(
         }
 
         $trajet->setStatut('TERMINE');
+
+        $chauffeur = $trajet->getConducteur();
+        $creditsAjoutes = 0;
+
+        foreach ($trajet->getReservations() as $reservation) {
+            if ($reservation->getStatut() !== 'CONFIRMEE') {
+                continue;
+            }
+
+            if ($reservation->isCreditVerseAuChauffeur()) {
+                continue;
+            }
+
+            $nbPlaces = (int) $reservation->getNbPlaces();
+            $prixTotal = ((int) $trajet->getPrixParPlace()) * $nbPlaces;
+            $commissionPlateforme = 2 * $nbPlaces;
+            $gainChauffeur = $prixTotal - $commissionPlateforme;
+
+            if ($gainChauffeur < 0) {
+                continue;
+            }
+
+            $chauffeur->setSoldeCredits(
+                ((int) $chauffeur->getSoldeCredits()) + $gainChauffeur
+            );
+
+            $transaction = (new TransactionCredit())
+                ->setUtilisateur($chauffeur)
+                ->setReservation($reservation)
+                ->setTypeOperation('CREDIT_CHAUFFEUR')
+                ->setMontant($gainChauffeur)
+                ->setMotif('Gain trajet #' . $trajet->getId())
+                ->setDateCreation(new \DateTimeImmutable());
+
+            $reservation->setCreditVerseAuChauffeur(true);
+            $creditsAjoutes += $gainChauffeur;
+
+            $em->persist($transaction);
+        }
+
         $em->flush();
 
         return $this->json([
             'message' => 'Trajet terminé',
-            'statut' => $trajet->getStatut()
+            'statut' => $trajet->getStatut(),
+            'creditsChauffeurAjoutes' => $creditsAjoutes,
+            'soldeChauffeur' => $chauffeur?->getSoldeCredits(),
         ]);
     }
 
@@ -287,6 +354,6 @@ public function list(
             'electrique',
             'électrique',
             'hybride',
-        ]);
+        ], true);
     }
 }
