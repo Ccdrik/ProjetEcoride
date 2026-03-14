@@ -1,38 +1,43 @@
-<h1 class="main-title text-center">Connexion</h1>
+<section class="hero-auth">
+    <h1 class="titre-page-principal">Voyager vert avec EcoRide !</h1>
 
-<div class="hero-scene text-center text-white">
-    <div class="hero-scene-content"></div>
-</div>
+    <div class="image-hero-auth">
+        <img src="/assets/images/Fondresize.jpg" alt="Illustration EcoRide">
+    </div>
+</section>
 
-<section class="page-container my-4">
-    <div class="section-card">
-        <form id="signin-form" class="form-container">
-            <div class="mb-3">
-                <label for="EmailInput" class="form-label">Email</label>
-                <input type="email" class="form-control" id="EmailInput" name="email" placeholder="test@mail.fr"
-                    autocomplete="email" required />
-                <div class="invalid-feedback text-center">
-                    Le mail et le mot de passe ne correspondent pas !
+<section class="zone-auth">
+    <div class="conteneur-auth">
+
+        <div class="bloc-formulaire-auth">
+            <h1 class="titre-auth">Connexion</h1>
+
+            <form id="signin-form" class="formulaire-auth">
+
+                <div class="champ-auth">
+                    <label for="EmailInput" class="label-auth">Email</label>
+                    <input type="email" class="form-control" id="EmailInput" name="email" placeholder="test@mail.fr"
+                        autocomplete="email" required />
                 </div>
-            </div>
 
-            <div class="mb-3">
-                <label for="PasswordInput" class="form-label">Mot de passe</label>
-                <input type="password" class="form-control" id="PasswordInput" name="password" placeholder="**********"
-                    autocomplete="current-password" required />
-            </div>
+                <div class="champ-auth">
+                    <label for="PasswordInput" class="label-auth">Mot de passe</label>
+                    <input type="password" class="form-control" id="PasswordInput" name="password"
+                        placeholder="**********" autocomplete="current-password" required />
+                </div>
 
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary btn-full" id="btnSignin">
+                <button type="submit" class="btn btn-primary btn-full">
                     Connexion
                 </button>
-            </div>
-        </form>
 
-        <div class="text-center pt-3">
-            <a href="/inscription" onclick="route(event)">
-                Vous n'avez pas de compte ? Inscrivez-vous ici !
-            </a>
+            </form>
+
+            <div class="liens-auth">
+                <a href="/inscription" onclick="route(event)">
+                    Vous n'avez pas de compte ? Inscrivez-vous ici !
+                </a>
+            </div>
         </div>
+
     </div>
 </section>

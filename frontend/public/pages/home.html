@@ -1,104 +1,111 @@
-<h1 class="main-title text-center">Voyager vert avec EcoRide !</h1>
+<section class="hero-auth">
+    <h1 class="titre-page-principal">Voyager vert avec EcoRide !</h1>
 
-<div class="hero-scene text-center text-white">
-    <div class="hero-scene-content"></div>
-</div>
-
-<section class="mb-3">
-    <!--
-      Formulaire de recherche de la page d'accueil
-      Ici je ne montre pas les trajets.
-      Je redirige vers la page /covoiturages avec les paramètres dans l'URL.
-    -->
-    <form id="formulaireRechercheAccueil" class="table-center" autocomplete="off">
-        <div class="table-style">
-            <div class="mt-3">
-                <h2 class="text-center mb-3">Rechercher un trajet</h2>
-            </div>
-
-            <!-- Départ -->
-            <div class="col-md-4 position-relative">
-                <label for="champDepartAccueil" class="form-label">Départ</label>
-                <input type="text" class="form-control" id="champDepartAccueil" name="depart"
-                    placeholder="Ville de départ" autocomplete="off" required>
-
-                <div id="suggestionsDepartAccueil" class="list-group position-absolute w-100 shadow-sm"
-                    style="z-index: 1000; display: none;">
-                </div>
-            </div>
-
-            <!-- Arrivée -->
-            <div class="col-md-4 position-relative">
-                <label for="champArriveeAccueil" class="form-label">Arrivée</label>
-                <input type="text" class="form-control" id="champArriveeAccueil" name="arrivee"
-                    placeholder="Ville d’arrivée" autocomplete="off" required>
-
-                <div id="suggestionsArriveeAccueil" class="list-group position-absolute w-100 shadow-sm"
-                    style="z-index: 1000; display: none;">
-                </div>
-            </div>
-
-            <!-- Date -->
-            <div class="mb-3">
-                <input class="form-control date" type="date" id="champDateAccueil" name="date">
-            </div>
-
-            <button type="submit" class="btn btn-primary">Rechercher</button>
-
-            <div class="text-center mt-3">
-                <button type="button" id="boutonVoirTousAccueil" class="btn btn-outline-primary">
-                    Voir tous les trajets
-                </button>
-            </div>
-        </div>
-    </form>
+    <div class="image-hero-auth">
+        <img src="/assets/images/Fondresize.jpg" alt="Illustration EcoRide">
+    </div>
 </section>
 
-<section>
-    <div class="presentation text-center">
-        <h3>🌱 Présentation de l’entreprise EcoRide</h3>
-        <br>
+
+<section class="zone-page">
+    <div class="conteneur-page-moyen">
+
+
+
+        <div class="bloc-recherche-accueil">
+            <form id="formulaireRechercheAccueil" class="formulaire-auth" autocomplete="off">
+
+                <h2 class="titre-bloc texte-centre">Rechercher un trajet</h2>
+
+                <div class="champ-auth position-relative">
+                    <label for="champDepartAccueil" class="label-auth">Départ</label>
+                    <input type="text" class="form-control" id="champDepartAccueil" name="depart"
+                        placeholder="Ville de départ" autocomplete="off" required>
+                    <div id="suggestionsDepartAccueil" class="list-group autocomplete-menu"></div>
+                </div>
+
+                <div class="champ-auth position-relative">
+                    <label for="champArriveeAccueil" class="label-auth">Arrivée</label>
+                    <input type="text" class="form-control" id="champArriveeAccueil" name="arrivee"
+                        placeholder="Ville d’arrivée" autocomplete="off" required>
+                    <div id="suggestionsArriveeAccueil" class="list-group autocomplete-menu"></div>
+                </div>
+
+                <div class="champ-auth">
+                    <label for="champDateAccueil" class="label-auth">Date</label>
+                    <input class="form-control" type="date" id="champDateAccueil" name="date">
+                </div>
+
+                <div class="actions-page texte-centre">
+                    <button type="submit" class="btn btn-primary">
+                        Rechercher
+                    </button>
+                </div>
+
+                <div class="actions-page texte-centre">
+                    <button type="button" id="boutonVoirTousAccueil" class="btn btn-outline-primary">
+                        Voir tous les trajets
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</section>
+
+<section class="zone-page">
+    <div class="conteneur-page-moyen texte-centre">
+
+        <h2 class="titre-bloc">🌱 Présentation de l’entreprise EcoRide</h2>
 
         <p>
-            EcoRide est une jeune startup française engagée dans la transition écologique, née de la volonté de repenser
-            la mobilité quotidienne. Fondée en 2025, notre mission est de réduire l’impact environnemental des
-            déplacements en mettant en avant une solution simple, efficace et économique : le covoiturage entre
-            particuliers.
-            <br><br>
+            EcoRide est une jeune startup française engagée dans la transition écologique, née de la volonté
+            de repenser la mobilité quotidienne.
+        </p>
 
-            <img src="/assets/images/startup-eco.jpg" alt="Start-up EcoRide" class="img-fluid my-3">
+        <p>
+            Fondée en 2025, notre mission est de réduire l’impact environnemental des déplacements en
+            mettant en avant une solution simple, efficace et économique : le covoiturage entre particuliers.
+        </p>
 
-            <br><br>
-            Spécialisée exclusivement dans les trajets en voiture, notre plateforme web facilite la mise en relation de
-            conducteurs et de passagers partageant un même itinéraire. Que ce soit pour des trajets quotidiens ou
-            occasionnels, EcoRide encourage une mobilité plus responsable et solidaire.
-            <br><br>
+        <img src="/assets/images/startup-eco.jpg" alt="Start-up EcoRide" class="image-presentation">
 
-            <img src="/assets/images/voiture-eco.jpg" alt="Voiture écologique" class="img-fluid my-3">
+        <p>
+            Spécialisée exclusivement dans les trajets en voiture, notre plateforme web facilite la mise en
+            relation de conducteurs et de passagers partageant un même itinéraire.
+        </p>
 
-            <br><br>
-            💡 Notre ambition : devenir la plateforme de référence en matière de covoiturage écologique en France et, à
-            terme, en Europe.
-            <br><br>
+        <p>
+            Que ce soit pour des trajets quotidiens ou occasionnels, EcoRide encourage une mobilité plus
+            responsable et solidaire.
+        </p>
 
-            🧑‍💻 Le projet est porté par José, directeur technique et cofondateur, avec le soutien de développeurs
-            passionnés. Ensemble, nous construisons une application web moderne, intuitive et respectueuse de
-            l’environnement, pensée pour répondre aux attentes des citoyens d’aujourd’hui et de demain.
-            <br><br>
+        <img src="/assets/images/voiture-eco.jpg" alt="Voiture écologique" class="image-presentation">
 
-            🌍 En choisissant EcoRide, vous participez activement à :
-            <br><br>
+        <p>
+            💡 Notre ambition : devenir la plateforme de référence en matière de covoiturage écologique en
+            France et, à terme, en Europe.
+        </p>
 
-            La réduction des émissions de CO₂
-            <br><br>
+        <p>
+            🧑‍💻 Le projet est porté par José, directeur technique et cofondateur, avec le soutien de
+            développeurs passionnés. Ensemble, nous construisons une application web moderne, intuitive et
+            respectueuse de l’environnement, pensée pour répondre aux attentes des citoyens d’aujourd’hui et de
+            demain.
+        </p>
 
-            La diminution du trafic routier
-            <br><br>
+        <p>🌍 En choisissant EcoRide, vous participez activement à :</p>
 
-            Une économie de transport plus accessible
-            <br><br>
+        <ul class="liste-presentation">
+            <li>La réduction des émissions de CO₂</li>
+            <li>La diminution du trafic routier</li>
+            <li>Une économie de transport plus accessible</li>
+        </ul>
 
+        <p class="texte-conclusion-presentation">
             Rejoignez le mouvement EcoRide et transformons ensemble nos trajets en un geste pour la planète !
         </p>
+
     </div>
 </section>

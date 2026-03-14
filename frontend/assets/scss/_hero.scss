@@ -1,0 +1,26 @@
+@use "variables" as *;
+
+.hero-auth {
+    padding-top: 1.5rem;
+    padding-bottom: 1rem;
+}
+
+.texte-slogan {
+    text-align: center;
+    color: $color-text;
+    margin: 0;
+    padding: 1rem 0;
+    font-size: 1.1rem;
+}
+
+.image-hero-auth {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+}
+
+.image-hero-auth img {
+    width: 100%;
+    display: block;
+    max-height: 360px;
+    object-fit: cover;
+}

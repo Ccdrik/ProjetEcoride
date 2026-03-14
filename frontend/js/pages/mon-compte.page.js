@@ -63,6 +63,19 @@ function getAvatarPath(nomFichier) {
     return `/assets/images/avatars/${nomFichier || "passager.png"}`;
 }
 
+function gererBlocVehicules(roles = []) {
+    const blocVehicules = document.getElementById("blocVehiculesCompte");
+    if (!blocVehicules) return;
+
+    const estChauffeur = roles.includes("ROLE_CHAUFFEUR");
+
+    if (!estChauffeur) {
+        blocVehicules.style.display = "none";
+    } else {
+        blocVehicules.style.display = "";
+    }
+}
+
 async function run() {
     const nomEl = document.querySelector("#mc-nom");
     const emailEl = document.querySelector("#mc-email");
@@ -76,22 +89,26 @@ async function run() {
     const avatarSelectEl = document.querySelector("#mc-avatar");
     const avatarSaveBtn = document.querySelector("#mc-save-avatar");
 
+    let utilisateur = null;
+
     // 1) Récap utilisateur
     try {
-        const me = await apiFetch("/api/me");
-        const nom = `${me.prenom ?? ""} ${me.nom ?? ""}`.trim();
+        utilisateur = await apiFetch("/api/me");
+        const nom = `${utilisateur.prenom ?? ""} ${utilisateur.nom ?? ""}`.trim();
 
         if (nomEl) nomEl.textContent = nom || "—";
-        if (emailEl) emailEl.textContent = me.email ?? "—";
-        if (soldeEl) soldeEl.textContent = String(me.soldeCredits ?? "0");
+        if (emailEl) emailEl.textContent = utilisateur.email ?? "—";
+        if (soldeEl) soldeEl.textContent = String(utilisateur.soldeCredits ?? "0");
 
         if (avatarImageEl) {
-            avatarImageEl.src = getAvatarPath(me.avatar);
+            avatarImageEl.src = getAvatarPath(utilisateur.avatar);
         }
 
-        if (avatarSelectEl && me.avatar) {
-            avatarSelectEl.value = me.avatar;
+        if (avatarSelectEl && utilisateur.avatar) {
+            avatarSelectEl.value = utilisateur.avatar;
         }
+
+        gererBlocVehicules(utilisateur.roles || []);
     } catch (e) {
         if (avenirEl) avenirEl.innerHTML = `<p class="text-danger">Non connecté.</p>`;
         if (passeEl) passeEl.innerHTML = "";
@@ -139,15 +156,20 @@ async function run() {
         if (passeEl) passeEl.innerHTML = "";
     }
 
-
     // 5) Mes véhicules
-    if (vehiculesEl) vehiculesEl.innerHTML = "Chargement…";
+    if (vehiculesEl) {
+        if ((utilisateur.roles || []).includes("ROLE_CHAUFFEUR")) {
+            vehiculesEl.innerHTML = "Chargement…";
 
-    try {
-        const vehicules = await apiFetch("/api/me/vehicules");
-        if (vehiculesEl) vehiculesEl.innerHTML = renderVehicules(vehicules);
-    } catch (e) {
-        if (vehiculesEl) vehiculesEl.innerHTML = `<p class="text-danger">${e.message}</p>`;
+            try {
+                const vehicules = await apiFetch("/api/me/vehicules");
+                vehiculesEl.innerHTML = renderVehicules(vehicules);
+            } catch (e) {
+                vehiculesEl.innerHTML = `<p class="text-danger">${e.message}</p>`;
+            }
+        } else {
+            vehiculesEl.innerHTML = "";
+        }
     }
 
     // 6) Supprimer / anonymiser le compte

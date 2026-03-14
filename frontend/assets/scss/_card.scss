@@ -1,0 +1,35 @@
+@use "variables" as *;
+
+.section-card,
+.card {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    border-radius: $radius-lg;
+    box-shadow: none;
+    padding: 0;
+}
+
+.surface-card {
+    background: $color-surface;
+    color: $color-text-dark;
+    border-radius: $radius-lg;
+    box-shadow: $shadow-md;
+    padding: 1.25rem;
+}
+
+.content-card {
+    background: $color-surface;
+    color: $color-text-dark;
+    border-radius: $radius-lg;
+    box-shadow: $shadow-md;
+    padding: 1.5rem;
+}
+
+@media (min-width: 768px) {
+
+    .surface-card,
+    .content-card {
+        padding: 2rem;
+    }
+}

@@ -1,51 +1,93 @@
-<h1 class="main-title text-center">Créer un trajet</h1>
-<div class="hero-scene text-center text-white">
-    <div class="hero-scene-content"></div>
-</div>
+<section class="hero-auth">
+    <h1 class="titre-page-principal">Créer un trajet</h1>
 
-<form id="creer-trajet-form" class="table-center">
-    <div class="table-style">
-        <div class="mt-3">
-            <h2 class="text-center">Créer un trajet</h2>
-        </div>
-
-        <div id="message-trajet"></div>
-
-        <div class="input-group mb-3">
-            <span class="input-group-text"><i class="bi bi-geo-alt-fill"></i></span>
-            <input class="form-control" type="text" id="depart" name="depart" required placeholder="Départ">
-        </div>
-
-        <div class="input-group mb-3">
-            <span class="input-group-text"><i class="bi bi-geo-alt-fill"></i></span>
-            <input class="form-control" type="text" id="arrivee" name="arrivee" required placeholder="Arrivée">
-        </div>
-
-        <div class="mb-3">
-            <input class="form-control" type="date" id="date" name="date" required>
-        </div>
-
-        <div class="mb-3">
-            <input class="form-control heure-input" type="time" id="heure" name="heure" required>
-        </div>
-
-        <div class="mb-3">
-            <input class="form-control" type="number" id="places" name="places" min="1" required
-                placeholder="Nombre de places">
-        </div>
-
-        <div class="mb-3">
-            <input class="form-control" type="number" id="prix" name="prix" min="1" required
-                placeholder="Prix par place (crédits)">
-        </div>
-
-        <div class="input-group mb-3 align-items-center">
-            <div class="input-group-text">
-                <input class="form-check-input mt-0" type="checkbox" value="1" id="ecologique" name="ecologique">
-            </div>
-            <label class="form-control ps-3" for="ecologique">Voyage écologique 🌱</label>
-        </div>
-
-        <button type="submit" class="btn btn-primary mb-3">Publier mon trajet</button>
+    <div class="image-hero-auth">
+        <img src="/assets/images/Fondresize.jpg" alt="Illustration EcoRide">
     </div>
-</form>
+</section>
+
+<section class="zone-auth">
+    <div class="conteneur-auth">
+        <div class="bloc-formulaire-auth">
+            <h1 class="titre-auth">Créer un trajet</h1>
+
+            <form id="creer-trajet-form" class="formulaire-auth" novalidate>
+
+                <div class="champ-auth position-relative">
+                    <label for="depart" class="label-auth">Ville de départ</label>
+                    <input type="text" id="depart" class="form-control" placeholder="Ville de départ" autocomplete="off"
+                        required>
+                    <div id="suggestions-depart" class="list-group position-absolute w-100 shadow-sm zone-suggestions">
+                    </div>
+                    <div class="invalid-feedback text-center">
+                        La ville de départ est requise.
+                    </div>
+                </div>
+
+                <div class="champ-auth position-relative">
+                    <label for="arrivee" class="label-auth">Ville d’arrivée</label>
+                    <input type="text" id="arrivee" class="form-control" placeholder="Ville d’arrivée"
+                        autocomplete="off" required>
+                    <div id="suggestions-arrivee" class="list-group position-absolute w-100 shadow-sm zone-suggestions">
+                    </div>
+                    <div class="invalid-feedback text-center">
+                        La ville d’arrivée est requise.
+                    </div>
+                </div>
+
+                <div class="champ-auth">
+                    <label for="dateDepart" class="label-auth">Date et heure de départ</label>
+                    <input type="datetime-local" id="dateDepart" class="form-control" required>
+                    <div class="invalid-feedback text-center">
+                        La date de départ est requise.
+                    </div>
+                </div>
+
+                <div class="champ-auth">
+                    <label for="prixParPlace" class="label-auth">Prix par place</label>
+                    <input type="number" id="prixParPlace" class="form-control" min="1" required>
+                    <div class="invalid-feedback text-center">
+                        Le prix doit être supérieur ou égal à 1.
+                    </div>
+                </div>
+
+                <div class="champ-auth">
+                    <label for="placesTotal" class="label-auth">Nombre de places</label>
+                    <input type="number" id="placesTotal" class="form-control" min="1" required>
+                    <div class="invalid-feedback text-center">
+                        Le nombre de places doit être supérieur ou égal à 1.
+                    </div>
+                </div>
+
+                <div class="champ-auth">
+                    <label for="vehiculeId" class="label-auth">Véhicule utilisé</label>
+                    <select id="vehiculeId" class="form-select" required>
+                        <option value="" selected disabled>Choisissez un véhicule</option>
+                    </select>
+                    <div class="invalid-feedback text-center">
+                        Veuillez choisir un véhicule.
+                    </div>
+                </div>
+
+                <div class="champ-auth">
+                    <label class="label-auth">Type de trajet</label>
+
+                    <div class="form-control d-flex align-items-center gap-2" id="bloc-trajet-ecologique">
+                        <input class="form-check-input m-0" type="checkbox" id="trajetEcologique" disabled>
+                        <span id="texteTrajetEcologique">
+                            Trajet écologique selon le véhicule sélectionné
+                        </span>
+                    </div>
+
+                    <small class="text-muted">
+                        Un trajet est considéré comme écologique si le véhicule est électrique ou hybride.
+                    </small>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full" id="btn-creer-trajet">
+                    Créer le trajet
+                </button>
+            </form>
+        </div>
+    </div>
+</section>

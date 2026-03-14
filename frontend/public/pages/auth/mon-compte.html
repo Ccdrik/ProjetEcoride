@@ -1,69 +1,86 @@
-<h1 class="main-title text-center">Mon compte</h1>
-<div class="hero-scene text-center text-white">
-    <div class="hero-scene-content"></div>
-</div>
+<section class="hero-auth">
+    <h1 class="titre-page-principal">Mon compte</h1>
 
-<section class="page-container my-4">
-    <div class="section-card">
-        <div class="p-3 bg-light rounded">
-            <h2 class="h4">Récapitulatif</h2>
-            <p><strong>Nom :</strong> <span id="mc-nom">—</span></p>
-            <p><strong>Email :</strong> <span id="mc-email">—</span></p>
-            <p><strong>Solde crédits :</strong> <span id="mc-solde">—</span></p>
-            <div class="col-12 col-lg-6">
-
-            </div>
-            <p><strong>Avatar actuel :</strong></p>
-            <img id="mc-avatar-image" src="/assets/images/avatars/passager.png" alt="Avatar utilisateur"
-                class="rounded-circle mb-3" style="width:90px; height:90px; object-fit:cover;">
-
-            <div class="mb-3">
-                <label for="mc-avatar" class="form-label"><strong>Choisir un avatar :</strong></label>
-                <select id="mc-avatar" class="form-select">
-                    <option value="passager.png">Passager 1</option>
-                    <option value="passager(1).png">Passager 2</option>
-                    <option value="passager(2).png">Passager 3</option>
-                    <option value="chauffeur.png">Chauffeur 1</option>
-                    <option value="chauffeur(1).png">Chauffeur 2</option>
-                    <option value="chauffeur(2).png">Chauffeur 3</option>
-                    <option value="employe.png">Employé 1</option>
-                    <option value="employe(1).png">Employé 2</option>
-                    <option value="directeur.png">Administrateur</option>
-                </select>
-            </div>
-
-            <button id="mc-save-avatar" class="btn btn-outline-success" type="button">
-                Enregistrer mon avatar
-            </button>
-
-            <div class="mt-2">
-                <a class="btn btn-outline-primary" href="/mot-de-passe" onclick="route(event)">Modifier mon mot de
-                    passe</a>
-                <button id="mc-delete" class="btn btn-outline-danger ms-2" type="button">Supprimer mon compte</button>
-            </div>
-        </div>
+    <div class="image-hero-auth">
+        <img src="/assets/images/Fondresize.jpg" alt="Illustration EcoRide">
     </div>
+</section>
 
-    <div class="row mt-4 g-3">
-        <div class="col-12 col-lg-4">
-            <div class="p-3 bg-white rounded border">
-                <h3 class="h5">Trajets à venir</h3>
-                <div id="mc-avenir">—</div>
+<section class="zone-page">
+    <div class="conteneur-page">
+
+        <div class="bloc-contenu bloc-compte">
+            <h2 class="titre-bloc">Récapitulatif</h2>
+
+            <div class="infos-compte">
+                <p><strong>Nom :</strong> <span id="mc-nom">—</span></p>
+                <p><strong>Email :</strong> <span id="mc-email">—</span></p>
+                <p><strong>Solde crédits :</strong> <span id="mc-solde">—</span></p>
+            </div>
+
+            <div class="zone-avatar-compte">
+                <p class="mb-2"><strong>Avatar actuel :</strong></p>
+
+                <img id="mc-avatar-image" src="/assets/images/avatars/passager.png" alt="Avatar utilisateur"
+                    class="rounded-circle mb-3 avatar-compte">
+
+                <div class="champ-auth">
+                    <label for="mc-avatar" class="label-auth"><strong>Choisir un avatar :</strong></label>
+                    <select id="mc-avatar" class="form-select">
+                        <option value="passager.png">Passager 1</option>
+                        <option value="passager(1).png">Passager 2</option>
+                        <option value="passager(2).png">Passager 3</option>
+                        <option value="chauffeur.png">Chauffeur 1</option>
+                        <option value="chauffeur(1).png">Chauffeur 2</option>
+                        <option value="chauffeur(2).png">Chauffeur 3</option>
+                        <option value="employe.png">Employé 1</option>
+                        <option value="employe(1).png">Employé 2</option>
+                        <option value="directeur.png">Administrateur</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="actions-page actions-page--groupe">
+                <button id="mc-save-avatar" class="btn btn-outline-success" type="button">
+                    Enregistrer mon avatar
+                </button>
+
+                <a class="btn btn-outline-primary" href="/preferences" onclick="route(event)">
+                    Modifier mes informations
+                </a>
+
+                <a class="btn btn-outline-primary" href="/mot-de-passe" onclick="route(event)">
+                    Modifier mon mot de passe
+                </a>
+
+                <button id="mc-delete" class="btn btn-outline-danger" type="button">
+                    Supprimer mon compte
+                </button>
             </div>
         </div>
 
-        <div class="col-12 col-lg-4">
-            <div class="p-3 bg-white rounded border">
-                <h3 class="h5">Mes véhicules</h3>
-                <div id="mc-vehicules">—</div>
+        <div class="row mt-4 g-3">
+            <div class="col-12 col-lg-4">
+                <div class="bloc-contenu bloc-compte-secondaire">
+                    <h3 class="titre-bloc">Trajets à venir</h3>
+                    <div id="mc-avenir">—</div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-4" id="blocVehiculesCompte">
+                <div class="bloc-contenu bloc-compte-secondaire">
+                    <h3 class="titre-bloc">Mes véhicules</h3>
+                    <div id="mc-vehicules">—</div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <div class="bloc-contenu bloc-compte-secondaire">
+                    <h3 class="titre-bloc">Trajets passés</h3>
+                    <div id="mc-passe">—</div>
+                </div>
             </div>
         </div>
 
-        <div class="col-12 col-lg-4">
-            <div class="p-3 bg-white rounded border">
-                <h3 class="h5">Trajets passés</h3>
-                <div id="mc-passe">—</div>
-            </div>
-        </div>
     </div>
 </section>

@@ -80,10 +80,10 @@ security:
         - { path: ^/api/trajets$, roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/api/trajets/\d+$, roles: PUBLIC_ACCESS, methods: [GET] }
 
-        # 3) Zone Employé (future modération / gestion avis, etc.)
+        # 3) Zone Employé 
         - { path: ^/api/employe, roles: ROLE_EMPLOYE }
 
-        # 4) Zone Admin (stats, création employé, suspension compte, etc.)
+        # 4) Zone Admin 
         - { path: ^/api/admin, roles: ROLE_ADMIN }
 
         # 5) Mon profil + RGPD (GET/DELETE /api/me) : utilisateur connecté

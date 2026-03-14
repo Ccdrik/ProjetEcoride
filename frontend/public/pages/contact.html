@@ -1,22 +1,44 @@
-<h1 class="main-title text-center">Contact</h1>
-<div class="hero-scene text-center text-white">
-    <div class="hero-scene-content"></div>
-</div>
+<section class="hero-auth">
+    <h1 class="titre-page-principal">Contact</h1>
 
-<section class="page-container">
-    <div class="section-card">
-        <h1 class="text-center">Nous contacter</h1>
+    <div class="image-hero-auth">
+        <img src="/assets/images/Fondresize.jpg" alt="Illustration EcoRide">
     </div>
-    <div class="contact">
-        <form class="form-container" action="#" method="post">
-            <div class="mb-3">
-                <label for="choix">Votre demande:</label>
-                <select id="choix" name="choix">
-                    <option value="option1">Renseignement</option>
-                    <option value="option2">Probleme technique</option>
-                    <option value="option3">Signalement</option>
-                </select>
-            </div>
-        </form>
+</section>
+
+<section class="zone-page">
+    <div class="conteneur-page-petit">
+
+        <div class="bloc-contact">
+
+            <h2 class="titre-bloc-contact texte-centre">Nous contacter</h2>
+
+            <form class="formulaire-auth" action="#" method="post">
+
+                <div class="champ-auth">
+                    <label for="choix" class="label-auth">Votre demande</label>
+                    <select id="choix" name="choix" class="form-select">
+                        <option value="option1">Renseignement</option>
+                        <option value="option2">Problème technique</option>
+                        <option value="option3">Signalement</option>
+                    </select>
+                </div>
+
+                <div class="champ-auth">
+                    <label for="message" class="label-auth">Votre message</label>
+                    <textarea id="message" name="message" class="form-control" rows="6"
+                        placeholder="Décrivez votre demande..."></textarea>
+                </div>
+
+                <div class="actions-page texte-centre">
+                    <button type="submit" class="btn btn-primary">
+                        Envoyer la demande
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+
     </div>
 </section>

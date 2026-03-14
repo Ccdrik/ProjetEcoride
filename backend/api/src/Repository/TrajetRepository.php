@@ -20,7 +20,7 @@ class TrajetRepository extends ServiceEntityRepository
 {
     $qb = $this->createQueryBuilder('t')
         ->where('t.statut = :statut')
-        ->setParameter('statut', 'OUVERT');
+        ->setParameter('statut', 'PLANIFIE');
 
     if (!empty($filters['depart'])) {
         $qb->andWhere('LOWER(t.departVille) LIKE LOWER(:depart)')

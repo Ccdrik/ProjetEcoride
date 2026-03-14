@@ -1,88 +1,90 @@
-<h1 class="main-title text-center">Inscription</h1>
-<div class="hero-scene text-center text-white">
-    <div class="hero-scene-content"></div>
-</div>
+<section class="hero-auth">
+    <h1 class="titre-page-principal">Voyager vert avec EcoRide !</h1>
 
-
-<section class="page-container my-4">
-    <div class="section-card">
-        <form id="signup-form" class="form-container">
-            <div class="mb-3">
-                <label for="NomInput" class="form-label">Nom</label>
-                <input type="text" class="form-control" id="NomInput" name="nom" placeholder="Votre nom" required />
-                <div class="invalid-feedback text-center">
-                    Le nom est requis !
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label for="PrenomInput" class="form-label">Prénom</label>
-                <input type="text" class="form-control" id="PrenomInput" name="prenom" placeholder="Votre prénom"
-                    required />
-                <div class="invalid-feedback text-center">
-                    Le prénom est requis !
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label for="EmailInput" class="form-label">Email</label>
-                <input type="email" class="form-control" id="EmailInput" name="email" placeholder="test@mail.fr"
-                    autocomplete="email" required />
-                <div class="invalid-feedback text-center">
-                    Le mail n'est pas valide !
-                </div>
-            </div>
-
-            <!-- ==========================================================
-         ROLE
-         ==========================================================
-         Ton backend accepte ROLE_PASSAGER ou ROLE_CHAUFFEUR.
-         Ici on fait simple et propre :
-         ========================================================== -->
-            <div class="mb-3">
-                <label for="RoleSelect" class="form-label">Je suis</label>
-                <select class="form-select" id="RoleSelect" name="role" required>
-                    <option value="ROLE_PASSAGER" selected>Passager</option>
-                    <option value="ROLE_CHAUFFEUR">Chauffeur</option>
-                </select>
-                <div class="invalid-feedback text-center">
-                    Choisissez un rôle.
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label for="PasswordInput" class="form-label">Mot de passe</label>
-                <input type="password" class="form-control" id="PasswordInput" name="password"
-                    autocomplete="new-password" required />
-                <div class="invalid-feedback text-center">
-                    8 caractères min. + 1 majuscule + 1 minuscule + 1 chiffre + 1 caractère spécial.
-                </div>
-                <div class="valid-feedback text-center">
-                    Mot de passe robuste !
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label for="ValidatePasswordInput" class="form-label">Confirmez votre mot de passe</label>
-                <input type="password" class="form-control" id="ValidatePasswordInput" autocomplete="new-password"
-                    required />
-                <div class="invalid-feedback text-center">
-                    Les mots de passe doivent être identiques !
-                </div>
-            </div>
-
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary" id="btn-validation-inscription">
-                    Inscription
-                </button>
-            </div>
-        </form>
+    <div class="image-hero-auth">
+        <img src="/assets/images/Fondresize.jpg" alt="Illustration EcoRide">
     </div>
 </section>
 
-<div class="text-center pt-3">
-    <a href="/connexion" onclick="route(event)">
-        Vous avez déjà un compte ? Connectez-vous ici !
-    </a>
-</div>
-</div>
+<section class="zone-auth">
+    <div class="conteneur-auth">
+
+        <div class="bloc-formulaire-auth">
+            <h1 class="titre-auth">Inscription</h1>
+
+            <form id="signup-form" class="formulaire-auth" novalidate>
+
+                <div class="champ-auth">
+                    <label for="NomInput" class="label-auth">Nom</label>
+                    <input type="text" class="form-control" id="NomInput" name="nom" placeholder="Votre nom" required />
+                    <div class="invalid-feedback text-center">
+                        Le nom est requis !
+                    </div>
+                </div>
+
+                <div class="champ-auth">
+                    <label for="PrenomInput" class="label-auth">Prénom</label>
+                    <input type="text" class="form-control" id="PrenomInput" name="prenom" placeholder="Votre prénom"
+                        required />
+                    <div class="invalid-feedback text-center">
+                        Le prénom est requis !
+                    </div>
+                </div>
+
+                <div class="champ-auth">
+                    <label for="EmailInput" class="label-auth">Email</label>
+                    <input type="email" class="form-control" id="EmailInput" name="email" placeholder="test@mail.fr"
+                        autocomplete="email" required />
+                    <div class="invalid-feedback text-center">
+                        Le mail n'est pas valide !
+                    </div>
+                </div>
+
+                <div class="champ-auth">
+                    <label for="RoleSelect" class="label-auth">Je suis</label>
+                    <select class="form-select" id="RoleSelect" name="role" required>
+                        <option value="" selected disabled>Choisissez votre rôle</option>
+                        <option value="ROLE_PASSAGER">Passager</option>
+                        <option value="ROLE_CHAUFFEUR">Chauffeur</option>
+                    </select>
+                    <div class="invalid-feedback text-center">
+                        Choisissez un rôle.
+                    </div>
+                </div>
+
+                <div class="champ-auth">
+                    <label for="PasswordInput" class="label-auth">Mot de passe</label>
+                    <input type="password" class="form-control" id="PasswordInput" name="password"
+                        placeholder="*********" autocomplete="new-password" required />
+                    <div class="invalid-feedback text-center">
+                        8 caractères min + 1 majuscule + 1 minuscule + 1 chiffre + 1 caractère spécial !
+                    </div>
+                    <div class="valid-feedback text-center">
+                        Mot de passe robuste !
+                    </div>
+                </div>
+
+                <div class="champ-auth">
+                    <label for="ValidatePasswordInput" class="label-auth">Confirmez votre mot de passe</label>
+                    <input type="password" class="form-control" id="ValidatePasswordInput" autocomplete="new-password"
+                        placeholder="*********" required />
+                    <div class="invalid-feedback text-center">
+                        Les mots de passe doivent être identiques !
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full" id="btn-validation-inscription">
+                    Inscription
+                </button>
+
+            </form>
+
+            <div class="liens-auth">
+                <a href="/connexion" onclick="route(event)">
+                    Vous avez déjà un compte ? Connectez-vous ici !
+                </a>
+            </div>
+        </div>
+
+    </div>
+</section>

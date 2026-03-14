@@ -1,42 +1,68 @@
-<h1 class="main-title text-center">Ajouter un véhicule</h1>
-<div class="hero-scene text-center text-white">
-    <div class="hero-scene-content"></div>
-</div>
+<section class="hero-auth">
+    <h1 class="titre-page-principal">Ajouter un véhicule</h1>
 
-<section class="page-container">
-    <div class="section-card">
-        <form id="form-ajouter-vehicule" class="form-container card p-4 shadow-sm">
-            <div class="mb-3">
-                <label for="vehicule-marque" class="form-label">Marque</label>
-                <input id="vehicule-marque" class="form-control" type="text" required>
+    <div class="image-hero-auth">
+        <img src="/assets/images/Fondresize.jpg" alt="Illustration EcoRide">
+    </div>
+</section>
+
+<section class="zone-auth">
+    <div class="conteneur-auth">
+        <div class="bloc-formulaire-auth">
+            <h1 class="titre-auth">Ajouter un véhicule</h1>
+
+            <form id="form-ajouter-vehicule" class="formulaire-auth" novalidate>
+                <div class="champ-auth">
+                    <label for="vehicule-marque" class="label-auth">Marque</label>
+                    <input id="vehicule-marque" class="form-control" type="text" placeholder="Ex : Renault" required>
+                    <div class="invalid-feedback text-center">La marque est requise.</div>
+                </div>
+
+                <div class="champ-auth">
+                    <label for="vehicule-modele" class="label-auth">Modèle</label>
+                    <input id="vehicule-modele" class="form-control" type="text" placeholder="Ex : Clio" required>
+                    <div class="invalid-feedback text-center">Le modèle est requis.</div>
+                </div>
+
+                <div class="champ-auth">
+                    <label for="vehicule-energie" class="label-auth">Énergie</label>
+                    <select id="vehicule-energie" class="form-select" required>
+                        <option value="" selected disabled>Choisissez une énergie</option>
+                        <option value="Essence">Essence</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="Hybride">Hybride</option>
+                        <option value="Électrique">Électrique</option>
+                    </select>
+                    <div class="invalid-feedback text-center">Choisissez une énergie.</div>
+                </div>
+
+                <div class="champ-auth">
+                    <label for="vehicule-couleur" class="label-auth">Couleur</label>
+                    <input id="vehicule-couleur" class="form-control" type="text" placeholder="Ex : Blanc">
+                </div>
+
+                <div class="champ-auth">
+                    <label for="vehicule-immatriculation" class="label-auth">Immatriculation</label>
+                    <input id="vehicule-immatriculation" class="form-control" type="text" placeholder="Ex : AB-123-CD">
+                </div>
+
+                <div class="champ-auth">
+                    <label for="vehicule-nbPlaces" class="label-auth">Nombre de places</label>
+                    <input id="vehicule-nbPlaces" class="form-control" type="number" min="1" max="8"
+                        placeholder="Ex : 4">
+                    <div class="invalid-feedback text-center">Le nombre de places doit être compris entre 1 et 8.</div>
+                </div>
+
+                <button class="btn btn-primary btn-full" id="btn-ajouter-vehicule" type="submit">
+                    Ajouter le véhicule
+                </button>
+            </form>
+
+            <div class="liens-auth">
+                <a href="/mon-compte" onclick="route(event)">
+                    Retour à mon compte
+                </a>
             </div>
-
-            <div class="mb-3">
-                <label for="vehicule-modele" class="form-label">Modèle</label>
-                <input id="vehicule-modele" class="form-control" type="text" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="vehicule-energie" class="form-label">Énergie</label>
-                <input id="vehicule-energie" class="form-control" type="text" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="vehicule-couleur" class="form-label">Couleur</label>
-                <input id="vehicule-couleur" class="form-control" type="text">
-            </div>
-
-            <div class="mb-3">
-                <label for="vehicule-immatriculation" class="form-label">Immatriculation</label>
-                <input id="vehicule-immatriculation" class="form-control" type="text">
-            </div>
-
-            <div class="mb-3">
-                <label for="vehicule-nbPlaces" class="form-label">Nombre de places</label>
-                <input id="vehicule-nbPlaces" class="form-control" type="number" min="1">
-            </div>
-
-            <button class="btn btn-success" type="submit">Ajouter le véhicule</button>
-        </form>
+        </div>
     </div>
 </section>

@@ -1,3 +1,3 @@
 ﻿window.__APP_CONFIG__ = {
-  API_BASE: "https://ecoride-api-cedric-eu-d4394ce466c6.herokuapp.com"
+  API_BASE: "http://127.0.0.1:8000"
 };

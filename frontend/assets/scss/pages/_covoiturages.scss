@@ -1,11 +1,221 @@
-/* ======================================================
-   PAGE COVOITURAGES
-====================================================== */
+@use "../variables" as *;
 
-#trajetsRoot .card {
-    margin-bottom: 1rem;
+.bloc-covoiturages {
+    background: $color-primary;
+    border-radius: $radius-lg;
+    padding: 1.75rem;
 }
 
-#closestDateBox {
-    border-radius: $radius-main;
+.formulaire-covoiturages {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.grille-recherche-covoiturages {
+    display: grid;
+    gap: 1rem;
+}
+
+.bloc-filtres {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.ligne-filtres {
+    display: grid;
+    gap: 1rem;
+}
+
+.filtre-page {
+    display: flex;
+    flex-direction: column;
+}
+
+.filtre-page-checkbox {
+    justify-content: flex-end;
+}
+
+.bloc-covoiturages label,
+.label-checkbox-covoiturages {
+    color: $color-text-dark;
+}
+
+.label-checkbox-covoiturages {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    min-height: 48px;
+}
+
+.bloc-covoiturages .form-control,
+.bloc-covoiturages .form-select {
+    background: $color-surface;
+    color: $color-text-dark;
+    border: 1px solid rgba(29, 44, 56, 0.15);
+}
+
+.actions-covoiturages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.actions-covoiturages .btn {
+    border-radius: 999px;
+}
+
+.bloc-resultats-covoiturages {
+    margin-top: 1.5rem;
+}
+
+.bloc-resultats-covoiturages .alert,
+.bloc-resultats-covoiturages #texteAideCovoiturages,
+.bloc-resultats-covoiturages #zoneChargementCovoiturages,
+.bloc-resultats-covoiturages #zoneTrajets {
+    margin-top: 1rem;
+}
+
+/* ==========================================================
+   CARTES DE RÉSULTATS COVOITURAGES
+   ========================================================== */
+
+#zoneTrajets {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+#zoneTrajets .card {
+    background: $color-primary;
+    border: 1px solid rgba(163, 219, 178, 0.22);
+    border-radius: $radius-lg;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    backdrop-filter: blur(4px);
+}
+
+#zoneTrajets .card-body {
+    padding: 1.5rem;
+    color: $color-text;
+    background: transparent;
+}
+
+#zoneTrajets .card-title,
+#zoneTrajets h5 {
+    color: $color-text-dark;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+#zoneTrajets p,
+#zoneTrajets .card-text,
+#zoneTrajets strong,
+#zoneTrajets span,
+#zoneTrajets div {
+    color: $color-text-dark;
+}
+
+#zoneTrajets strong {
+    font-weight: 600;
+}
+
+#zoneTrajets img.rounded-circle {
+    width: 84px !important;
+    height: 84px !important;
+    object-fit: cover;
+    border: 3px solid rgba(163, 219, 178, 0.35);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+#zoneTrajets input.form-control,
+#zoneTrajets input.form-control-sm {
+    min-height: 44px;
+    border-radius: $radius-sm;
+    background: $color-surface;
+    color: $color-text-dark;
+    border: 1px solid rgba(29, 44, 56, 0.15);
+}
+
+#zoneTrajets .btn {
+    border-radius: 999px;
+    min-height: 44px;
+    padding: 0.55rem 1.1rem;
+    font-weight: 600;
+}
+
+#zoneTrajets .btn-outline-primary,
+#zoneTrajets .btn-outline-dark {
+    border: 1px solid rgba(29, 44, 56, 0.15);
+    color: $color-primary-soft;
+    background-color: $color-primary-dark;
+}
+
+#zoneTrajets .btn-outline-primary:hover,
+#zoneTrajets .btn-outline-dark:hover {
+    background: rgba(29, 44, 56, 0.15);
+    color: $color-primary-soft;
+    border-color: $color-primary-soft;
+}
+
+#zoneTrajets .btn-success {
+    background: $color-primary-soft;
+    border-color: $color-primary-soft;
+    color: $color-bg-dark;
+}
+
+#zoneTrajets .btn-success:hover {
+    filter: brightness(0.97);
+}
+
+#zoneTrajets .btn-success:disabled,
+#zoneTrajets .btn-success[disabled] {
+    opacity: 1;
+    background: rgba(163, 219, 178, 0.55);
+    border-color: rgba(163, 219, 178, 0.55);
+    color: $color-bg-dark;
+    cursor: not-allowed;
+}
+
+#zoneTrajets .d-flex.flex-wrap.gap-2 {
+    align-items: center;
+    justify-content: flex-end;
+}
+
+#zoneTrajets .alert {
+    border-radius: $radius-lg;
+}
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
+@media (min-width: 768px) {
+    .grille-recherche-covoiturages {
+        grid-template-columns: repeat(3, 1fr);
+        align-items: end;
+    }
+
+    .ligne-filtres {
+        grid-template-columns: 1.1fr 1fr 1fr 1fr;
+        align-items: end;
+    }
+}
+
+@media (max-width: 767.98px) {
+    #zoneTrajets .card-body {
+        padding: 1.25rem;
+    }
+
+    #zoneTrajets .d-flex.flex-wrap.gap-2 {
+        justify-content: flex-start;
+    }
+
+    #zoneTrajets img.rounded-circle {
+        width: 72px !important;
+        height: 72px !important;
+    }
 }

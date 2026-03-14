@@ -5,7 +5,7 @@ async function chargerAvisEnAttente() {
     if (!container) return;
 
     try {
-        const reponse = await apiFetch("/api/employe/avis/pending");
+        const reponse = await apiFetch("/api/employe/avis/en-attente");
         const avis = reponse.items || [];
 
         if (avis.length === 0) {
@@ -24,7 +24,7 @@ async function chargerAvisEnAttente() {
                     <p><strong>Passager :</strong> ${item.passagerPseudo || "Non renseigné"}</p>
                     <p><strong>Note :</strong> ${item.note}/5</p>
                     <p><strong>Commentaire :</strong> ${item.commentaire || "Aucun commentaire"}</p>
-                    <p><strong>Signalé comme problème :</strong> ${item.isProblem ? "Oui" : "Non"}</p>
+                    
 
                     <div class="d-flex gap-2">
                         <button class="btn btn-success btn-valider" data-id="${item.id}">
@@ -39,7 +39,6 @@ async function chargerAvisEnAttente() {
         `).join("");
 
         ajouterEvenements();
-
     } catch (error) {
         console.error(error);
         container.innerHTML = `
@@ -54,14 +53,15 @@ function ajouterEvenements() {
     document.querySelectorAll(".btn-valider").forEach((btn) => {
         btn.addEventListener("click", async () => {
             try {
-                await apiFetch(`/api/employe/avis/${btn.dataset.id}/approve`, {
-                    method: "POST"
+                await apiFetch(`/api/employe/avis/${btn.dataset.id}/valider`, {
+                    method: "PATCH"
                 });
+
                 alert("Avis validé.");
                 chargerAvisEnAttente();
             } catch (error) {
                 console.error(error);
-                alert("Impossible de valider l'avis.");
+                alert(error?.data?.message || "Impossible de valider l'avis.");
             }
         });
     });
@@ -69,14 +69,15 @@ function ajouterEvenements() {
     document.querySelectorAll(".btn-refuser").forEach((btn) => {
         btn.addEventListener("click", async () => {
             try {
-                await apiFetch(`/api/employe/avis/${btn.dataset.id}/reject`, {
-                    method: "POST"
+                await apiFetch(`/api/employe/avis/${btn.dataset.id}/refuser`, {
+                    method: "PATCH"
                 });
+
                 alert("Avis refusé.");
                 chargerAvisEnAttente();
             } catch (error) {
                 console.error(error);
-                alert("Impossible de refuser l'avis.");
+                alert(error?.data?.message || "Impossible de refuser l'avis.");
             }
         });
     });

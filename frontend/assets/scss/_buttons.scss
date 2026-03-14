@@ -1,0 +1,39 @@
+@use "variables" as *;
+
+.btn {
+    border-radius: 999px;
+    font-weight: 600;
+    transition: $transition;
+    min-height: 44px;
+    padding: 0.7rem 1.4rem;
+}
+
+.btn-primary {
+    background: $color-primary;
+    border-color: $color-primary;
+    color: $color-text-dark;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background: $color-primary-dark;
+    border-color: $color-primary-dark;
+    color: $color-text;
+}
+
+.btn-outline-primary {
+    border-color: $color-primary;
+    color: $color-primary;
+    background: transparent;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+    background: $color-primary;
+    border-color: $color-primary;
+    color: $color-text-dark;
+}
+
+.btn-full {
+    width: 100%;
+}

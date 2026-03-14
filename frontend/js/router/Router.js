@@ -1,8 +1,3 @@
-// ==========================================================
-// ROUTER (SPA)
-// ==========================================================
-// Objectif : gérer la navigation sans recharger la page.
-//
 // Ce Router :
 // - récupère la route depuis allRoutes
 // - vérifie les droits (authorize) selon JWT
@@ -15,14 +10,6 @@
 
 import Route from "./Route.js";
 import { allRoutes, websiteName } from "./allRoutes.js";
-
-// ==========================================================
-// SESSION (JWT) : rôles + menu
-// ==========================================================
-// getFrontRoles() -> ["connected", "passager"] ...
-// isConnected()   -> true/false
-// applyNavbarVisibility() -> affiche/masque les éléments du menu
-// ==========================================================
 import { getFrontRoles, isConnected } from "../auth/session.js";
 import { applyNavbarVisibility } from "../auth/session.js";
 
@@ -58,12 +45,12 @@ function isAllowed(route) {
     // Public
     if (allowed.length === 0) return true;
 
-    // Cas "disconnected" (connexion / inscription)
+    // Cas "disconnected"
     if (allowed.includes("disconnected")) {
         return !isConnected();
     }
 
-    // Cas rôles (passager/chauffeur/employe/admin)
+    // Cas rôles (au moins un rôle doit correspondre)
     const userRoles = getFrontRoles();
     return allowed.some((r) => userRoles.includes(r));
 }

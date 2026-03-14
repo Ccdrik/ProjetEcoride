@@ -1,0 +1,22 @@
+@use "variables";
+
+@use "base";
+@use "layout";
+@use "navbar";
+@use "hero";
+@use "buttons";
+@use "card";
+@use "forms";
+@use "tables";
+@use "footer";
+
+
+@use "pages/home";
+@use "pages/compte";
+@use "pages/covoiturages";
+@use "pages/details-trajet";
+@use "pages/contact";
+@use "pages/administrateur";
+@use "pages/creer-trajet";
+@use "pages/mes-trajets";
+@use "pages/employe";

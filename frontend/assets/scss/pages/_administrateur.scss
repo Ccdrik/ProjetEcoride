@@ -1,0 +1,31 @@
+@use "../variables" as *;
+
+.bloc-admin,
+.bloc-admin-secondaire {
+    background: $color-primary;
+    border-radius: $radius-lg;
+    padding: 2rem;
+    color: $color-text-dark;
+}
+
+.bloc-admin .titre-bloc,
+.bloc-admin-secondaire .titre-bloc-admin,
+.bloc-admin .label-auth {
+    color: $color-text-dark;
+}
+
+.grille-admin-statistiques {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.bloc-admin-secondaire canvas {
+    width: 100% !important;
+    max-height: 320px;
+}
+
+@media (min-width: 992px) {
+    .grille-admin-statistiques {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

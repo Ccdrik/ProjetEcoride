@@ -1,3 +1,296 @@
-.container {
-    max-width: 1200px;
+@use "variables" as *;
+
+/* =========================================
+   STRUCTURE GLOBALE
+========================================= */
+
+.site-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* =========================================
+   ZONES DE PAGE
+========================================= */
+
+.zone-page,
+.zone-accueil {
+    width: 100%;
+    padding: 2rem 1rem 3rem;
+}
+
+.conteneur-page {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.conteneur-page-moyen {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.conteneur-page-petit {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+/* =========================================
+   TITRES
+========================================= */
+
+.titre-page-principal {
+    text-align: center;
+    color: $color-primary-soft;
+    font-size: 2rem;
+    font-weight: 500;
+    margin: 0 0 1.5rem;
+}
+
+.titre-bloc {
+    color: $color-primary-soft;
+    margin-bottom: 1rem;
+}
+
+/* =========================================
+   BLOCS GENERIQUES
+========================================= */
+
+.bloc-contenu {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: $radius-lg;
+    padding: 1.5rem;
+}
+
+.bloc-contenu--centre {
+    text-align: center;
+}
+
+.texte-centre {
+    text-align: center;
+}
+
+/* =========================================
+   ACTIONS / BOUTONS / AIDES
+========================================= */
+
+.actions-page {
+    margin-top: 0.5rem;
+}
+
+.actions-page--groupe {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.texte-aide-page {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.zone-resultats-page {
+    min-height: 1px;
+}
+
+/* =========================================
+   HERO COMMUN
+   Utilisé sur accueil / connexion / inscription /
+   mon compte / mot de passe / pages publiques
+========================================= */
+
+.hero-auth {
+    padding-top: 1.5rem;
+    padding-bottom: 1rem;
+}
+
+.image-hero-auth {
+    width: 100%;
+}
+
+.image-hero-auth img {
+    width: 100%;
+    display: block;
+}
+
+/* =========================================
+   PAGE MON COMPTE
+========================================= */
+
+.bloc-compte {
+    padding: 2rem;
+}
+
+.infos-compte p {
+    margin-bottom: 0.9rem;
+    font-size: 1.05rem;
+    color: $color-text;
+}
+
+.infos-compte strong {
+    color: $color-text;
+}
+
+.zone-avatar-compte {
+    margin-top: 1.5rem;
+}
+
+.avatar-compte {
+    width: 96px;
+    height: 96px;
+    object-fit: cover;
+    border: 3px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.bloc-compte-secondaire {
+    height: 100%;
+    min-height: 170px;
+}
+
+.bloc-compte-secondaire .titre-bloc {
+    margin-bottom: 1rem;
+}
+
+#mc-avenir,
+#mc-vehicules,
+#mc-passe {
+    color: $color-text;
+}
+
+/* =========================================
+   PAGE COVOITURAGES
+========================================= */
+
+.grille-recherche-covoiturages {
+    display: grid;
+    gap: 1rem;
+}
+
+.bloc-filtres {
+    margin-top: 1rem;
+}
+
+.ligne-filtres {
+    display: grid;
+    gap: 1rem;
+}
+
+.filtre-page {
+    display: flex;
+    flex-direction: column;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (min-width: 768px) {
+
+    .zone-page,
+    .zone-accueil {
+        padding: 2.5rem 1.5rem 4rem;
+    }
+
+    .grille-recherche-covoiturages {
+        grid-template-columns: repeat(3, 1fr);
+        align-items: end;
+    }
+
+    .ligne-filtres {
+        grid-template-columns: repeat(4, 1fr);
+        align-items: end;
+    }
+}
+
+.bloc-compte,
+.bloc-compte-secondaire {
+    background: $color-primary;
+    color: $color-text-dark;
+    border-radius: $radius-lg;
+}
+
+.bloc-compte {
+    padding: 2rem;
+}
+
+.bloc-compte-secondaire {
+    padding: 1.5rem;
+    height: 100%;
+    min-height: 170px;
+}
+
+.bloc-compte .titre-bloc,
+.bloc-compte-secondaire .titre-bloc {
+    color: $color-text-dark;
+    margin-bottom: 1rem;
+}
+
+.infos-compte p,
+.infos-compte strong,
+.zone-avatar-compte p,
+.zone-avatar-compte label {
+    color: $color-text-dark;
+}
+
+#mc-avenir,
+#mc-vehicules,
+#mc-passe {
+    color: $color-text-dark;
+}
+
+.avatar-compte {
+    width: 96px;
+    height: 96px;
+    object-fit: cover;
+    border: 3px solid rgba(29, 44, 56, 0.15);
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.bloc-compte .form-select {
+    background: $color-surface;
+    color: $color-text-dark;
+    border: 1px solid rgba(29, 44, 56, 0.15);
+}
+
+.bloc-compte .btn-outline-success,
+.bloc-compte .btn-outline-primary,
+.bloc-compte .btn-outline-danger {
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+.bloc-compte .btn-outline-success {
+    border-color: $color-bg-dark;
+    color: $color-bg-dark;
+}
+
+.bloc-compte .btn-outline-success:hover {
+    background: $color-bg-dark;
+    color: $color-text;
+}
+
+.bloc-compte .btn-outline-primary {
+    border-color: $color-bg-dark;
+    color: $color-bg-dark;
+}
+
+.bloc-compte .btn-outline-primary:hover {
+    background: $color-bg-dark;
+    color: $color-text;
+}
+
+.bloc-compte .btn-outline-danger:hover {
+    color: $color-text;
+}
+
+.bloc-compte .actions-page--groupe {
+    margin-top: 1.25rem;
 }

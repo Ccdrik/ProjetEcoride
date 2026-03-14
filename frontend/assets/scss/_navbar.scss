@@ -1,0 +1,62 @@
+@use "variables" as *;
+
+.navbar {
+    background: $color-primary !important;
+    width: 100%;
+}
+
+.navbar-brand {
+    color: $color-text-dark !important;
+}
+
+.nav-link {
+    color: $color-text-dark !important;
+}
+
+.nav-link:hover {
+    color: $color-bg-dark !important;
+}
+
+.navbar-toggler {
+    border: 1px solid rgba(31, 41, 51, 0.2);
+    border-radius: $radius-sm;
+    padding: 0.45rem 0.6rem;
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+
+.navbar-toggler-icon {
+    background-image: none;
+    width: 1.5rem;
+    height: 1.5rem;
+    position: relative;
+    display: inline-block;
+}
+
+.navbar-toggler-icon::before,
+.navbar-toggler-icon::after,
+.navbar-toggler-icon {
+    background-color: transparent;
+}
+
+.navbar-toggler-icon::before,
+.navbar-toggler-icon::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: $color-text-dark;
+    border-radius: 2px;
+}
+
+.navbar-toggler-icon::before {
+    top: 0.25rem;
+    box-shadow: 0 0.45rem 0 0 $color-text-dark;
+}
+
+.navbar-toggler-icon::after {
+    top: 1.15rem;
+}

@@ -1,44 +1,78 @@
-<h1 class="main-title text-center">Détails du trajet</h1>
-<div class="hero-scene text-center text-white">
-    <div class="hero-scene-content"></div>
-</div>
+<section class="hero-auth">
+    <h1 class="titre-page-principal">Détails du trajet</h1>
 
-<section class="page-container">
-    <div id="detail-trajet-container" class="section-card card p-4">
+    <div class="image-hero-auth">
+        <img src="/assets/images/Fondresize.jpg" alt="Illustration EcoRide">
+    </div>
+</section>
 
-        <h4>
-            <span id="trajet-depart"></span>
-            →
-            <span id="trajet-arrivee"></span>
-        </h4>
+<section class="zone-page">
+    <div class="conteneur-page-petit">
 
-        <p><strong>Date :</strong> <span id="trajet-date"></span></p>
+        <div id="detail-trajet-container" class="bloc-detail-trajet">
 
-        <p><strong>Conducteur :</strong>
-            <span id="trajet-conducteur"></span>
-        </p>
+            <h2 class="titre-bloc-detail">
+                <span id="trajet-depart"></span>
+                →
+                <span id="trajet-arrivee"></span>
+            </h2>
 
-        <p><strong>Véhicule :</strong>
-            <span id="trajet-vehicule"></span>
-        </p>
+            <p><strong>Date :</strong> <span id="trajet-date"></span></p>
+            <p><strong>Conducteur :</strong> <span id="trajet-conducteur"></span></p>
+            <p><strong>Note chauffeur :</strong> <span id="trajet-note"></span></p>
+            <p><strong>Véhicule :</strong> <span id="trajet-vehicule"></span></p>
+            <p><strong>Énergie :</strong> <span id="trajet-energie"></span></p>
+            <p><strong>Places disponibles :</strong> <span id="trajet-places"></span></p>
+            <p><strong>Prix :</strong> <span id="trajet-prix"></span> crédits</p>
 
-        <p><strong>Énergie :</strong>
-            <span id="trajet-energie"></span>
-        </p>
+            <div id="bloc-avis-trajet" class="bloc-avis-trajet d-none">
 
-        <p><strong>Places disponibles :</strong>
-            <span id="trajet-places"></span>
-        </p>
+                <hr>
 
-        <p><strong>Prix :</strong>
-            <span id="trajet-prix"></span> crédits
-        </p>
+                <h3>Laisser un avis</h3>
 
-        <hr />
+                <p class="texte-aide-page">
+                    Votre avis sera envoyé en attente de modération avant publication.
+                </p>
 
-        <button id="btn-participer" class="btn btn-success btn-full">
-            Participer à ce trajet
-        </button>
+                <form id="form-avis-trajet" class="formulaire-page formulaire-page--empile">
+
+                    <div class="champ-page">
+                        <label for="note-avis" class="label-page">Note</label>
+
+                        <select id="note-avis" class="form-select" required>
+                            <option value="">Choisir une note</option>
+                            <option value="1"> 1</option>
+                            <option value="2"> 2</option>
+                            <option value="3"> 3</option>
+                            <option value="4"> 4</option>
+                            <option value="5"> 5</option>
+                        </select>
+                    </div>
+
+                    <div class="champ-page">
+                        <label for="commentaire-avis" class="label-page">
+                            Commentaire
+                        </label>
+
+                        <textarea id="commentaire-avis" class="form-control" rows="4"
+                            placeholder="Votre commentaire (facultatif)">
+                        </textarea>
+                    </div>
+
+                    <div class="actions-page">
+                        <button type="submit" class="btn btn-primary">
+                            Envoyer mon avis
+                        </button>
+                    </div>
+
+                </form>
+
+                <div id="message-avis-trajet" class="mt-3"></div>
+
+            </div>
+
+        </div>
 
     </div>
 </section>

@@ -3,7 +3,10 @@
 namespace App\Controller\Api;
 
 use App\Entity\Trajet;
+use App\Entity\Utilisateur;
+use App\Repository\ReservationRepository;
 use App\Repository\TrajetRepository;
+use App\Service\Mongo\MongoProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -90,12 +93,64 @@ class TrajetController extends AbstractController
     }
 
     #[Route('/api/trajets/{id}', name: 'api_trajet_show', methods: ['GET'])]
-    public function show(int $id, TrajetRepository $trajets): JsonResponse
-    {
+    public function show(
+        int $id,
+        TrajetRepository $trajets,
+        ReservationRepository $reservations,
+        MongoProvider $mongo
+    ): JsonResponse {
         $trajet = $trajets->find($id);
 
         if (!$trajet) {
             return $this->json(['message' => 'Trajet introuvable.'], 404);
+        }
+
+        $avisDejaLaisse = false;
+        $reservationId = null;
+        $noteMoyenne = null;
+
+        $user = $this->getUser();
+
+        if ($user instanceof Utilisateur) {
+            $reservation = $reservations->findOneBy([
+                'trajet' => $trajet,
+                'passager' => $user,
+            ]);
+
+            if ($reservation) {
+                $reservationId = $reservation->getId();
+
+                $existing = $mongo->avisCollection()->findOne([
+                    'reservationId' => $reservationId,
+                ]);
+
+                $avisDejaLaisse = $existing !== null;
+            }
+        }
+
+        $chauffeur = $trajet->getConducteur();
+
+        if ($chauffeur) {
+            $pipeline = [
+                [
+                    '$match' => [
+                        'chauffeurId' => $chauffeur->getId(),
+                        'status' => 'VALIDE',
+                    ]
+                ],
+                [
+                    '$group' => [
+                        '_id' => null,
+                        'moyenne' => ['$avg' => '$note'],
+                    ]
+                ]
+            ];
+
+            $result = $mongo->avisCollection()->aggregate($pipeline)->toArray();
+
+            if (!empty($result) && isset($result[0]->moyenne)) {
+                $noteMoyenne = round((float) $result[0]->moyenne, 1);
+            }
         }
 
         return $this->json([
@@ -108,6 +163,9 @@ class TrajetController extends AbstractController
             'placesRestantes' => $trajet->getPlacesRestantes(),
             'ecologique' => $this->estEcologique($trajet),
             'statut' => $trajet->getStatut(),
+            'avisDejaLaisse' => $avisDejaLaisse,
+            'reservationId' => $reservationId,
+            'noteMoyenne' => $noteMoyenne,
             'conducteur' => $trajet->getConducteur() ? [
                 'id' => $trajet->getConducteur()->getId(),
                 'nom' => $trajet->getConducteur()->getNom(),
@@ -121,8 +179,41 @@ class TrajetController extends AbstractController
                 'energie' => $trajet->getVehicule()->getEnergie(),
                 'couleur' => $trajet->getVehicule()->getCouleur(),
                 'immatriculation' => $trajet->getVehicule()->getImmatriculation(),
-                
             ] : null,
+        ]);
+    }
+
+    #[IsGranted('ROLE_CHAUFFEUR')]
+    #[Route('/api/trajets/{id}/demarrer', name: 'api_trajet_demarrer', methods: ['PATCH'])]
+    public function demarrer(
+        int $id,
+        TrajetRepository $trajets,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        $trajet = $trajets->find($id);
+
+        if (!$trajet) {
+            return $this->json(['message' => 'Trajet introuvable'], 404);
+        }
+
+        if ($trajet->getConducteur()->getId() !== $this->getUser()->getId()) {
+            return $this->json(['message' => 'Accès refusé'], 403);
+        }
+
+        if ($trajet->getStatut() === 'TERMINE') {
+            return $this->json(['message' => 'Impossible de démarrer un trajet terminé'], 400);
+        }
+
+        if ($trajet->getStatut() === 'EN_COURS') {
+            return $this->json(['message' => 'Ce trajet est déjà démarré'], 400);
+        }
+
+        $trajet->setStatut('EN_COURS');
+        $em->flush();
+
+        return $this->json([
+            'message' => 'Trajet démarré',
+            'statut' => $trajet->getStatut()
         ]);
     }
 
@@ -148,7 +239,6 @@ class TrajetController extends AbstractController
         if ($trajet->getStatut() === 'TERMINE') {
             return $this->json(['message' => 'Ce trajet est déjà terminé'], 400);
         }
-        
 
         $trajet->setStatut('TERMINE');
         $em->flush();
@@ -160,13 +250,13 @@ class TrajetController extends AbstractController
     }
 
     private function estEcologique(Trajet $trajet): bool
-{
-    $energie = strtolower($trajet->getVehicule()?->getEnergie() ?? '');
+    {
+        $energie = strtolower($trajet->getVehicule()?->getEnergie() ?? '');
 
-    return in_array($energie, [
-        'electrique',
-        'électrique',
-        'hybride',
-    ]);
-}
+        return in_array($energie, [
+            'electrique',
+            'électrique',
+            'hybride',
+        ]);
+    }
 }

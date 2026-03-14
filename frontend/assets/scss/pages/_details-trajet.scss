@@ -1,0 +1,19 @@
+@use "../variables" as *;
+
+.bloc-detail-trajet {
+    background: $color-primary;
+    color: $color-text-dark;
+    border-radius: $radius-lg;
+    padding: 2rem;
+}
+
+.bloc-detail-trajet p,
+.bloc-detail-trajet strong {
+    color: $color-text-dark;
+}
+
+.titre-bloc-detail {
+    color: $color-text-dark;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}

@@ -1,19 +1,10 @@
 // ==========================================================
 // CLIENT API CENTRALISÉ
 // ==========================================================
-// Ce fichier centralise toutes les requêtes HTTP vers
-// le backend Symfony.
-//
-// Il permet :
-// - d’ajouter automatiquement le header JSON
-// - d’ajouter le token JWT si l’utilisateur est connecté
-// - de gérer proprement les erreurs HTTP
-// - de déconnecter automatiquement si token invalide (401)
-// ==========================================================
 
 const API_BASE =
-  window.__APP_CONFIG__?.API_BASE ||
-  "http://localhost:8080";
+  import.meta.env.VITE_API_BASE ||
+  "http://127.0.0.1:8000";
 
 // Récupération du token JWT stocké en localStorage
 export function getToken() {
@@ -35,12 +26,10 @@ export function clearToken() {
 export async function apiFetch(path, options = {}) {
   const headers = new Headers(options.headers || {});
 
-  // Si on envoie du JSON (POST / PATCH)
   if (options.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
 
-  // Si token présent, on l’ajoute automatiquement
   const token = getToken();
   if (token && !headers.has("Authorization")) {
     headers.set("Authorization", `Bearer ${token}`);
@@ -60,7 +49,6 @@ export async function apiFetch(path, options = {}) {
     data = text || null;
   }
 
-  // Si compte suspendu ou token invalide
   if (response.status === 401) {
     clearToken();
 
@@ -68,8 +56,6 @@ export async function apiFetch(path, options = {}) {
       window.history.pushState({}, "", "/connexion");
       window.dispatchEvent(new Event("popstate"));
     }
-
-    // on continue et on lance l'erreur standard
   }
 
   if (!response.ok) {

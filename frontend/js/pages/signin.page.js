@@ -18,7 +18,7 @@ export function initSignin() {
     const form = document.querySelector("form");
     if (!form) return;
 
-    // éviter double binding si jamais re-init
+
     if (form.dataset.bound === "1") return;
     form.dataset.bound = "1";
 
