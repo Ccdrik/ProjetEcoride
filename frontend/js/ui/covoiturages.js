@@ -71,12 +71,6 @@ function memeDate(dateIso, dateRecherchee) {
 // FONCTIONS DE FILTRES
 // ==========================================================
 
-// Je récupère une note numérique si elle existe
-function recupererNoteChauffeur(trajet) {
-  const note = Number(trajet.chauffeurNote);
-  return Number.isFinite(note) ? note : null;
-}
-
 // Je récupère une durée en minutes si elle existe
 function recupererDureeTrajet(trajet) {
   const duree = Number(trajet.dureeMinutes);
