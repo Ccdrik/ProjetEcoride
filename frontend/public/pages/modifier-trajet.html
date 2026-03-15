@@ -1,15 +1,56 @@
-<h1 class="main-title text-center">Modifier un trajet</h1>
-<div class="hero-scene text-center text-white">
-    <div class="hero-scene-content"></div>
-</div>
+<section class="hero-auth">
+    <h1 class="titre-page-principal">Modifier un trajet</h1>
 
-<form class="table-center">
-    <div class="table-style form-container">
-        <input type="text" placeholder="Ville de départ" required>
-        <input type="text" placeholder="Ville d’arrivée" required>
-        <input type="date" required>
-        <input type="number" placeholder="Places disponibles" required>
-        <input type="number" placeholder="Prix (€)" required>
-        <button type="submit" class="btn btn-primary btn-full">Publier</button>
+    <div class="image-hero-auth">
+        <img src="/assets/images/Fondresize.jpg" alt="Illustration EcoRide">
     </div>
-</form>
+</section>
+
+<section class="zone-page">
+    <div class="conteneur-page">
+        <div class="bloc-contenu">
+            <h2 class="titre-bloc">Modifier mon trajet</h2>
+            <p class="texte-aide-page">
+                Mettez à jour les informations de votre trajet.
+            </p>
+
+            <form id="formModifierTrajet" novalidate>
+                <div class="champ-auth">
+                    <label for="departVille" class="label-auth">Ville de départ</label>
+                    <input id="departVille" type="text" class="form-control" placeholder="Ville de départ" required>
+                </div>
+
+                <div class="champ-auth">
+                    <label for="arriveeVille" class="label-auth">Ville d’arrivée</label>
+                    <input id="arriveeVille" type="text" class="form-control" placeholder="Ville d’arrivée" required>
+                </div>
+
+                <div class="champ-auth">
+                    <label for="dateDepart" class="label-auth">Date et heure de départ</label>
+                    <input id="dateDepart" type="datetime-local" class="form-control" required>
+                </div>
+
+                <div class="champ-auth">
+                    <label for="prixParPlace" class="label-auth">Prix par place</label>
+                    <input id="prixParPlace" type="number" class="form-control" min="2" required>
+                </div>
+
+                <div class="champ-auth">
+                    <label for="placesTotal" class="label-auth">Nombre de places</label>
+                    <input id="placesTotal" type="number" class="form-control" min="1" required>
+                </div>
+
+                <div class="champ-auth">
+                    <label for="vehiculeId" class="label-auth">Véhicule utilisé</label>
+                    <select id="vehiculeId" class="form-select" required>
+                        <option value="" selected disabled>Choisissez un véhicule</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">
+                    Enregistrer les modifications
+                </button>
+            </form>
+        </div>
+    </div>
+</section>

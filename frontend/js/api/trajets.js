@@ -14,3 +14,16 @@ export function createReservation(trajetId, nbPlaces) {
     body: JSON.stringify({ nbPlaces })
   });
 }
+
+export function modifierTrajet(id, data) {
+  return apiFetch(`/api/trajets/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(data)
+  });
+}
+
+export function annulerTrajet(id) {
+  return apiFetch(`/api/trajets/${id}/annuler`, {
+    method: "PATCH"
+  });
+}

@@ -1,0 +1,18 @@
+@use "../variables" as *;
+
+#formModifierTrajet {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+#formModifierTrajet .form-control,
+#formModifierTrajet .form-select {
+    width: 100%;
+}
+
+#formModifierTrajet .btn {
+    margin-top: 0.5rem;
+}

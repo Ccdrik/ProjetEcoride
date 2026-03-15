@@ -17,6 +17,8 @@ function getStatutLabel(statut) {
             return "En cours";
         case "TERMINE":
             return "Terminé";
+        case "ANNULE":
+            return "Annulé";
         default:
             return statut || "Inconnu";
     }
@@ -60,9 +62,19 @@ async function chargerMesTrajets() {
 
                 <div class="bloc-trajet-chauffeur__actions">
                     ${t.statut === "PLANIFIE"
-                ? `<button class="btn btn-primary btn-full btn-demarrer" data-id="${t.id}">
+                ? `
+                        <a class="btn btn-outline-secondary btn-full" href="/modifier-trajet?id=${t.id}" onclick="route(event)">
+                            Modifier le trajet
+                        </a>
+
+                        <button class="btn btn-danger btn-full btn-annuler" data-id="${t.id}">
+                            Annuler le trajet
+                        </button>
+
+                        <button class="btn btn-primary btn-full btn-demarrer" data-id="${t.id}">
                             Démarrer le trajet
-                        </button>`
+                        </button>
+                    `
                 : ""
             }
 
@@ -75,6 +87,11 @@ async function chargerMesTrajets() {
 
                     ${t.statut === "TERMINE"
                 ? `<span class="bloc-trajet-chauffeur__badge-fin">Trajet terminé</span>`
+                : ""
+            }
+
+                    ${t.statut === "ANNULE"
+                ? `<span class="bloc-trajet-chauffeur__badge-fin">Trajet annulé</span>`
                 : ""
             }
                 </div>
@@ -117,6 +134,23 @@ function bindActions() {
             } catch (e) {
                 console.error(e);
                 alert(e.message || "Impossible de terminer le trajet.");
+            }
+        });
+    });
+
+    document.querySelectorAll(".btn-annuler").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+            if (!confirm("Confirmer l’annulation de ce trajet ?")) return;
+
+            try {
+                await apiFetch(`/api/trajets/${btn.dataset.id}/annuler`, {
+                    method: "PATCH"
+                });
+                alert("Trajet annulé.");
+                chargerMesTrajets();
+            } catch (e) {
+                console.error(e);
+                alert(e.message || "Impossible d’annuler le trajet.");
             }
         });
     });

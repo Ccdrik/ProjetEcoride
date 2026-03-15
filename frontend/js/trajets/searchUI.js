@@ -130,7 +130,7 @@ function renderTrajets(container, trajets) {
             <div class="text-muted small mb-2">Départ : ${escapeHtml(dateTxt)}</div>
             <div class="d-flex justify-content-between">
               <div>Places restantes : <strong>${escapeHtml(t.placesRestantes)}</strong></div>
-              <div><strong>${escapeHtml(t.prixParPlace)} €</strong></div>
+              <div><strong>${escapeHtml(t.prixParPlace)} crédits</strong></div>
             </div>
           </div>
         </div>

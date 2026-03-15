@@ -7,6 +7,7 @@ use App\Entity\TransactionCredit;
 use App\Entity\Utilisateur;
 use App\Repository\ReservationRepository;
 use App\Repository\TrajetRepository;
+use App\Repository\VehiculeRepository;
 use App\Service\Mongo\MongoProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,7 +22,8 @@ class TrajetController extends AbstractController
     #[Route('/api/trajets', name: 'api_trajet_create', methods: ['POST'])]
     public function create(
         Request $request,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        VehiculeRepository $vehicules
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
@@ -34,13 +36,29 @@ class TrajetController extends AbstractController
             empty($data['arriveeVille']) ||
             empty($data['dateDepart']) ||
             !isset($data['prixParPlace']) ||
-            !isset($data['placesTotal'])
+            !isset($data['placesTotal']) ||
+            !isset($data['vehiculeId'])
         ) {
             return $this->json(['message' => 'Champs obligatoires manquants'], 400);
         }
 
+        $user = $this->getUser();
+        if (!$user instanceof Utilisateur) {
+            return $this->json(['message' => 'Non authentifié'], 401);
+        }
+
         if ((int) $data['prixParPlace'] < 2) {
             return $this->json(['message' => 'Le prix par place doit être au minimum de 2 crédits'], 400);
+        }
+
+        $vehicule = $vehicules->find((int) $data['vehiculeId']);
+
+        if (!$vehicule) {
+            return $this->json(['message' => 'Véhicule introuvable'], 404);
+        }
+
+        if ($vehicule->getProprietaire()?->getId() !== $user->getId()) {
+            return $this->json(['message' => 'Ce véhicule ne vous appartient pas'], 403);
         }
 
         $trajet = new Trajet();
@@ -49,22 +67,22 @@ class TrajetController extends AbstractController
         $trajet->setArriveeVille($data['arriveeVille']);
 
         $dateDepart = \DateTimeImmutable::createFromFormat(
-        'Y-m-d\TH:i',
-        $data['dateDepart'],
-        new \DateTimeZone('Europe/Paris')
-);
+            'Y-m-d\TH:i',
+            $data['dateDepart'],
+            new \DateTimeZone('Europe/Paris')
+        );
 
-if (!$dateDepart) {
-    return $this->json(['message' => 'Date de départ invalide'], 400);
-}
+        if (!$dateDepart) {
+            return $this->json(['message' => 'Date de départ invalide'], 400);
+        }
 
-$trajet->setDateDepart($dateDepart);
-
-$trajet->setPrixParPlace((int) $data['prixParPlace']);
-$trajet->setPlacesTotal((int) $data['placesTotal']);
-$trajet->setPlacesRestantes((int) $data['placesTotal']);
-$trajet->setStatut('PLANIFIE');
-$trajet->setConducteur($this->getUser());
+        $trajet->setDateDepart($dateDepart);
+        $trajet->setPrixParPlace((int) $data['prixParPlace']);
+        $trajet->setPlacesTotal((int) $data['placesTotal']);
+        $trajet->setPlacesRestantes((int) $data['placesTotal']);
+        $trajet->setStatut('PLANIFIE');
+        $trajet->setConducteur($user);
+        $trajet->setVehicule($vehicule);
 
         $em->persist($trajet);
         $em->flush();
@@ -228,6 +246,220 @@ $trajet->setConducteur($this->getUser());
                 'immatriculation' => $trajet->getVehicule()->getImmatriculation(),
             ] : null,
         ]);
+    }
+
+    #[IsGranted('ROLE_CHAUFFEUR')]
+    #[Route('/api/trajets/{id}', name: 'api_trajet_update', methods: ['PATCH'])]
+    public function update(
+        int $id,
+        Request $request,
+        TrajetRepository $trajets,
+        EntityManagerInterface $em,
+        VehiculeRepository $vehicules
+    ): JsonResponse {
+        $trajet = $trajets->find($id);
+
+        if (!$trajet) {
+            return $this->json(['message' => 'Trajet introuvable'], 404);
+        }
+
+        $user = $this->getUser();
+        if (!$user instanceof Utilisateur) {
+            return $this->json(['message' => 'Non authentifié'], 401);
+        }
+
+        if ($trajet->getConducteur()?->getId() !== $user->getId()) {
+            return $this->json(['message' => 'Accès refusé'], 403);
+        }
+
+        if (in_array($trajet->getStatut(), ['EN_COURS', 'TERMINE', 'ANNULE'], true)) {
+            return $this->json(['message' => 'Ce trajet ne peut plus être modifié'], 409);
+        }
+
+        $data = json_decode($request->getContent() ?: '', true);
+
+        if (!is_array($data)) {
+            return $this->json(['message' => 'JSON invalide'], 400);
+        }
+
+        if (array_key_exists('departVille', $data)) {
+            $departVille = trim((string) $data['departVille']);
+            if ($departVille === '') {
+                return $this->json(['message' => 'departVille ne peut pas être vide'], 400);
+            }
+            $trajet->setDepartVille($departVille);
+        }
+
+        if (array_key_exists('arriveeVille', $data)) {
+            $arriveeVille = trim((string) $data['arriveeVille']);
+            if ($arriveeVille === '') {
+                return $this->json(['message' => 'arriveeVille ne peut pas être vide'], 400);
+            }
+            $trajet->setArriveeVille($arriveeVille);
+        }
+
+        if (array_key_exists('dateDepart', $data)) {
+            $dateDepart = \DateTimeImmutable::createFromFormat(
+                'Y-m-d\TH:i',
+                (string) $data['dateDepart'],
+                new \DateTimeZone('Europe/Paris')
+            );
+
+            if (!$dateDepart) {
+                return $this->json(['message' => 'Date de départ invalide'], 400);
+            }
+
+            $trajet->setDateDepart($dateDepart);
+        }
+
+        if (array_key_exists('prixParPlace', $data)) {
+            $prixParPlace = (int) $data['prixParPlace'];
+
+            if ($prixParPlace < 2) {
+                return $this->json(['message' => 'Le prix par place doit être au minimum de 2 crédits'], 400);
+            }
+
+            $trajet->setPrixParPlace($prixParPlace);
+        }
+
+        if (array_key_exists('placesTotal', $data)) {
+            $nouveauPlacesTotal = (int) $data['placesTotal'];
+
+            if ($nouveauPlacesTotal <= 0) {
+                return $this->json(['message' => 'placesTotal doit être supérieur à 0'], 400);
+            }
+
+            $placesReservees = (int) $trajet->getPlacesTotal() - (int) $trajet->getPlacesRestantes();
+
+            if ($nouveauPlacesTotal < $placesReservees) {
+                return $this->json([
+                    'message' => 'Impossible de définir un nombre de places inférieur aux places déjà réservées'
+                ], 409);
+            }
+
+            $trajet->setPlacesTotal($nouveauPlacesTotal);
+            $trajet->setPlacesRestantes($nouveauPlacesTotal - $placesReservees);
+        }
+
+        if (array_key_exists('vehiculeId', $data)) {
+            $vehicule = $vehicules->find((int) $data['vehiculeId']);
+
+            if (!$vehicule) {
+                return $this->json(['message' => 'Véhicule introuvable'], 404);
+            }
+
+            if ($vehicule->getProprietaire()?->getId() !== $user->getId()) {
+                return $this->json(['message' => 'Ce véhicule ne vous appartient pas'], 403);
+            }
+
+            $trajet->setVehicule($vehicule);
+        }
+
+        $em->flush();
+
+        return $this->json([
+            'message' => 'Trajet mis à jour',
+            'trajet' => [
+                'id' => $trajet->getId(),
+                'departVille' => $trajet->getDepartVille(),
+                'arriveeVille' => $trajet->getArriveeVille(),
+                'dateDepart' => $trajet->getDateDepart()?->format('c'),
+                'prixParPlace' => $trajet->getPrixParPlace(),
+                'placesTotal' => $trajet->getPlacesTotal(),
+                'placesRestantes' => $trajet->getPlacesRestantes(),
+                'statut' => $trajet->getStatut(),
+                'vehicule' => $trajet->getVehicule() ? [
+                    'id' => $trajet->getVehicule()->getId(),
+                    'marque' => $trajet->getVehicule()->getMarque(),
+                    'modele' => $trajet->getVehicule()->getModele(),
+                    'energie' => $trajet->getVehicule()->getEnergie(),
+                ] : null,
+            ],
+        ], 200);
+    }
+
+    #[IsGranted('ROLE_CHAUFFEUR')]
+    #[Route('/api/trajets/{id}/annuler', name: 'api_trajet_annuler', methods: ['PATCH'])]
+    public function annuler(
+        int $id,
+        TrajetRepository $trajets,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        $trajet = $trajets->find($id);
+
+        if (!$trajet) {
+            return $this->json(['message' => 'Trajet introuvable'], 404);
+        }
+
+        $user = $this->getUser();
+        if (!$user instanceof Utilisateur) {
+            return $this->json(['message' => 'Non authentifié'], 401);
+        }
+
+        if ($trajet->getConducteur()?->getId() !== $user->getId()) {
+            return $this->json(['message' => 'Accès refusé'], 403);
+        }
+
+        if ($trajet->getStatut() === 'TERMINE') {
+            return $this->json(['message' => 'Impossible d’annuler un trajet terminé'], 409);
+        }
+
+        if ($trajet->getStatut() === 'ANNULE') {
+            return $this->json(['message' => 'Ce trajet est déjà annulé'], 409);
+        }
+
+        $nbReservationsAnnulees = 0;
+        $creditsRembourses = 0;
+
+        foreach ($trajet->getReservations() as $reservation) {
+            if ($reservation->getStatut() !== 'CONFIRMEE') {
+                continue;
+            }
+
+            $passager = $reservation->getPassager();
+            if (!$passager instanceof Utilisateur) {
+                continue;
+            }
+
+            $montant = ((int) $trajet->getPrixParPlace()) * ((int) $reservation->getNbPlaces());
+
+            $passager->setSoldeCredits(
+                ((int) $passager->getSoldeCredits()) + $montant
+            );
+
+            $reservation->setStatut('ANNULEE');
+
+            $transaction = (new TransactionCredit())
+                ->setUtilisateur($passager)
+                ->setReservation($reservation)
+                ->setTypeOperation('CREDIT')
+                ->setMontant($montant)
+                ->setMotif('Annulation trajet #' . $trajet->getId())
+                ->setDateCreation(new \DateTimeImmutable());
+
+            $em->persist($transaction);
+
+            $nbReservationsAnnulees++;
+            $creditsRembourses += $montant;
+        }
+
+        $trajet->setStatut('ANNULE');
+        $trajet->setPlacesRestantes($trajet->getPlacesTotal());
+
+        $em->flush();
+
+        return $this->json([
+            'message' => 'Trajet annulé',
+            'trajet' => [
+                'id' => $trajet->getId(),
+                'statut' => $trajet->getStatut(),
+                'placesRestantes' => $trajet->getPlacesRestantes(),
+            ],
+            'remboursements' => [
+                'reservationsAnnulees' => $nbReservationsAnnulees,
+                'creditsRembourses' => $creditsRembourses,
+            ],
+        ], 200);
     }
 
     #[IsGranted('ROLE_CHAUFFEUR')]
